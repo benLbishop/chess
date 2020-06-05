@@ -30,6 +30,135 @@ class TestMoveLogic(unittest.TestCase):
         self.assertFalse(ml.square_is_in_bounds(bad_col_square, self.board))
         self.assertTrue(ml.square_is_in_bounds(good_square, self.board))
 
+    def test_is_valid_knight_destination(self):
+        start_row = 3
+        start_col = 3
+        start = Square(start_row, start_col)
+
+        valid_dests = [
+            Square(start_row + 1, start_col + 2),
+            Square(start_row + 1, start_col - 2),
+            Square(start_row - 1, start_col + 2),
+            Square(start_row - 1, start_col - 2),
+            Square(start_row + 2, start_col + 1),
+            Square(start_row + 2, start_col - 1),
+            Square(start_row - 2, start_col + 1),
+            Square(start_row - 2, start_col - 1)
+        ]
+        for dest in valid_dests:
+            self.assertTrue(ml.is_valid_knight_destination(start, dest))
+
+        invalid_dests = [
+            Square(start_row, start_col + 3),
+            Square(start_row + 3, start_col),
+            Square(start_row - 1, start_col + 1),
+            Square(start_row + 4, start_col - 3)
+        ]
+        for dest in invalid_dests:
+            self.assertFalse(ml.is_valid_knight_destination(start, dest))
+
+    def test_is_valid_bishop_destination(self):
+        start_row = 5
+        start_col = 5
+        start = Square(start_row, start_col)
+
+        valid_dests = [
+            Square(start_row + 1, start_col + 1),
+            Square(start_row + 1, start_col - 1),
+            Square(start_row - 1, start_col + 1),
+            Square(start_row - 1, start_col - 1),
+            Square(start_row + 4, start_col + 4),
+            Square(start_row + 3, start_col - 3),
+            Square(start_row - 3, start_col + 3),
+            Square(start_row - 2, start_col - 2)
+        ]
+        for dest in valid_dests:
+            self.assertTrue(ml.is_valid_bishop_destination(start, dest))
+
+        invalid_dests = [
+            Square(start_row, start_col + 1),
+            Square(start_row + 3, start_col),
+            Square(start_row + 2, start_col + 4),
+            Square(start_row - 5, start_col + 4),
+            Square(start_row - 3, start_col + 6),
+        ]
+        for dest in invalid_dests:
+            self.assertFalse(ml.is_valid_bishop_destination(start, dest))
+
+    def test_is_valid_rook_destination(self):
+        start_row = 5
+        start_col = 5
+        start = Square(start_row, start_col)
+
+        valid_dests = [
+            Square(start_row, start_col + 1),
+            Square(start_row, start_col + 4),
+            Square(start_row, start_col - 2),
+            Square(start_row, start_col + 3),
+            Square(start_row + 2, start_col),
+            Square(start_row + 8, start_col),
+            Square(start_row - 1, start_col),
+            Square(start_row - 3, start_col),
+        ]
+        for dest in valid_dests:
+            self.assertTrue(ml.is_valid_rook_destination(start, dest))
+
+        invalid_dests = [
+            Square(start_row + 1, start_col + 1),
+            Square(start_row + 3, start_col+ 1),
+            Square(start_row - 2, start_col + 4),
+            Square(start_row - 5, start_col + 1),
+            Square(start_row - 3, start_col + 6),
+        ]
+        for dest in invalid_dests:
+            self.assertFalse(ml.is_valid_rook_destination(start, dest))
+
+    @patch.object(ml, 'is_valid_rook_destination')
+    @patch.object(ml, 'is_valid_bishop_destination')
+    def test_is_valid_queen_destination(self, bishop_mock, rook_mock):
+        # just test bishop/knight functions, since queen is combo of those
+        dummy_start = Square(0, 0)
+        dummy_end = Square(1, 1)
+        # can't have bishop and rook values both true, so don't need to test that case
+        bishop_mock.return_value = True
+        rook_mock.return_value = False
+        self.assertTrue(ml.is_valid_queen_destination(dummy_start, dummy_end))
+
+        bishop_mock.return_value = False
+        rook_mock.return_value = True
+        self.assertTrue(ml.is_valid_queen_destination(dummy_start, dummy_end))
+
+        bishop_mock.return_value = False
+        rook_mock.return_value = False
+        self.assertFalse(ml.is_valid_queen_destination(dummy_start, dummy_end))
+
+    def test_is_valid_king_destination(self):
+        start_row = 3
+        start_col = 3
+        start = Square(start_row, start_col)
+
+        valid_dests = [
+            Square(start_row, start_col + 1),
+            Square(start_row, start_col - 1),
+            Square(start_row + 1, start_col),
+            Square(start_row + 1, start_col + 1),
+            Square(start_row + 1, start_col - 1),
+            Square(start_row - 1, start_col),
+            Square(start_row - 1, start_col + 1),
+            Square(start_row - 1, start_col - 1)
+        ]
+        for dest in valid_dests:
+            self.assertTrue(ml.is_valid_king_destination(start, dest))
+
+        invalid_dests = [
+            Square(start_row, start_col + 2),
+            Square(start_row + 2, start_col),
+            Square(start_row - 1, start_col + 2),
+            Square(start_row + 4, start_col - 3)
+        ]
+        for dest in invalid_dests:
+            self.assertFalse(ml.is_valid_king_destination(start, dest))
+
     @patch.object(ml, 'is_valid_king_destination')
     @patch.object(ml, 'is_valid_queen_destination')
     @patch.object(ml, 'is_valid_rook_destination')
@@ -37,14 +166,14 @@ class TestMoveLogic(unittest.TestCase):
     @patch.object(ml, 'is_valid_knight_destination')
     @patch.object(ml, 'is_valid_pawn_destination')
     def test_is_valid_destination(
-        self,
-        pawn_mock,
-        knight_mock,
-        bishop_mock,
-        rook_mock,
-        queen_mock,
-        king_mock
-    ):
+            self,
+            pawn_mock,
+            knight_mock,
+            bishop_mock,
+            rook_mock,
+            queen_mock,
+            king_mock
+        ):
         # should call the appropriate fn based on the piece type
         pawn = Piece(PieceType.PAWN, ChessColor.WHITE)
         knight = Piece(PieceType.KNIGHT, ChessColor.WHITE)
@@ -56,6 +185,7 @@ class TestMoveLogic(unittest.TestCase):
         s1 = Square(0, 0)
         s2 = Square(1, 1)
 
+        # TODO: this needs to actually test that the piece type results in the proper method call
         ml.is_valid_destination(pawn, s1, s2)
         ml.is_valid_destination(knight, s1, s2)
         ml.is_valid_destination(bishop, s1, s2)
@@ -69,13 +199,6 @@ class TestMoveLogic(unittest.TestCase):
         rook_mock.assert_called_once()
         queen_mock.assert_called_once()
         king_mock.assert_called_once()
-
-        pawn_mock.assert_called_with(pawn, s1, s2)
-        knight_mock.assert_called_with(knight, s1, s2)
-        bishop_mock.assert_called_with(bishop, s1, s2)
-        rook_mock.assert_called_with(rook, s1, s2)
-        queen_mock.assert_called_with(queen, s1, s2)
-        king_mock.assert_called_with(king, s1, s2)
 
     @patch.object(ml, 'square_is_in_bounds')
     def test_validate_move(self, siib_mock):
