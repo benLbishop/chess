@@ -9,6 +9,10 @@ class TestSquare(unittest.TestCase):
 
     def test_init(self):
         '''Test the initial state after construction.'''
+        with self.assertRaises(ValueError):
+            Square(-1, 0)
+        with self.assertRaises(ValueError):
+            Square(0, -1)
         white_squares = [Square(0, 1), Square(3, 0), Square(8, 5), Square(3, 2)]
         black_squares = [Square(0, 0), Square(2, 0), Square(4, 6), Square(7, 1)]
 
