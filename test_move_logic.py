@@ -30,6 +30,51 @@ class TestMoveLogic(unittest.TestCase):
         self.assertFalse(ml.square_is_in_bounds(bad_col_square, self.board))
         self.assertTrue(ml.square_is_in_bounds(good_square, self.board))
 
+    def test_is_valid_pawn_destination(self):
+        start_row = 3
+        start_col = 3
+        start = Square(start_row, start_col)
+        # test white pawns
+        valid_white_dests = [
+            Square(start_row + 1, start_col),
+            Square(start_row + 1, start_col + 1),
+            Square(start_row + 1, start_col - 1),
+            Square(start_row + 2, start_col),
+        ]
+        valid_black_dests = [
+            Square(start_row - 1, start_col),
+            Square(start_row - 1, start_col + 1),
+            Square(start_row - 1, start_col - 1),
+            Square(start_row - 2, start_col),
+        ]
+        # test valid cases
+        for dest in valid_white_dests:
+            self.assertTrue(ml.is_valid_pawn_destination(start, dest, ChessColor.WHITE))
+
+        for dest in valid_black_dests:
+            self.assertTrue(ml.is_valid_pawn_destination(start, dest, ChessColor.BLACK))
+
+        # test invalid cases
+        # wrong color test
+        for dest in valid_white_dests:
+            self.assertFalse(ml.is_valid_pawn_destination(start, dest, ChessColor.BLACK))
+
+        for dest in valid_black_dests:
+            self.assertFalse(ml.is_valid_pawn_destination(start, dest, ChessColor.WHITE))
+        
+        # bad distance tests
+        invalid_dests = [
+            Square(start_row, start_col + 1),
+            Square(start_row + 2, start_col + 1),
+            Square(start_row - 2, start_col + 1),
+            Square(start_row + 4, start_col + 4)
+        ]
+        for dest in invalid_dests:
+            self.assertFalse(ml.is_valid_pawn_destination(start, dest, ChessColor.WHITE))
+            self.assertFalse(ml.is_valid_pawn_destination(start, dest, ChessColor.BLACK))
+
+
+
     def test_is_valid_knight_destination(self):
         start_row = 3
         start_col = 3
