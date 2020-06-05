@@ -5,18 +5,18 @@ from square import Square
 class TestSquare(unittest.TestCase):
 
     def setUp(self):
-        self.test_square = Square(ChessColor.WHITE)
+        self.test_square = Square(0, 0)
 
     def test_init(self):
         '''Test the initial state after construction.'''
-        white_square = Square(ChessColor.WHITE)
-        black_square = Square(ChessColor.BLACK)
+        white_squares = [Square(0, 1), Square(3, 0), Square(8, 5), Square(3, 2)]
+        black_squares = [Square(0, 0), Square(2, 0), Square(4, 6), Square(7, 1)]
 
-        self.assertEqual(white_square.color, ChessColor.WHITE)
-        self.assertEqual(black_square.color, ChessColor.BLACK)
+        for w_s in white_squares:
+            self.assertEqual(w_s.color, ChessColor.WHITE)
+        for b_s in black_squares:
+            self.assertEqual(b_s.color, ChessColor.BLACK)
 
-        # no piece to begin
-        self.assertIsNone(white_square.piece)
 
     def test_is_occupied(self):
         self.assertFalse(self.test_square.is_occupied())
