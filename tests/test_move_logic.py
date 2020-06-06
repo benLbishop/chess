@@ -1,15 +1,15 @@
 '''module for testing the move logic for chess.'''
 import unittest
 from unittest.mock import patch
-from square import Square
-from player import Player
-from piece import Piece
-from pieceType import PieceType
-from chessColor import ChessColor
-from chessEnums import MoveType
-from standardBoard import StandardBoard
-import move_logic as ml
-import custom_exceptions as ce
+from chessGame.square import Square
+from chessGame.player import Player
+from chessGame.piece import Piece
+from chessGame.pieceType import PieceType
+from chessGame.chessColor import ChessColor
+from chessGame.chessEnums import MoveType
+from chessGame.standardBoard import StandardBoard
+import chessGame.move_logic as ml
+import chessGame.custom_exceptions as ce
 
 class TestMoveLogic(unittest.TestCase):
     '''Class for testing the move logic for chess.'''
@@ -373,6 +373,8 @@ class TestMoveLogic(unittest.TestCase):
         self.board.clear()
         get_next_square_mock.side_effect = [(0, 1), (0, 2), (0, 3)]
         self.assertIsNone(ml.move_to_destination(start, e1, self.board, MoveType.RIGHT, ChessColor.WHITE))
+
+        # TODO: many more tests. pawns, castling, etc
 
     @patch.object(ml, 'move_to_destination')
     @patch.object(ml, 'get_necessary_move_type')

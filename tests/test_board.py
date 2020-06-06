@@ -1,8 +1,7 @@
 """Testing module for the Board class."""
 
 import unittest
-from board import Board
-import constants
+from chessGame import constants, board
 
 class TestBoard(unittest.TestCase):
     def test_init(self):
@@ -10,7 +9,7 @@ class TestBoard(unittest.TestCase):
         num_rows = constants.STD_BOARD_WIDTH
         num_cols = constants.STD_BOARD_HEIGHT
 
-        tb = Board(num_rows, num_cols)
+        tb = board.Board(num_rows, num_cols)
         # if dimensions become customizable, make sure they're > 0
         self.assertEqual(tb.NUM_ROWS, constants.STD_BOARD_WIDTH)
         self.assertEqual(tb.NUM_COLS, constants.STD_BOARD_HEIGHT)
@@ -19,10 +18,10 @@ class TestBoard(unittest.TestCase):
     def test_create_squares(self):
         #raise exception if board is too small
         with self.assertRaises(ValueError):
-            tb = Board(1, 10)
+            tb = board.Board(1, 10)
 
         with self.assertRaises(ValueError):
-            tb = Board(10, 1)
+            tb = board.Board(10, 1)
 
         dimen_list = [
             (constants.STD_BOARD_WIDTH, constants.STD_BOARD_HEIGHT),
@@ -30,7 +29,7 @@ class TestBoard(unittest.TestCase):
             (10, 7)
         ]
         for num_rows, num_cols in dimen_list:
-            tb = Board(num_rows, num_cols)
+            tb = board.Board(num_rows, num_cols)
             self.assertEqual(len(tb.squares), num_rows)
             for row in tb.squares:
                 self.assertEqual(len(row), num_cols)
@@ -39,7 +38,7 @@ class TestBoard(unittest.TestCase):
         '''Test the clearing function.'''
         num_rows = constants.STD_BOARD_WIDTH
         num_cols = constants.STD_BOARD_HEIGHT
-        tb = Board(num_rows, num_cols)
+        tb = board.Board(num_rows, num_cols)
 
         # TODO: decouple testing for this from Square logic
         # test clearing when board is already empty

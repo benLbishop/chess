@@ -1,6 +1,6 @@
 import unittest
-from chessColor import ChessColor
-from square import Square
+from chessGame.chessColor import ChessColor
+from chessGame.square import Square
 
 class TestSquare(unittest.TestCase):
 

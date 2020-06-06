@@ -1,7 +1,7 @@
 import unittest
-from piece import Piece
-from pieceType import PieceType
-from chessColor import ChessColor
+from chessGame.piece import Piece
+from chessGame.pieceType import PieceType
+from chessGame.chessColor import ChessColor
 
 class PieceTest(unittest.TestCase):
     """Testing for the Piece class."""

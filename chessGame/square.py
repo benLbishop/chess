@@ -1,5 +1,5 @@
 """Module for the Square class."""
-from chessColor import ChessColor
+from chessGame.chessColor import ChessColor
 
 class Square:
     """Class representing a square on the board."""
