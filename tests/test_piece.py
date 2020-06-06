@@ -1,7 +1,6 @@
 import unittest
 from chessGame.piece import Piece
-from chessGame.pieceType import PieceType
-from chessGame.chessColor import ChessColor
+from chessGame.chessEnums import ChessColor, PieceType
 
 class PieceTest(unittest.TestCase):
     """Testing for the Piece class."""

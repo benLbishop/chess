@@ -1,6 +1,6 @@
 """module containing the Board class."""
-from chessGame.square import Square
-import chessGame.constants as constants
+from .square import Square
+from . import constants
 
 class Board:
     """class representing a chess board of any size."""

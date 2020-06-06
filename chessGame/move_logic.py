@@ -1,8 +1,6 @@
 '''module containing functions for moving chess pieces.'''
-from chessGame.custom_exceptions import InvalidMoveException
-from chessGame.pieceType import PieceType
-from chessGame.chessColor import ChessColor
-from chessGame.chessEnums import MoveType
+from .custom_exceptions import InvalidMoveException
+from .chessEnums import ChessColor, PieceType, MoveType
 
 def square_is_in_bounds(sqr, brd):
     return sqr.row_idx < brd.NUM_ROWS and sqr.col_idx < brd.NUM_COLS

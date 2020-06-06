@@ -4,9 +4,7 @@ from unittest.mock import patch
 from chessGame.square import Square
 from chessGame.player import Player
 from chessGame.piece import Piece
-from chessGame.pieceType import PieceType
-from chessGame.chessColor import ChessColor
-from chessGame.chessEnums import MoveType
+from chessGame.chessEnums import ChessColor, PieceType, MoveType
 from chessGame.standardBoard import StandardBoard
 import chessGame.move_logic as ml
 import chessGame.custom_exceptions as ce

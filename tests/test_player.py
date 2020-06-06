@@ -1,7 +1,7 @@
 '''module for testing for the player class.'''
 import unittest
 from chessGame.player import Player
-from chessGame.chessColor import ChessColor
+from chessGame.chessEnums import ChessColor
 
 class TestPlayer(unittest.TestCase):
 
