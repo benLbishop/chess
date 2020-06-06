@@ -4,8 +4,9 @@ from unittest.mock import patch
 from chessGame.square import Square
 from chessGame.player import Player
 from chessGame.piece import Piece
-from chessGame.chessEnums import ChessColor, PieceType, MoveType
-from chessGame.standardBoard import StandardBoard
+from chessGame.enums import ChessColor, PieceType, MoveType
+from chessGame.board import Board
+from chessGame import constants
 import chessGame.move_logic as ml
 import chessGame.custom_exceptions as ce
 
@@ -13,8 +14,7 @@ class TestMoveLogic(unittest.TestCase):
     '''Class for testing the move logic for chess.'''
     @classmethod
     def setUpClass(cls):
-        # TODO: use base Board class
-        cls.board = StandardBoard()
+        cls.board = Board(constants.STD_BOARD_WIDTH, constants.STD_BOARD_HEIGHT)
         cls.player = Player(ChessColor.WHITE)
 
     def tearDown(self):
@@ -289,10 +289,6 @@ class TestMoveLogic(unittest.TestCase):
             ml.validate_move(s1, s2, self.board, self.player)
 
         attempt_move_mock.side_effect = None
-
-        
-        
-        # TODO: raise if move puts player into check
 
     def test_get_necessary_move_type(self):
         start_row, start_col = 4, 4

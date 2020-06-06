@@ -1,11 +1,13 @@
-'''module for testing for the player class.'''
+"""module for testing for the Player class."""
 import unittest
 from chessGame.player import Player
-from chessGame.chessEnums import ChessColor
+from chessGame.enums import ChessColor
 
 class TestPlayer(unittest.TestCase):
+    """tests for the Player class."""
 
     def test_init(self):
+        """tests the constructorr."""
         white_p = Player(ChessColor.WHITE)
         black_p = Player(ChessColor.BLACK)
 

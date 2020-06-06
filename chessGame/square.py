@@ -1,5 +1,5 @@
-"""Module for the Square class."""
-from .chessEnums import ChessColor
+"""module containing the Square class."""
+from .enums import ChessColor
 
 class Square:
     """Class representing a square on the board."""
@@ -22,7 +22,9 @@ class Square:
         return self.row_idx == other.row_idx and self.col_idx == other.col_idx
 
     def is_occupied(self):
+        """ returns a boolean indicating whether or not a piece is on this square. """
         return self.piece is not None
 
     def clear(self):
+        """ removes the piece (if there is one) from the square."""
         self.piece = None

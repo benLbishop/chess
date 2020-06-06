@@ -23,5 +23,6 @@ class Board:
             for square in row:
                 square.piece = None
 
-    def populate(self):
-        pass
+    def populate(self, piece_mapping):
+        """places the given pieces on the board."""
+        # TODO

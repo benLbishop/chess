@@ -1,12 +1,20 @@
-'''module containing functions for moving chess pieces.'''
+"""module containing functions for moving chess pieces."""
 from .custom_exceptions import InvalidMoveException
-from .chessEnums import ChessColor, PieceType, MoveType
+from .enums import ChessColor, PieceType, MoveType
 
 def square_is_in_bounds(sqr, brd):
+    """determine if a square is on the board.
+
+    Returns a boolean.
+    """
     return sqr.row_idx < brd.NUM_ROWS and sqr.col_idx < brd.NUM_COLS
 
 def is_valid_pawn_destination(start_square, end_square, color):
-    # TODO: check special conditions. std capture, en-passant, first move
+    """checks to see if movement from start_square to end_square is possible
+        for a pawn, pretending that no other pieces exist on the board.
+
+        Returns a boolean.
+    """
     row_offset = end_square.row_idx - start_square.row_idx
     col_offset = end_square.col_idx - start_square.col_idx
     # pawn can't move side to side or more than 2 rows
@@ -33,33 +41,62 @@ def is_valid_pawn_destination(start_square, end_square, color):
     return abs(col_offset < 2)
 
 def is_valid_knight_destination(start_square, end_square):
+    """checks to see if movement from start_square to end_square is possible
+        for a knight, pretending that no other pieces exist on the board.
+
+        Returns a boolean.
+    """
     row_dist = abs(start_square.row_idx - end_square.row_idx)
     col_dist = abs(start_square.col_idx - end_square.col_idx)
     return (row_dist == 2 and col_dist == 1) or (row_dist == 1 and col_dist == 2)
 
 def is_valid_bishop_destination(start_square, end_square):
+    """checks to see if movement from start_square to end_square is possible
+        for a bishop, pretending that no other pieces exist on the board.
+
+        Returns a boolean.
+    """
     row_dist = abs(start_square.row_idx - end_square.row_idx)
     col_dist = abs(start_square.col_idx - end_square.col_idx)
     return row_dist == col_dist
 
 def is_valid_rook_destination(start_square, end_square):
+    """checks to see if movement from start_square to end_square is possible
+        for a rook, pretending that no other pieces exist on the board.
+
+        Returns a boolean.
+    """
     row_dist = abs(start_square.row_idx - end_square.row_idx)
     col_dist = abs(start_square.col_idx - end_square.col_idx)
     return row_dist == 0 or col_dist == 0
 
 def is_valid_queen_destination(start_square, end_square):
+    """checks to see if movement from start_square to end_square is possible
+        for a queen, pretending that no other pieces exist on the board.
+
+        Returns a boolean.
+    """
     valid_bishop_move = is_valid_bishop_destination(start_square, end_square)
     valid_rook_move = is_valid_rook_destination(start_square, end_square)
     return valid_bishop_move or valid_rook_move
 
 def is_valid_king_destination(start_square, end_square):
-    # TODO: castling
+    """checks to see if movement from start_square to end_square is possible
+        for a king, pretending that no other pieces exist on the board.
+
+        Returns a boolean.
+    """
     row_dist = abs(start_square.row_idx - end_square.row_idx)
     col_dist = abs(start_square.col_idx - end_square.col_idx)
     return row_dist < 2 and col_dist < 2
 
 # TODO: this feels gross. There has to be a better way to do this
 def is_valid_destination(piece, start_square, end_square):
+    """Based on the piece type, checks to see if a move from start_square to end_square is possible,
+        pretending that no other pieces exist on the board.
+
+        Returns a boolean.
+    """
     if piece.name is PieceType.KING:
         return is_valid_king_destination(start_square, end_square)
     if piece.name is PieceType.QUEEN:
@@ -74,10 +111,10 @@ def is_valid_destination(piece, start_square, end_square):
     return is_valid_pawn_destination(start_square, end_square, piece.color)
 
 def validate_move(start_square, end_square, board, player):
-    '''Attempts to move a piece from one square to another.
+    """Attempts to move a piece from one square to another.
 
         Raises an InvalidMoveException if the move is illegal for some reason.
-    '''
+    """
     if not square_is_in_bounds(start_square, board):
         raise InvalidMoveException('starting square OOB')
 
@@ -96,10 +133,15 @@ def validate_move(start_square, end_square, board, player):
 
     try:
         attempt_move(start_piece, start_square, end_square, board)
-    except InvalidMoveException as e:
-        raise e
+    except InvalidMoveException as err:
+        raise err
 
 def get_necessary_move_type(start_square, end_square):
+    """Returns the MoveType required to properly get to end_square from start_square.
+        Assumes that movement from start_square to end_square is possible in a legal chess move.
+
+        Returns a boolean.
+    """
     row_diff = end_square.row_idx - start_square.row_idx
     col_diff = end_square.col_idx - start_square.col_idx
     if col_diff == 0:
@@ -113,26 +155,32 @@ def get_necessary_move_type(start_square, end_square):
     return MoveType.DOWN_RIGHT if col_diff > 0 else MoveType.DOWN_LEFT
 
 def get_next_square_indexes(cur_square, move_type):
-    r = cur_square.row_idx
-    c = cur_square.col_idx
+    """Returns a tuple containing the square from moving from cur_square using move_type.
+    """
+    r_idx = cur_square.row_idx
+    c_idx = cur_square.col_idx
     if move_type is MoveType.UP:
-        return (r + 1, c)
+        return (r_idx + 1, c_idx)
     if move_type is MoveType.DOWN:
-        return (r - 1, c)
+        return (r_idx - 1, c_idx)
     if move_type is MoveType.LEFT:
-        return (r, c - 1)
+        return (r_idx, c_idx - 1)
     if move_type is MoveType.RIGHT:
-        return (r, c + 1)
+        return (r_idx, c_idx + 1)
     if move_type is MoveType.UP_LEFT:
-        return (r + 1, c - 1)
+        return (r_idx + 1, c_idx - 1)
     if move_type is MoveType.UP_RIGHT:
-        return (r + 1, c + 1)
+        return (r_idx + 1, c_idx + 1)
     if move_type is MoveType.DOWN_LEFT:
-        return (r - 1, c - 1)
-    if move_type is MoveType.DOWN_RIGHT:
-        return (r - 1, c + 1)
+        return (r_idx - 1, c_idx - 1)
+    # MoveType.DOWN_RIGHT:
+    return (r_idx - 1, c_idx + 1)
 
 def move_to_destination(start_square, end_square, board, move_type, piece_color):
+    """Attempts to 'complete' the movement from start_square to end_square.
+
+    Raises an InvalidMoveException if the move is illegal for some reason.
+    """
     cur_square = start_square
     while True:
         next_row_idx, next_col_idx = get_next_square_indexes(cur_square, move_type)
@@ -148,8 +196,16 @@ def move_to_destination(start_square, end_square, board, move_type, piece_color)
         # raise if piece cannot move due to a blocking piece
         if cur_square.is_occupied():
             raise InvalidMoveException('destination not reachable due to block')
+    # TODO: test check
+    # TODO: test special conditions. std capture, en-passant, first move
+    # TODO: test castling
 
+# TODO: rename
 def attempt_move(piece, start_square, end_square, board):
+    """Tests if movement from start_square to end_square is possible for the given piece.
+
+    Raises an InvalidMoveException if the move is illegal for some reason.
+    """
     # check if we can reach destination given the piece's moveset
     if not is_valid_destination(piece, start_square, end_square):
         raise InvalidMoveException('destination not reachable with piece')
@@ -158,5 +214,5 @@ def attempt_move(piece, start_square, end_square, board):
     # move one square at a time
     try:
         move_to_destination(start_square, end_square, board, move_type, piece.color)
-    except InvalidMoveException as e:
-        raise e
+    except InvalidMoveException as err:
+        raise err
