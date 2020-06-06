@@ -1,4 +1,4 @@
-'''module for testing the move logic for chess.'''
+"""module for testing the move logic."""
 import unittest
 from unittest.mock import patch
 from chessGame.square import Square
@@ -11,7 +11,8 @@ import chessGame.move_logic as ml
 import chessGame.custom_exceptions as ce
 
 class TestMoveLogic(unittest.TestCase):
-    '''Class for testing the move logic for chess.'''
+    """tests for the move logic."""
+
     @classmethod
     def setUpClass(cls):
         cls.board = Board(constants.STD_BOARD_WIDTH, constants.STD_BOARD_HEIGHT)
@@ -21,7 +22,7 @@ class TestMoveLogic(unittest.TestCase):
         self.board.clear()
 
     def test_square_is_in_bounds(self):
-        # squares cannot be constructed with negative bounds, so just test if row/col length exceeded
+        # squares can't be constructed with negative bounds, so just test if row/col length exceeded
         num_rows = self.board.NUM_ROWS
         num_cols = self.board.NUM_COLS
         bad_row_square = Square(num_rows, 0)
@@ -63,7 +64,7 @@ class TestMoveLogic(unittest.TestCase):
 
         for dest in valid_black_dests:
             self.assertFalse(ml.is_valid_pawn_destination(start, dest, ChessColor.WHITE))
-        
+
         # bad distance tests
         invalid_dests = [
             Square(start_row, start_col + 1),
@@ -229,16 +230,16 @@ class TestMoveLogic(unittest.TestCase):
         queen = Piece(PieceType.QUEEN, ChessColor.WHITE)
         king = Piece(PieceType.KING, ChessColor.WHITE)
 
-        s1 = Square(0, 0)
-        s2 = Square(1, 1)
+        start = Square(0, 0)
+        end = Square(1, 1)
 
         # TODO: this needs to actually test that the piece type results in the proper method call
-        ml.is_valid_destination(pawn, s1, s2)
-        ml.is_valid_destination(knight, s1, s2)
-        ml.is_valid_destination(bishop, s1, s2)
-        ml.is_valid_destination(rook, s1, s2)
-        ml.is_valid_destination(queen, s1, s2)
-        ml.is_valid_destination(king, s1, s2)
+        ml.is_valid_destination(pawn, start, end)
+        ml.is_valid_destination(knight, start, end)
+        ml.is_valid_destination(bishop, start, end)
+        ml.is_valid_destination(rook, start, end)
+        ml.is_valid_destination(queen, start, end)
+        ml.is_valid_destination(king, start, end)
 
         pawn_mock.assert_called_once()
         knight_mock.assert_called_once()
@@ -250,43 +251,43 @@ class TestMoveLogic(unittest.TestCase):
     @patch.object(ml, 'attempt_move')
     @patch.object(ml, 'square_is_in_bounds')
     def test_validate_move(self, siib_mock, attempt_move_mock):
-        '''test main logic for if a move is legal.'''
+        """test main logic for if a move is legal."""
         white_piece = Piece(PieceType.QUEEN, ChessColor.WHITE)
-        s1 = Square(0, 0)
-        s1.piece = white_piece
+        start = Square(0, 0)
+        start.piece = white_piece
         black_piece = Piece(PieceType.QUEEN, ChessColor.BLACK)
-        s2 = Square(0, 1)
-        s2.piece = black_piece
+        end = Square(0, 1)
+        end.piece = black_piece
         # should raise error if start square not in bounds
         siib_mock.side_effect = [False, True]
         with self.assertRaises(ce.InvalidMoveException):
-            ml.validate_move(s1, s2, self.board, self.player)
+            ml.validate_move(start, end, self.board, self.player)
 
         # should raise error if end square not in bounds
         siib_mock.side_effect = [True, False]
         with self.assertRaises(ce.InvalidMoveException):
-            ml.validate_move(s1, s2, self.board, self.player)
+            ml.validate_move(start, end, self.board, self.player)
         # reset siib_mock
         siib_mock.side_effect = None
         siib_mock.return_value = True
 
         # should raise if squares are equal
         with self.assertRaises(ce.InvalidMoveException):
-            ml.validate_move(s1, s1, self.board, self.player)
+            ml.validate_move(start, start, self.board, self.player)
 
         # raise if no piece in start square
         with self.assertRaises(ce.InvalidMoveException):
             empty_start = Square(0, 0)
-            ml.validate_move(empty_start, s2, self.board, self.player)
-        
+            ml.validate_move(empty_start, end, self.board, self.player)
+
         # raise if moving piece color is not player's color
         with self.assertRaises(ce.InvalidMoveException):
-            ml.validate_move(s2, s1, self.board, self.player)
+            ml.validate_move(end, start, self.board, self.player)
 
         attempt_move_mock.side_effect = ce.InvalidMoveException('mocked exception')
         # raise if attempt_move fails
         with self.assertRaises(ce.InvalidMoveException):
-            ml.validate_move(s1, s2, self.board, self.player)
+            ml.validate_move(start, end, self.board, self.player)
 
         attempt_move_mock.side_effect = None
 
@@ -346,27 +347,27 @@ class TestMoveLogic(unittest.TestCase):
         black_pawn = Piece(PieceType.PAWN, ChessColor.BLACK)
         squares[0][2].piece = white_pawn
 
-        e1 = squares[0][3]
+        end1 = squares[0][3]
         # should raise if we come across a piece on square that's not destination
         get_next_square_mock.side_effect = [(0, 1), (0, 2)]
         with self.assertRaises(ce.InvalidMoveException):
-            ml.move_to_destination(start, e1, self.board, MoveType.RIGHT, ChessColor.WHITE)
-        
+            ml.move_to_destination(start, end1, self.board, MoveType.RIGHT, ChessColor.WHITE)
+
         # should raise if piece on destination is same color
-        e2 = squares[0][2]
+        end2 = squares[0][2]
         get_next_square_mock.side_effect = [(0, 1), (0, 2)]
         with self.assertRaises(ce.InvalidMoveException):
-            ml.move_to_destination(start, e2, self.board, MoveType.RIGHT, ChessColor.WHITE)
+            ml.move_to_destination(start, end2, self.board, MoveType.RIGHT, ChessColor.WHITE)
 
         # should return safely if piece on destination is opponent's
         squares[0][2].piece = black_pawn
         get_next_square_mock.side_effect = [(0, 1), (0, 2)]
-        self.assertIsNone(ml.move_to_destination(start, e2, self.board, MoveType.RIGHT, ChessColor.WHITE))
+        self.assertIsNone(ml.move_to_destination(start, end2, self.board, MoveType.RIGHT, ChessColor.WHITE))
 
         # should return safely if no piece in path
         self.board.clear()
         get_next_square_mock.side_effect = [(0, 1), (0, 2), (0, 3)]
-        self.assertIsNone(ml.move_to_destination(start, e1, self.board, MoveType.RIGHT, ChessColor.WHITE))
+        self.assertIsNone(ml.move_to_destination(start, end1, self.board, MoveType.RIGHT, ChessColor.WHITE))
 
         # TODO: many more tests. pawns, castling, etc
 
@@ -398,5 +399,6 @@ class TestMoveLogic(unittest.TestCase):
         move_mock.side_effect = None
         # should successfully complete otherwise
         self.assertIsNone(ml.attempt_move(pawn, start, end, self.board))
+
 if __name__ == '__main__':
     unittest.main()
