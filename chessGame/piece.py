@@ -11,4 +11,15 @@ class Piece:
 
     def __str__(self):
         # TODO: test
-        return "{} {}".format(self.color, self.name)
+        return "{} {} at {}, {}".format(self.color, self.name, self.row_idx, self.col_idx)
+
+    def __eq__(self, other):
+        if self.name is not other.name:
+            return False
+        if self.color is not other.color:
+            return False
+        if self.row_idx != other.row_idx:
+            return False
+        if self.col_idx != other.col_idx:
+            return False
+        return True

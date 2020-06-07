@@ -16,5 +16,20 @@ class PieceTest(unittest.TestCase):
         self.assertEqual(pawn.col_idx, col_idx)
         self.assertEqual(pawn.has_moved, False)
 
+    def test_eq(self):
+        """test the __eq__ classmethod."""
+        p = Piece(PieceType.PAWN, ChessColor.BLACK, 3, 4)
+        p2 = Piece(PieceType.PAWN, ChessColor.BLACK, 3, 4)
+        p3 = Piece(PieceType.PAWN, ChessColor.WHITE, 3, 4)
+        p4 = Piece(PieceType.PAWN, ChessColor.BLACK, 0, 4)
+        p5 = Piece(PieceType.PAWN, ChessColor.BLACK, 3, 0)
+        rook = Piece(PieceType.ROOK, ChessColor.BLACK, 3, 4)
+
+        self.assertEqual(p, p2)
+        self.assertNotEqual(p, p3)
+        self.assertNotEqual(p, p4)
+        self.assertNotEqual(p, p5)
+        self.assertNotEqual(p, rook)
+
 if __name__ == '__main__':
     unittest.main()

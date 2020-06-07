@@ -132,15 +132,14 @@ class ConversionTest(unittest.TestCase):
 
     def test_parse_piece_string(self):
         # should handle white space
-        # test_cases = [
-        #     ('w a4', Piece(PieceType.PAWN, ChessColor.WHITE)),
-        #     ('b Ka4', Piece(PieceType.KNIGHT, ChessColor.BLACK)),
-        # ]
-        # for piece_str, result in test_cases:
-        #     self.assertEqual(conv.parse_piece_string(piece_str), result)
-
-        # TODO
-        pass
+        test_cases = [
+            ('w a4', Piece(PieceType.PAWN, ChessColor.WHITE, 3, 0)),
+            ('b Na4', Piece(PieceType.KNIGHT, ChessColor.BLACK, 3, 0)),
+        ]
+        # TODO: more tests, failure cases
+        for piece_str, expected_res in test_cases:
+            res = conv.parse_piece_string(piece_str)
+            self.assertEqual(res, expected_res)
 
     @patch.object(conv, 'parse_piece_string')
     def test_convert_strings_to_pieces(self, parse_string_mock):
