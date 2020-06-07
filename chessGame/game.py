@@ -43,6 +43,7 @@ class Game:
     def _validate_initial_game_state(self):
         # both players have exactly 1 king (maybe at least 1 in the future)
         # neither player is starting in checkmate/stalemate
+        # TODO: test
         pass
 
     # TODO; rename
@@ -50,7 +51,7 @@ class Game:
         """Given the user's input, tries to move a piece to a new square."""
         # validate move
         # see if move results in player putting themselves in check, raise if so
-        # update pieces, perform captures
+        # update pieces, perform captures (update piece.has_moved)
         # see if opponent is now in check/checkmate/stalemate
         # log move w/ notation
         # switch turns

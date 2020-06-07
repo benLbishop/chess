@@ -110,9 +110,8 @@ def is_valid_destination(piece, start_square, end_square):
     #pawn
     return is_valid_pawn_destination(start_square, end_square, piece.color)
 
-# TODO: rename
 def validate_move(start_square, end_square, board, player):
-    """Attempts to move a piece from one square to another.
+    """Runs the attempted move through a series of preliminary checks.
 
         Raises an InvalidMoveException if the move is illegal for some reason.
     """
@@ -132,10 +131,9 @@ def validate_move(start_square, end_square, board, player):
     if start_piece.color is not player.color:
         raise InvalidMoveException('piece is not controlled by player')
 
-    try:
-        return get_move_path(start_piece, start_square, end_square, board)
-    except InvalidMoveException as err:
-        raise err
+    # check if we can reach destination given the piece's moveset
+    if not is_valid_destination(start_piece, start_square, end_square):
+        raise InvalidMoveException('destination not reachable with piece')
 
 def get_necessary_move_type(start_square, end_square):
     """Returns the MoveType required to properly get to end_square from start_square.
@@ -210,29 +208,25 @@ def get_pawn_path_to_destination(start_square, end_square, board, pawn):
         raise InvalidMoveException('cannot move into square occupied by player piece')
     return path
 
-def get_path_to_destination(start_square, end_square, board, piece):
-    """Attempts to get the path from start_square to end_square.
+def get_knight_path_to_destination(end_square, piece):
+    """Attempts to get the path for knights.
 
     Raises an InvalidMoveException if the move is illegal for some reason.
     """
-    # TODO: how do castle
-    if piece.name is PieceType.PAWN:
-        try:
-            return get_pawn_path_to_destination(start_square, end_square, board, piece)
-        except InvalidMoveException as err:
-            raise err
-
-    if piece.name is PieceType.KNIGHT:
-        # just need to check end square
-        path = [end_square]
-        if not end_square.is_occupied():
-            return path
-        if end_square.piece.color is piece.color:
-            raise InvalidMoveException('cannot move into square occupied by player piece')
-        # capturing opponent piece
+    path = [end_square]
+    if not end_square.is_occupied():
         return path
+    if end_square.piece.color is piece.color:
+        raise InvalidMoveException('cannot move into square occupied by player piece')
+    # capturing opponent piece
+    return path
 
-    # left with bishop, rook, queen, king
+# TODO: rename
+def get_others_path_to_destination(start_square, end_square, board, piece):
+    """Attempts to get the path for bishops, rooks, queens, and kings.
+
+    Raises an InvalidMoveException if the move is illegal for some reason.
+    """
     # get the movement necessary to reach destination
     move_type = get_necessary_move_type(start_square, end_square)
 
@@ -256,14 +250,31 @@ def get_path_to_destination(start_square, end_square, board, piece):
             raise InvalidMoveException('destination not reachable due to block')
         path.append(cur_square)
 
-def get_move_path(piece, start_square, end_square, board):
+def get_path_to_destination(start_square, end_square, board, piece):
+    """Attempts to get the path from start_square to end_square.
+
+    Raises an InvalidMoveException if the move is illegal for some reason.
+    """
+    # TODO: how do castle
+    try:
+        if piece.name is PieceType.PAWN:
+            return get_pawn_path_to_destination(start_square, end_square, board, piece)
+        if piece.name is PieceType.KNIGHT:
+            return get_knight_path_to_destination(end_square, piece)
+        # bishop, rook, queen, or king
+        return get_others_path_to_destination(start_square, end_square, board, piece)
+    except InvalidMoveException as err:
+        raise err
+
+def get_move_path(piece, start_square, end_square, board, player):
     """Tries to get the path for the given move.
 
     Raises an InvalidMoveException if the path cannot be found.
     """
-    # check if we can reach destination given the piece's moveset
-    if not is_valid_destination(piece, start_square, end_square):
-        raise InvalidMoveException('destination not reachable with piece')
+    try:
+        validate_move(start_square, end_square, board, player)
+    except InvalidMoveException as err:
+        raise err
     # get the path
     try:
         return get_path_to_destination(start_square, end_square, board, piece)

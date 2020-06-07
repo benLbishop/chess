@@ -251,9 +251,9 @@ class TestMoveLogic(unittest.TestCase):
         queen_mock.assert_called_once()
         king_mock.assert_called_once()
 
-    @patch.object(ml, 'get_move_path')
+    @patch.object(ml, 'is_valid_destination')
     @patch.object(ml, 'square_is_in_bounds')
-    def test_validate_move(self, siib_mock, get_move_path_mock):
+    def test_validate_move(self, siib_mock, valid_dest_mock):
         """test main logic for if a move is legal."""
         white_piece = Piece(PieceType.QUEEN, ChessColor.WHITE, 0, 0)
         start = Square(0, 0)
@@ -287,17 +287,14 @@ class TestMoveLogic(unittest.TestCase):
         with self.assertRaises(ce.InvalidMoveException):
             ml.validate_move(end, start, self.board, self.player)
 
-        get_move_path_mock.side_effect = ce.InvalidMoveException('mocked exception')
-        # raise if get_move_path fails
+        valid_dest_mock.return_value = False
+        # raise if is_valid_destination is False
         with self.assertRaises(ce.InvalidMoveException):
             ml.validate_move(start, end, self.board, self.player)
 
-        get_move_path_mock.side_effect = None
-        # should return the move path otherwise
-        dummy_path = ['dummy', 'path']
-        get_move_path_mock.return_value = dummy_path
-        res = ml.validate_move(start, end, self.board, self.player)
-        self.assertEqual(res, dummy_path)
+        valid_dest_mock.return_value = True
+        # should successfully complete otherwise
+        self.assertIsNone(ml.validate_move(start, end, self.board, self.player))
 
     def test_get_necessary_move_type(self):
         start_row, start_col = 4, 4
@@ -402,17 +399,79 @@ class TestMoveLogic(unittest.TestCase):
         with self.assertRaises(ce.InvalidMoveException):
             ml.get_path_to_destination(start, diag_end2, self.board, pawn)
 
+    def test_get_knight_path_to_destination(self):
+        squares = self.board.squares
+        end = squares[2][1]
+        knight = Piece(PieceType.KNIGHT, ChessColor.WHITE, 0, 0)
+
+        # should raise if player's piece is on end_square
+        end_pawn = Piece(PieceType.PAWN, ChessColor.WHITE, 2, 1)
+        end.piece = end_pawn
+        with self.assertRaises(ce.InvalidMoveException):
+            ml.get_knight_path_to_destination(end, knight)
+
+        # should return path if opponent's piece is on end_square
+        end_pawn.color = ChessColor.BLACK
+        res = ml.get_knight_path_to_destination(end, knight)
+        self.assertEqual(res, [end])
+
+        # should return path if no piece on end_square
+        self.board.clear()
+        res = ml.get_knight_path_to_destination(end, knight)
+        self.assertEqual(res, [end])
+
     @patch.object(ml, 'get_next_square_indexes')
     @patch.object(ml, 'get_necessary_move_type')
+    def test_get_others_path_to_destination(self, gnmt_mock, get_next_square_mock):
+        squares = self.board.squares
+        start = squares[0][0]
+        gnmt_mock.return_value = MoveType.RIGHT
+
+        self.board.clear()
+        rook = Piece(PieceType.ROOK, ChessColor.WHITE, 0, 0)
+        start.piece = rook
+        white_pawn = Piece(PieceType.PAWN, ChessColor.WHITE, 0, 0)
+        black_pawn = Piece(PieceType.PAWN, ChessColor.BLACK, 0, 0)
+        squares[0][2].piece = white_pawn
+        end2 = squares[0][3]
+        # should raise if we come across a piece on square that's not destination
+        get_next_square_mock.side_effect = [(0, 1), (0, 2)]
+        with self.assertRaises(ce.InvalidMoveException):
+            ml.get_others_path_to_destination(start, end2, self.board, rook)
+
+        # should raise if piece on destination is same color
+        end3 = squares[0][2]
+        get_next_square_mock.side_effect = [(0, 1), (0, 2)]
+        with self.assertRaises(ce.InvalidMoveException):
+            ml.get_others_path_to_destination(start, end3, self.board, rook)
+
+        # should return safely if piece on destination is opponent's
+        squares[0][2].piece = black_pawn
+        get_next_square_mock.side_effect = [(0, 1), (0, 2)]
+        res = ml.get_others_path_to_destination(start, end3, self.board, rook)
+        self.assertEqual(res, [squares[0][1], squares[0][2]])
+
+        # should return safely if no piece in path
+        self.board.clear()
+        get_next_square_mock.side_effect = [(0, 1), (0, 2), (0, 3)]
+        res = ml.get_others_path_to_destination(start, end2, self.board, rook)
+        self.assertEqual(res, [squares[0][1], squares[0][2], squares[0][3]])
+
+        # TODO: many more tests
+    
+    @patch.object(ml, 'get_others_path_to_destination')
+    @patch.object(ml, 'get_knight_path_to_destination')
     @patch.object(ml, 'get_pawn_path_to_destination')
-    def test_get_path_to_destination(self, pptd_mock, gnmt_mock, get_next_square_mock):
+    def test_get_path_to_destination(self, pptd_mock, kptd_mock, optd_mock):
         # TODO: break up/clean up this test
         squares = self.board.squares
         start = squares[0][0]
 
-        pawn_return_val = [start]
+        pawn_return_val = ['pawn', 'path']
         pptd_mock.return_value = pawn_return_val
-        gnmt_mock.return_value = MoveType.RIGHT
+
+        knight_return_val = ['knight', 'path']
+        kptd_mock.return_value = knight_return_val
 
         # should call pawn function if appropriate
         # should raise if pawn function raises
@@ -428,85 +487,61 @@ class TestMoveLogic(unittest.TestCase):
         self.assertEqual(res, pawn_return_val)
 
         # should handle knights appropriately
+        # should raise if knight function raises
         knight = Piece(PieceType.KNIGHT, ChessColor.WHITE, 0, 0)
-        start.piece = knight
-        end1 = squares[2][1]
-
-        # should raise if player's piece is on end_square
-        end_pawn = Piece(PieceType.PAWN, ChessColor.WHITE, 2, 1)
-        end1.piece = end_pawn
+        knight_end = squares[2][1]
+        kptd_mock.side_effect = ce.InvalidMoveException('dummy exception')
         with self.assertRaises(ce.InvalidMoveException):
-            ml.get_path_to_destination(start, end1, self.board, knight)
+            ml.get_path_to_destination(start, knight_end, self.board, knight)
 
-        # should return path if opponent's piece is on end_square
-        end_pawn.color = ChessColor.BLACK
-        res = ml.get_path_to_destination(start, end1, self.board, knight)
-        self.assertEqual(res, [end1])
-
-        # should return path if no piece on end_square
-        self.board.clear()
-        res = ml.get_path_to_destination(start, end1, self.board, knight)
-        gnmt_mock.assert_not_called()
-        get_next_square_mock.assert_not_called()
-        self.assertEqual(res, [end1])
+        # should return the knights's function response otherwise
+        kptd_mock.side_effect = None
+        res = ml.get_path_to_destination(start, knight_end, self.board, knight)
+        self.assertEqual(res, knight_return_val)
 
         # should handle other piece types properly
-        self.board.clear()
-        rook = Piece(PieceType.ROOK, ChessColor.WHITE, 0, 0)
-        start.piece = rook
-        white_pawn = Piece(PieceType.PAWN, ChessColor.WHITE, 0, 0)
-        black_pawn = Piece(PieceType.PAWN, ChessColor.BLACK, 0, 0)
-        squares[0][2].piece = white_pawn
-        end2 = squares[0][3]
-        # should raise if we come across a piece on square that's not destination
-        get_next_square_mock.side_effect = [(0, 1), (0, 2)]
-        with self.assertRaises(ce.InvalidMoveException):
-            ml.get_path_to_destination(start, end2, self.board, rook)
+        other_pieces = [
+            Piece(PieceType.ROOK, ChessColor.WHITE, 0, 0),
+            Piece(PieceType.BISHOP, ChessColor.WHITE, 0, 0),
+            Piece(PieceType.QUEEN, ChessColor.WHITE, 0, 0),
+            Piece(PieceType.KING, ChessColor.WHITE, 0, 0)
+        ]
+        optd_mock.side_effect = ce.InvalidMoveException('dummy exception')
+        for piece in other_pieces:
+            with self.assertRaises(ce.InvalidMoveException):
+                ml.get_path_to_destination(start, knight_end, self.board, piece)
 
-        # should raise if piece on destination is same color
-        end3 = squares[0][2]
-        get_next_square_mock.side_effect = [(0, 1), (0, 2)]
-        with self.assertRaises(ce.InvalidMoveException):
-            ml.get_path_to_destination(start, end3, self.board, rook)
-
-        # should return safely if piece on destination is opponent's
-        squares[0][2].piece = black_pawn
-        get_next_square_mock.side_effect = [(0, 1), (0, 2)]
-        res = ml.get_path_to_destination(start, end3, self.board, rook)
-        self.assertEqual(res, [squares[0][1], squares[0][2]])
-
-        # should return safely if no piece in path
-        self.board.clear()
-        get_next_square_mock.side_effect = [(0, 1), (0, 2), (0, 3)]
-        res = ml.get_path_to_destination(start, end2, self.board, rook)
-        self.assertEqual(res, [squares[0][1], squares[0][2], squares[0][3]])
-
-        # TODO: many more tests. pawns, castling, etc
+        optd_mock.side_effect = None
+        dummy_path = ['other', 'dummy', 'path']
+        optd_mock.return_value = dummy_path
+        for piece in other_pieces:
+            res = ml.get_path_to_destination(start, knight_end, self.board, piece)
+            self.assertEqual(res, dummy_path)
 
     @patch.object(ml, 'get_path_to_destination')
-    @patch.object(ml, 'is_valid_destination')
-    def test_get_move_path(self, valid_dest_mock, move_mock):
+    @patch.object(ml, 'validate_move')
+    def test_get_move_path(self, validate_move_mock, move_mock):
         start = Square(0, 0)
         end = Square(1, 1)
         pawn = Piece(PieceType.PAWN, ChessColor.WHITE, 0, 0)
 
-        # raise if destination is not reachable
-        valid_dest_mock.return_value = False
+        # raise if validation fails
+        validate_move_mock.side_effect = ce.InvalidMoveException('dummy exception')
         with self.assertRaises(ce.InvalidMoveException):
-            ml.get_move_path(pawn, start, end, self.board)
+            ml.get_move_path(pawn, start, end, self.board, self.player)
 
-        valid_dest_mock.return_value = True
+        validate_move_mock.side_effect = None
 
         # raise if get_path_to_destination throws
         move_mock.side_effect = ce.InvalidMoveException('mock exception')
         with self.assertRaises(ce.InvalidMoveException):
-            ml.get_move_path(pawn, start, end, self.board)
+            ml.get_move_path(pawn, start, end, self.board, self.player)
 
         move_mock.side_effect = None
         dummy_path = ['dummy', 'path']
         move_mock.return_value = dummy_path
         # should successfully complete otherwise
-        res = ml.get_move_path(pawn, start, end, self.board)
+        res = ml.get_move_path(pawn, start, end, self.board, self.player)
         self.assertEqual(res, dummy_path)
 
     @patch.object(ml, 'validate_move')
