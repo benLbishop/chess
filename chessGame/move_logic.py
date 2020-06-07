@@ -110,6 +110,7 @@ def is_valid_destination(piece, start_square, end_square):
     #pawn
     return is_valid_pawn_destination(start_square, end_square, piece.color)
 
+# TODO: rename
 def validate_move(start_square, end_square, board, player):
     """Attempts to move a piece from one square to another.
 
@@ -132,7 +133,7 @@ def validate_move(start_square, end_square, board, player):
         raise InvalidMoveException('piece is not controlled by player')
 
     try:
-        attempt_move(start_piece, start_square, end_square, board)
+        return get_move_path(start_piece, start_square, end_square, board)
     except InvalidMoveException as err:
         raise err
 
@@ -176,43 +177,96 @@ def get_next_square_indexes(cur_square, move_type):
     # MoveType.DOWN_RIGHT:
     return (r_idx - 1, c_idx + 1)
 
-def move_to_destination(start_square, end_square, board, move_type, piece_color):
-    """Attempts to 'complete' the movement from start_square to end_square.
+def get_pawn_path_to_destination(start_square, end_square, board, pawn):
+    """Attempts to get the path from start_square to end_square given the piece is a pawn.
 
     Raises an InvalidMoveException if the move is illegal for some reason.
     """
+    row_offset = end_square.row_idx - start_square.row_idx
+    col_offset = end_square.col_idx - start_square.col_idx
+    if abs(row_offset) == 2:
+        if pawn.has_moved:
+            raise InvalidMoveException('pawn tried moving 2 squares, but has already moved')
+        # destination has been validated, so col_offset == 0
+        if end_square.is_occupied():
+            raise InvalidMoveException('pawn blocked straight ahead')
+        start_row_idx = start_square.row_idx
+        intermediate_row_idx = start_row_idx + 1 if row_offset > 0 else start_row_idx - 1
+        intermediate_square = board.squares[intermediate_row_idx][start_square.col_idx]
+        if intermediate_square.is_occupied():
+            raise InvalidMoveException('pawn blocked straight ahead')
+        return [intermediate_square, end_square]
+    # row offset must be 1
+    path = [end_square]
+    if col_offset == 0:
+        if end_square.is_occupied():
+            raise InvalidMoveException('pawn blocked straight ahead')
+        return path
+    # abs(col_offset) must be 1
+    # end_square must have a piece # TODO: En-passant
+    if not end_square.is_occupied():
+        raise InvalidMoveException('pawn cannot move diagonally without capturing')
+    if end_square.piece.color is pawn.color:
+        raise InvalidMoveException('cannot move into square occupied by player piece')
+    return path
+
+def get_path_to_destination(start_square, end_square, board, piece):
+    """Attempts to get the path from start_square to end_square.
+
+    Raises an InvalidMoveException if the move is illegal for some reason.
+    """
+    # TODO: how do castle
+    if piece.name is PieceType.PAWN:
+        try:
+            return get_pawn_path_to_destination(start_square, end_square, board, piece)
+        except InvalidMoveException as err:
+            raise err
+
+    if piece.name is PieceType.KNIGHT:
+        # just need to check end square
+        path = [end_square]
+        if not end_square.is_occupied():
+            return path
+        if end_square.piece.color is piece.color:
+            raise InvalidMoveException('cannot move into square occupied by player piece')
+        # capturing opponent piece
+        return path
+
+    # left with bishop, rook, queen, king
+    # get the movement necessary to reach destination
+    move_type = get_necessary_move_type(start_square, end_square)
+
     cur_square = start_square
+    path = []
     while True:
         next_row_idx, next_col_idx = get_next_square_indexes(cur_square, move_type)
         cur_square = board.squares[next_row_idx][next_col_idx]
         # TODO: clean up this logic, a bit confusing
         if cur_square is end_square:
             if not cur_square.is_occupied():
-                return
+                path.append(cur_square)
+                return path
             # raise if moving piece color is same as end square piece color
-            if cur_square.piece.color is piece_color:
+            if cur_square.piece.color is piece.color:
                 raise InvalidMoveException('cannot move into square occupied by player piece')
-            return
+            path.append(cur_square)
+            return path
         # raise if piece cannot move due to a blocking piece
         if cur_square.is_occupied():
             raise InvalidMoveException('destination not reachable due to block')
-    # TODO: test special conditions. std capture, en-passant, first move
-    # TODO: test castling
+        path.append(cur_square)
 
-# TODO: rename
-def attempt_move(piece, start_square, end_square, board):
-    """Tests if movement from start_square to end_square is possible for the given piece.
+def get_move_path(piece, start_square, end_square, board):
+    """Tries to get the path for the given move.
 
-    Raises an InvalidMoveException if the move is illegal for some reason.
+    Raises an InvalidMoveException if the path cannot be found.
     """
     # check if we can reach destination given the piece's moveset
     if not is_valid_destination(piece, start_square, end_square):
         raise InvalidMoveException('destination not reachable with piece')
-    # get the movement necessary to reach destination
-    move_type = get_necessary_move_type(start_square, end_square)
-    # move one square at a time
+    # get the path
     try:
-        move_to_destination(start_square, end_square, board, move_type, piece.color)
+        return get_path_to_destination(start_square, end_square, board, piece)
     except InvalidMoveException as err:
         raise err
 

@@ -14,6 +14,7 @@ class PieceTest(unittest.TestCase):
         self.assertEqual(pawn.color, ChessColor.BLACK)
         self.assertEqual(pawn.row_idx, row_idx)
         self.assertEqual(pawn.col_idx, col_idx)
+        self.assertEqual(pawn.has_moved, False)
 
 if __name__ == '__main__':
     unittest.main()

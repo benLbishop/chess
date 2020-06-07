@@ -7,6 +7,7 @@ class Piece:
         self.color = color
         self.row_idx = row_idx
         self.col_idx = col_idx
+        self.has_moved = False # TODO: works for initial game state, but what about endgames?
 
     def __str__(self):
         # TODO: test
