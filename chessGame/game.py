@@ -32,9 +32,9 @@ class Game:
             piece_list = conversion.convert_strings_to_pieces(piece_strings)
             self.board.populate(piece_list)
         except PiecePlacementException as err:
-            pass
+            raise err
         except ValueError as err:
-            pass
+            raise err
 
         white_pieces, black_pieces = separate_pieces(piece_list)
         self.white_player.active_pieces = white_pieces
