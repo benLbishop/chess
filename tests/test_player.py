@@ -8,11 +8,17 @@ class TestPlayer(unittest.TestCase):
 
     def test_init(self):
         """tests the constructorr."""
-        white_p = Player(ChessColor.WHITE)
-        black_p = Player(ChessColor.BLACK)
+        white_config = {'color': ChessColor.WHITE, 'name': 'Griffin'}
+        white_p = Player(white_config)
+        black_config = {'color': ChessColor.BLACK, 'name': 'Justin'}
+        black_p = Player(black_config)
 
         self.assertEqual(white_p.color, ChessColor.WHITE)
+        self.assertEqual(white_p.name, white_config['name'])
         self.assertEqual(black_p.color, ChessColor.BLACK)
+        self.assertEqual(black_p.name, black_config['name'])
+
+        # TODO: test which names are allowed? Is empty string ok?
 
 if __name__ == '__main__':
     unittest.main()

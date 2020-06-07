@@ -15,8 +15,8 @@ class TestMoveLogic(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.board = Board(constants.STD_BOARD_WIDTH, constants.STD_BOARD_HEIGHT)
-        cls.player = Player(ChessColor.WHITE)
+        cls.board = Board(constants.STD_BOARD_CONFIG)
+        cls.player = Player({'color': ChessColor.WHITE, 'name': 'Travis'})
 
     def tearDown(self):
         self.board.clear()

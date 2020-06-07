@@ -4,9 +4,9 @@ from . import constants
 
 class Board:
     """class representing a chess board of any size."""
-    def __init__(self, rows, cols):
-        self.NUM_ROWS = rows
-        self.NUM_COLS = cols
+    def __init__(self, board_config):
+        self.NUM_ROWS = board_config['num_rows']
+        self.NUM_COLS = board_config['num_cols']
         self._create_squares()
 
     def _create_squares(self):
@@ -26,3 +26,8 @@ class Board:
     def populate(self, piece_mapping):
         """places the given pieces on the board."""
         # TODO
+
+class StandardBoard(Board):
+    """class representing a chess board of the standard 8x8 size."""
+    def __init__(self):
+        super().__init__(constants.STD_BOARD_CONFIG)
