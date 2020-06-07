@@ -196,7 +196,6 @@ def move_to_destination(start_square, end_square, board, move_type, piece_color)
         # raise if piece cannot move due to a blocking piece
         if cur_square.is_occupied():
             raise InvalidMoveException('destination not reachable due to block')
-    # TODO: test check
     # TODO: test special conditions. std capture, en-passant, first move
     # TODO: test castling
 
@@ -217,17 +216,12 @@ def attempt_move(piece, start_square, end_square, board):
     except InvalidMoveException as err:
         raise err
 
-# TODO: test, or preferrably replace with something better
-def find_king(piece_list):
-    for piece in piece_list:
-        if piece.name == PieceType.KING:
-            return piece
-    raise IndexError('king not found.')
-
 def get_checking_pieces(board, player, opponent):
-    # find square of player's king
-    # find_king could throw, but I expect to replace this in a way where it won't
-    player_king = find_king(player.active_pieces)
+    """Finds any pieces that have the player's king in check.
+        If none found, returns an empty list.
+    """
+    # king should always be first piece in array
+    player_king = player.active_pieces[0]
     king_square = board.squares[player_king.row_idx][player_king.col_idx]
 
     checking_pieces = []

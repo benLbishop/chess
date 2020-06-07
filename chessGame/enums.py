@@ -8,12 +8,12 @@ class ChessColor(Enum):
 
 class PieceType(Enum):
     """Enum for the different types of chess pieces."""
-    PAWN = 0
-    KNIGHT = 1
-    BISHOP = 2
-    ROOK = 3
-    QUEEN = 4
-    KING = 5
+    KING = 0
+    QUEEN = 1
+    ROOK = 2
+    BISHOP = 3
+    KNIGHT = 4
+    PAWN = 5
 
 class MoveType(Enum):
     """Enum for the types of movements pieces can make to adjacent squares."""

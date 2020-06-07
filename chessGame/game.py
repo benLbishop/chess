@@ -68,4 +68,6 @@ def separate_pieces(piece_list):
         else:
             black_pieces.append(piece)
 
-    return (white_pieces, black_pieces)
+    sorted_white = sorted(white_pieces, key=lambda piece: piece.name.value)
+    sorted_black = sorted(black_pieces, key=lambda piece: piece.name.value)
+    return (sorted_white, sorted_black)
