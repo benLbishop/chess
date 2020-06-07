@@ -1,8 +1,7 @@
 """module for testing the game state logic."""
 import unittest
 from unittest.mock import patch
-import chessGame.pathing as pathing
-import chessGame.game_state as gs
+from chessGame.move_logic import pathing, game_state as gs
 from chessGame.piece import Piece
 from chessGame.enums import PieceType, ChessColor
 from chessGame.board import Board

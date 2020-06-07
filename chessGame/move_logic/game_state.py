@@ -1,6 +1,6 @@
 "module for checking the state of the game (check, checkmate, etc)"
+from chessGame.custom_exceptions import InvalidMoveException
 from . import pathing
-from .custom_exceptions import InvalidMoveException
 
 def get_checking_pieces(board, player, opponent):
     """Finds any pieces that have the player's king in check.

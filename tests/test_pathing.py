@@ -7,8 +7,7 @@ from chessGame.piece import Piece
 from chessGame.enums import ChessColor, PieceType, MoveType
 from chessGame.board import Board
 from chessGame import constants
-import chessGame.pathing as pathing
-import chessGame.validation as validation
+from chessGame.move_logic import pathing, validation
 import chessGame.custom_exceptions as ce
 
 class TestMoveLogic(unittest.TestCase):

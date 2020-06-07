@@ -1,6 +1,6 @@
 """module containing functions for determing paths pieces can take."""
-from .custom_exceptions import InvalidMoveException
-from .enums import PieceType, MoveType
+from chessGame.enums import PieceType, MoveType
+from chessGame.custom_exceptions import InvalidMoveException
 from . import validation
 
 def get_necessary_move_type(start_square, end_square):
