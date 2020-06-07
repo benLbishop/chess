@@ -2,8 +2,9 @@
 from .board import Board, StandardBoard
 from .player import Player
 from .enums import ChessColor
-from .custom_exceptions import PiecePlacementException
+from .custom_exceptions import PiecePlacementException, InvalidMoveException
 from . import constants, conversion
+from .move_logic import pathing
 
 class Game:
     """class representing an instance of a game of chess."""
@@ -46,14 +47,32 @@ class Game:
         # TODO: test
         pass
 
-    # TODO; rename
-    def attempt_move(self, start_square, end_square):
-        """Given the user's input, tries to move a piece to a new square."""
-        # validate move
-        # see if move results in player putting themselves in check, raise if so
+    
+    def _move_piece(self, start_square, end_square):
+        """tries to move a piece from start_square to end_square."""
+        if self.is_white_turn:
+            cur_player = self.white_player
+            cur_opponent = self.black_player
+        else:
+            cur_player = self.black_player
+            cur_opponent = self.white_player
+        try:
+            move_path = pathing.get_move_path(start_square, end_square, self.board, cur_player)
+        except InvalidMoveException as err:
+            raise err
+        # TODO
+        # simulate moving piece, see if player put themselves in check, raise if so
         # update pieces, perform captures (update piece.has_moved)
-        # see if opponent is now in check/checkmate/stalemate
         # log move w/ notation
+
+
+    def make_move(self, start_square, end_square):
+        """Given the user's input, tries to move a piece to a new square."""
+        try:
+            self._move_piece(start_square, end_square)
+        except InvalidMoveException as err:
+            raise err
+        # see if opponent is now in check/checkmate/stalemate
         # switch turns
 
 # TODO: move

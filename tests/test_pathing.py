@@ -251,25 +251,24 @@ class TestMoveLogic(unittest.TestCase):
     def test_get_move_path(self, validate_move_mock, move_mock):
         start = Square(0, 0)
         end = Square(1, 1)
-        pawn = Piece(PieceType.PAWN, ChessColor.WHITE, 0, 0)
 
         # raise if validate_move fails
         validate_move_mock.side_effect = ce.InvalidMoveException('dummy exception')
         with self.assertRaises(ce.InvalidMoveException):
-            pathing.get_move_path(pawn, start, end, self.board, self.player)
+            pathing.get_move_path(start, end, self.board, self.player)
 
         validate_move_mock.side_effect = None
 
         # raise if get_path_to_destination throws
         move_mock.side_effect = ce.InvalidMoveException('mock exception')
         with self.assertRaises(ce.InvalidMoveException):
-            pathing.get_move_path(pawn, start, end, self.board, self.player)
+            pathing.get_move_path(start, end, self.board, self.player)
 
         move_mock.side_effect = None
         dummy_path = ['dummy', 'path']
         move_mock.return_value = dummy_path
         # should successfully complete otherwise
-        res = pathing.get_move_path(pawn, start, end, self.board, self.player)
+        res = pathing.get_move_path(start, end, self.board, self.player)
         self.assertEqual(res, dummy_path)
 
 if __name__ == '__main__':

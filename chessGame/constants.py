@@ -1,10 +1,22 @@
 """module containing constants for the application."""
+from .enums import MoveType
+
 # Game Configuration
 STD_BOARD_WIDTH = 8
 STD_BOARD_HEIGHT = 8
 STD_BOARD_CONFIG = {'num_rows': STD_BOARD_WIDTH, 'num_cols': STD_BOARD_HEIGHT}
 MIN_BOARD_ROWS = 2
 MIN_BOARD_COLS = 2
+
+# Move options
+PAWN_WHITE_MOVES = [MoveType.UP, MoveType.UP_LEFT, MoveType.UP_RIGHT]
+PAWN_BLACK_MOVES = [MoveType.DOWN, MoveType.DOWN_LEFT, MoveType.DOWN_RIGHT]
+BISHOP_MOVES = [MoveType.UP_LEFT, MoveType.UP_RIGHT, MoveType.DOWN_LEFT, MoveType.DOWN_RIGHT]
+ROOK_MOVES = [MoveType.UP, MoveType.DOWN, MoveType.LEFT, MoveType.RIGHT]
+QUEEN_MOVES = [move for move in MoveType]
+KING_MOVES = [move for move in MoveType]
+
+# board configurations
 STD_PIECE_STRINGS = [
     'w a2',
     'w b2',

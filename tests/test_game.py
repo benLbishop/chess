@@ -6,6 +6,10 @@ from chessGame.board import Board, StandardBoard
 from chessGame.player import Player
 import chessGame.conversion as conv
 from chessGame import constants
+from chessGame.move_logic import pathing, game_state
+from chessGame.piece import Piece
+from chessGame.enums import PieceType, ChessColor
+from chessGame.custom_exceptions import InvalidMoveException
 
 class GameTest(unittest.TestCase):
     """tests for the Game class."""
@@ -39,11 +43,26 @@ class GameTest(unittest.TestCase):
         # raise if piece_strings cannot be converted
         # TODO test conversion failure, populate failure, player piece assignment, sorting player pieces
 
-    def test_attempt_move(self):
+    def test_move_piece(self):
+        """tests function that actually moves pieces in the game."""
+        # TODO
+        
+    @patch.object(Game, '_move_piece')
+    def test_make_move(self, move_mock):
         """tests function that processes an attempted move of a piece."""
         # TODO: should be in Board class?
+        white_config = {'name': 'Bob'}
+        black_config = {'name': 'Allie'}
+        test_game = Game(None, white_config, black_config, [])
         # should raise if piece can't be moved
+        move_mock.side_effect = InvalidMoveException('dummy exception')
+        with self.assertRaises(InvalidMoveException):
+            test_game.make_move(test_game.board.squares[1][1], test_game.board.squares[2][1])
+
+        move_mock.side_effect = None
         # update squares of move
         # update which player's turn it is
         # update check/checkmate/stalemate status
         # end the game if appropriate
+
+    

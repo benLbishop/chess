@@ -134,7 +134,7 @@ def get_path_to_destination(start_square, end_square, board, piece):
     except InvalidMoveException as err:
         raise err
 
-def get_move_path(piece, start_square, end_square, board, player):
+def get_move_path(start_square, end_square, board, player):
     """Tries to get the path for the given move.
 
     Raises an InvalidMoveException if the path cannot be found.
@@ -144,6 +144,7 @@ def get_move_path(piece, start_square, end_square, board, player):
     except InvalidMoveException as err:
         raise err
     # get the path
+    piece = start_square.piece # TODO: this is jank, rework how to validate this isn't None
     try:
         return get_path_to_destination(start_square, end_square, board, piece)
     except InvalidMoveException as err:
