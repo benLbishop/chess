@@ -37,6 +37,7 @@ class GameTest(unittest.TestCase):
 
         convert_strings_mock.assert_called_with(constants.STD_PIECE_STRINGS)
         # raise if piece_strings cannot be converted
+        # TODO test conversion failure, populate failure, player piece assignment
 
     def test_attempt_move(self):
         """tests function that processes an attempted move of a piece."""

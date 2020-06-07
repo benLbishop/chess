@@ -216,3 +216,27 @@ def attempt_move(piece, start_square, end_square, board):
         move_to_destination(start_square, end_square, board, move_type, piece.color)
     except InvalidMoveException as err:
         raise err
+
+# TODO: test, or preferrably replace with something better
+def find_king(piece_list):
+    for piece in piece_list:
+        if piece.name == PieceType.KING:
+            return piece
+    raise IndexError('king not found.')
+
+def get_checking_pieces(board, player, opponent):
+    # find square of player's king
+    # find_king could throw, but I expect to replace this in a way where it won't
+    player_king = find_king(player.active_pieces)
+    king_square = board.squares[player_king.row_idx][player_king.col_idx]
+
+    checking_pieces = []
+    for piece in opponent.active_pieces:
+        piece_square = board.squares[piece.row_idx][piece.col_idx]
+        try:
+            validate_move(piece_square, king_square, board, opponent)
+        except InvalidMoveException:
+            continue
+        # move from piece to king is valid, so we have check
+        checking_pieces.append(piece)
+    return checking_pieces

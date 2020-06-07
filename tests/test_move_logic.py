@@ -17,9 +17,12 @@ class TestMoveLogic(unittest.TestCase):
     def setUpClass(cls):
         cls.board = Board(constants.STD_BOARD_CONFIG)
         cls.player = Player({'color': ChessColor.WHITE, 'name': 'Travis'})
+        cls.opponent = Player({'color': ChessColor.BLACK, 'name': 'Justin'})
 
     def tearDown(self):
         self.board.clear()
+        self.player.active_pieces = []
+        self.opponent.active_pieces = []
 
     def test_square_is_in_bounds(self):
         # squares can't be constructed with negative bounds, so just test if row/col length exceeded
@@ -399,6 +402,21 @@ class TestMoveLogic(unittest.TestCase):
         move_mock.side_effect = None
         # should successfully complete otherwise
         self.assertIsNone(ml.attempt_move(pawn, start, end, self.board))
+
+    @patch.object(ml, 'validate_move')
+    def test_get_checking_pieces(self, validate_mock):
+        # not check situations
+        black_king = Piece(PieceType.KING, ChessColor.BLACK, 7, 0)
+        white_king = Piece(PieceType.KING, ChessColor.WHITE, 0, 0)
+        # TODO: since I'm mocking validate_move, probably don't need to assign to board
+        self.board.squares[7][0] = black_king
+        self.board.squares[0][0] = white_king
+        self.player.active_pieces = [white_king]
+        self.opponent.active_pieces = [black_king]
+
+        validate_mock.side_effect = [ce.InvalidMoveException('dummy exception')]
+        self.assertEqual(ml.get_checking_pieces(self.board, self.player, self.opponent), [])
+        # TODO: more testing. A lot more
 
 if __name__ == '__main__':
     unittest.main()

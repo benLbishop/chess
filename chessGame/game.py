@@ -45,8 +45,15 @@ class Game:
         # neither player is starting in checkmate/stalemate
         pass
 
+    # TODO; rename
     def attempt_move(self, start_square, end_square):
         """Given the user's input, tries to move a piece to a new square."""
+        # validate move
+        # see if move results in player putting themselves in check, raise if so
+        # update pieces, perform captures
+        # see if opponent is now in check/checkmate/stalemate
+        # log move w/ notation
+        # switch turns
 
 # TODO: move
 def separate_pieces(piece_list):
