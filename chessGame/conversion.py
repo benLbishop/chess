@@ -86,7 +86,7 @@ def parse_piece_string(piece_str):
     except ValueError as err:
         raise err
 
-    return Piece(piece_type, color)
+    return Piece(piece_type, color, rank, actual_file)
     
 
 def convert_strings_to_pieces(strings):

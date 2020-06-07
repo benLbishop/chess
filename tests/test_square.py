@@ -43,7 +43,7 @@ class TestSquare(unittest.TestCase):
         """tests the is_occupied method."""
         self.assertFalse(self.test_square.is_occupied())
 
-        self.test_square.piece = Piece(PieceType.PAWN, ChessColor.BLACK)
+        self.test_square.piece = Piece(PieceType.PAWN, ChessColor.BLACK, 0, 0)
         self.assertTrue(self.test_square.is_occupied())
 
     def test_clear(self):
@@ -54,7 +54,7 @@ class TestSquare(unittest.TestCase):
         self.test_square.clear()
         self.assertIsNone(self.test_square.piece)
 
-        self.test_square.piece = Piece(PieceType.PAWN, ChessColor.BLACK)
+        self.test_square.piece = Piece(PieceType.PAWN, ChessColor.BLACK, 0, 0)
         self.test_square.clear()
         self.assertIsNone(self.test_square.piece)
 

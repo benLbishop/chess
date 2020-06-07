@@ -15,8 +15,12 @@ class TestPlayer(unittest.TestCase):
 
         self.assertEqual(white_p.color, ChessColor.WHITE)
         self.assertEqual(white_p.name, white_config['name'])
+        self.assertEqual(white_p.active_pieces, [])
+        self.assertEqual(white_p.captured_pieces, [])
         self.assertEqual(black_p.color, ChessColor.BLACK)
         self.assertEqual(black_p.name, black_config['name'])
+        self.assertEqual(black_p.active_pieces, [])
+        self.assertEqual(black_p.captured_pieces, [])
 
         # TODO: test which names are allowed? Is empty string ok?
 

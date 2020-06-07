@@ -223,12 +223,12 @@ class TestMoveLogic(unittest.TestCase):
             king_mock
         ):
         # should call the appropriate fn based on the piece type
-        pawn = Piece(PieceType.PAWN, ChessColor.WHITE)
-        knight = Piece(PieceType.KNIGHT, ChessColor.WHITE)
-        bishop = Piece(PieceType.BISHOP, ChessColor.WHITE)
-        rook = Piece(PieceType.ROOK, ChessColor.WHITE)
-        queen = Piece(PieceType.QUEEN, ChessColor.WHITE)
-        king = Piece(PieceType.KING, ChessColor.WHITE)
+        pawn = Piece(PieceType.PAWN, ChessColor.WHITE, 0, 0)
+        knight = Piece(PieceType.KNIGHT, ChessColor.WHITE, 0, 0)
+        bishop = Piece(PieceType.BISHOP, ChessColor.WHITE, 0, 0)
+        rook = Piece(PieceType.ROOK, ChessColor.WHITE, 0, 0)
+        queen = Piece(PieceType.QUEEN, ChessColor.WHITE, 0, 0)
+        king = Piece(PieceType.KING, ChessColor.WHITE, 0, 0)
 
         start = Square(0, 0)
         end = Square(1, 1)
@@ -252,10 +252,10 @@ class TestMoveLogic(unittest.TestCase):
     @patch.object(ml, 'square_is_in_bounds')
     def test_validate_move(self, siib_mock, attempt_move_mock):
         """test main logic for if a move is legal."""
-        white_piece = Piece(PieceType.QUEEN, ChessColor.WHITE)
+        white_piece = Piece(PieceType.QUEEN, ChessColor.WHITE, 0, 0)
         start = Square(0, 0)
         start.piece = white_piece
-        black_piece = Piece(PieceType.QUEEN, ChessColor.BLACK)
+        black_piece = Piece(PieceType.QUEEN, ChessColor.BLACK, 0, 0)
         end = Square(0, 1)
         end.piece = black_piece
         # should raise error if start square not in bounds
@@ -341,10 +341,10 @@ class TestMoveLogic(unittest.TestCase):
         # should handle knights appropriately
         squares = self.board.squares
         start = squares[0][0]
-        rook = Piece(PieceType.ROOK, ChessColor.WHITE)
+        rook = Piece(PieceType.ROOK, ChessColor.WHITE, 0, 0)
         start.piece = rook
-        white_pawn = Piece(PieceType.PAWN, ChessColor.WHITE)
-        black_pawn = Piece(PieceType.PAWN, ChessColor.BLACK)
+        white_pawn = Piece(PieceType.PAWN, ChessColor.WHITE, 0, 0)
+        black_pawn = Piece(PieceType.PAWN, ChessColor.BLACK, 0, 0)
         squares[0][2].piece = white_pawn
 
         end1 = squares[0][3]
@@ -382,7 +382,7 @@ class TestMoveLogic(unittest.TestCase):
         ):
         start = Square(0, 0)
         end = Square(1, 1)
-        pawn = Piece(PieceType.PAWN, ChessColor.WHITE)
+        pawn = Piece(PieceType.PAWN, ChessColor.WHITE, 0, 0)
 
         # raise if destination is not reachable
         valid_dest_mock.return_value = False

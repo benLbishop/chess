@@ -4,3 +4,5 @@ class Player:
     def __init__(self, player_config):
         self.color = player_config['color']
         self.name = player_config['name']
+        self.active_pieces = []
+        self.captured_pieces = []

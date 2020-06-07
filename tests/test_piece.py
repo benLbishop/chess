@@ -8,9 +8,12 @@ class PieceTest(unittest.TestCase):
 
     def test_init(self):
         """tests the constructor."""
-        pawn = Piece(PieceType.PAWN, ChessColor.BLACK)
+        row_idx, col_idx = 3, 4
+        pawn = Piece(PieceType.PAWN, ChessColor.BLACK, row_idx, col_idx)
         self.assertEqual(pawn.name, PieceType.PAWN)
         self.assertEqual(pawn.color, ChessColor.BLACK)
+        self.assertEqual(pawn.row_idx, row_idx)
+        self.assertEqual(pawn.col_idx, col_idx)
 
 if __name__ == '__main__':
     unittest.main()
