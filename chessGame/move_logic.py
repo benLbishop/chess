@@ -293,7 +293,7 @@ def get_checking_pieces(board, player, opponent):
     for piece in opponent.active_pieces:
         piece_square = board.squares[piece.row_idx][piece.col_idx]
         try:
-            validate_move(piece_square, king_square, board, opponent)
+            get_move_path(piece, piece_square, king_square, board, opponent)
         except InvalidMoveException:
             continue
         # move from piece to king is valid, so we have check

@@ -544,18 +544,18 @@ class TestMoveLogic(unittest.TestCase):
         res = ml.get_move_path(pawn, start, end, self.board, self.player)
         self.assertEqual(res, dummy_path)
 
-    @patch.object(ml, 'validate_move')
-    def test_get_checking_pieces(self, validate_mock):
+    @patch.object(ml, 'get_move_path')
+    def test_get_checking_pieces(self, move_mock):
         # not check situations
         black_king = Piece(PieceType.KING, ChessColor.BLACK, 7, 0)
         white_king = Piece(PieceType.KING, ChessColor.WHITE, 0, 0)
-        # TODO: since I'm mocking validate_move, probably don't need to assign to board
+        # TODO: since I'm mocking get_move_path, probably don't need to assign to board
         self.board.squares[7][0] = black_king
         self.board.squares[0][0] = white_king
         self.player.active_pieces = [white_king]
         self.opponent.active_pieces = [black_king]
 
-        validate_mock.side_effect = [ce.InvalidMoveException('dummy exception')]
+        move_mock.side_effect = [ce.InvalidMoveException('dummy exception')]
         self.assertEqual(ml.get_checking_pieces(self.board, self.player, self.opponent), [])
         # TODO: more testing. A lot more
 
