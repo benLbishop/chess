@@ -4,7 +4,7 @@ from .player import Player
 from .enums import ChessColor
 from .custom_exceptions import PiecePlacementException, InvalidMoveException
 from . import constants, conversion
-from .move_logic import pathing
+from .move_logic import pathing, game_state
 
 class Game:
     """class representing an instance of a game of chess."""
@@ -46,7 +46,6 @@ class Game:
         # neither player is starting in checkmate/stalemate
         # TODO: test
         pass
-
     
     def _move_piece(self, start_square, end_square):
         """tries to move a piece from start_square to end_square."""
@@ -60,10 +59,26 @@ class Game:
             move_path = pathing.get_move_path(start_square, end_square, self.board, cur_player)
         except InvalidMoveException as err:
             raise err
-        # TODO
-        # simulate moving piece, see if player put themselves in check, raise if so
-        # update pieces, perform captures (update piece.has_moved)
-        # log move w/ notation
+
+        # update pieces
+        moving_piece = start_square.piece
+        captured_piece = end_square.piece # could be None
+        end_square.piece = moving_piece
+        start_square.piece = None
+
+        # see if player put themselves in check
+        checking_pieces = game_state.get_checking_pieces(self.board, cur_player, cur_opponent)
+        if len(checking_pieces) > 0:
+            # cur_player put themselves in check, not allowed. Reset moved pieces
+            start_square.piece = moving_piece
+            end_square.piece = captured_piece
+            raise InvalidMoveException('player tried to put themselves in check')
+        # if piece was captured, update player piece lists
+        if captured_piece is not None:
+            cur_opponent.active_pieces.remove(captured_piece)
+            cur_player.captured_pieces.append(captured_piece)
+
+        # TODO: log move w/ notation
 
 
     def make_move(self, start_square, end_square):
@@ -72,8 +87,30 @@ class Game:
             self._move_piece(start_square, end_square)
         except InvalidMoveException as err:
             raise err
+        # TODO: don't duplicate with _move_piece
+        if self.is_white_turn:
+            cur_player = self.white_player
+            cur_opponent = self.black_player
+        else:
+            cur_player = self.black_player
+            cur_opponent = self.white_player
         # see if opponent is now in check/checkmate/stalemate
-        # switch turns
+        opp_check_pieces = game_state.get_checking_pieces(self.board, cur_opponent, cur_player)
+        if len(opp_check_pieces) > 0:
+            # check for checkmate
+            is_checkmate = game_state.player_is_checkmated(self.board, cur_opponent, cur_player)
+            if is_checkmate:
+                self.is_complete = True
+                # TODO: end game somehow
+        else:
+            # check for stalemate.
+            # TODO: do I need to do this every time?
+            is_stalemate = game_state.player_is_stalemated(self.board, cur_opponent, cur_player)
+            if is_stalemate:
+                self.is_complete = True
+                # TODO: end game somehow
+        # game not over. switch turns
+        self.is_white_turn = not self.is_white_turn
 
 # TODO: move
 def separate_pieces(piece_list):

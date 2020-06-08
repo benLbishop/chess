@@ -13,7 +13,7 @@ def player_is_checkmated(board, player, opponent):
     # TODO
     return False
 
-def is_stalemate(board, player, opponent):
+def player_is_stalemated(board, player, opponent):
     """Does what it sounds like, a.k.a. returns whether or not the game has reached a stalemate.
 
     This should only after it's confirmed that the player is in check.
