@@ -30,14 +30,13 @@ class Game:
             piece_strings = constants.STD_PIECE_STRINGS
 
         try:
-            piece_list = conversion.convert_strings_to_pieces(piece_strings)
-            self.board.populate(piece_list)
+            white_pieces, black_pieces = conversion.convert_strings_to_pieces(piece_strings)
+            self.board.populate(white_pieces + black_pieces)
         except PiecePlacementException as err:
             raise err
         except ValueError as err:
             raise err
 
-        white_pieces, black_pieces = separate_pieces(piece_list)
         self.white_player.active_pieces = white_pieces
         self.black_player.active_pieces = black_pieces
 
@@ -64,19 +63,24 @@ class Game:
         moving_piece = start_square.piece
         captured_piece = end_square.piece # could be None
         end_square.piece = moving_piece
+        moving_piece.row_idx = end_square.row_idx
+        moving_piece.col_idx = end_square.col_idx
         start_square.piece = None
+        # if piece was captured, update player piece lists
+        if captured_piece is not None:
+            cur_opponent.active_pieces.remove(captured_piece)
 
         # see if player put themselves in check
         checking_pieces = game_state.get_checking_pieces(self.board, cur_player, cur_opponent)
         if len(checking_pieces) > 0:
             # cur_player put themselves in check, not allowed. Reset moved pieces
             start_square.piece = moving_piece
+            moving_piece.row_idx = start_square.row_idx
+            moving_piece.col_idx = start_square.col_idx
             end_square.piece = captured_piece
+            cur_player.captured_pieces.append(captured_piece) # TODO: resort
             raise InvalidMoveException('player tried to put themselves in check')
-        # if piece was captured, update player piece lists
-        if captured_piece is not None:
-            cur_opponent.active_pieces.remove(captured_piece)
-            cur_player.captured_pieces.append(captured_piece)
+            
 
         # TODO: log move w/ notation
 
@@ -98,7 +102,7 @@ class Game:
         opp_check_pieces = game_state.get_checking_pieces(self.board, cur_opponent, cur_player)
         if len(opp_check_pieces) > 0:
             # check for checkmate
-            is_checkmate = game_state.player_is_checkmated(self.board, cur_opponent, cur_player)
+            is_checkmate = game_state.player_is_checkmated(self.board, cur_opponent, cur_player, opp_check_pieces)
             if is_checkmate:
                 self.is_complete = True
                 # TODO: end game somehow
@@ -111,20 +115,3 @@ class Game:
                 # TODO: end game somehow
         # game not over. switch turns
         self.is_white_turn = not self.is_white_turn
-
-# TODO: move
-def separate_pieces(piece_list):
-    """takes a list of pieces of mixed color and separates them into white and black.
-
-    Describing colors in chess should never be taken out of context.
-    """
-    white_pieces, black_pieces = [], []
-    for piece in piece_list:
-        if piece.color == ChessColor.WHITE:
-            white_pieces.append(piece)
-        else:
-            black_pieces.append(piece)
-
-    sorted_white = sorted(white_pieces, key=lambda piece: piece.name.value)
-    sorted_black = sorted(black_pieces, key=lambda piece: piece.name.value)
-    return (sorted_white, sorted_black)

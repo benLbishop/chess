@@ -32,11 +32,13 @@ class GameTest(unittest.TestCase):
         # make sure populate board is called
         _set_up_pieces_mock.assert_called_once()
 
+    @patch.object(Board, 'populate')
     @patch.object(conv, 'convert_strings_to_pieces')
-    def test_set_up_pieces(self, convert_strings_mock):
+    def test_set_up_pieces(self, convert_strings_mock, populate_mock):
         # if piece_strings is empty, use std piece list
         white_config = {'name': 'Bob'}
         black_config = {'name': 'Allie'}
+        convert_strings_mock.return_value = ('dummy', 'vals')
         test_game = Game(None, white_config, black_config, [])
 
         convert_strings_mock.assert_called_with(constants.STD_PIECE_STRINGS)

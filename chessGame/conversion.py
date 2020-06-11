@@ -92,6 +92,23 @@ def parse_piece_string(piece_str):
 def convert_strings_to_pieces(strings):
     try:
         piece_list = [parse_piece_string(piece_str) for piece_str in strings]
-        return piece_list
+        return separate_pieces(piece_list)
     except ValueError as err:
         raise err
+
+def separate_pieces(piece_list):
+    """takes a list of pieces of mixed color and separates them into white and black.
+
+    Describing colors in chess should never be taken out of context.
+    """
+    # TODO: test
+    white_pieces, black_pieces = [], []
+    for piece in piece_list:
+        if piece.color == ChessColor.WHITE:
+            white_pieces.append(piece)
+        else:
+            black_pieces.append(piece)
+
+    sorted_white = sorted(white_pieces, key=lambda piece: piece.name.value)
+    sorted_black = sorted(black_pieces, key=lambda piece: piece.name.value)
+    return (sorted_white, sorted_black)
