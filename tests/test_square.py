@@ -1,6 +1,6 @@
 """module for testing the Square class."""
 import unittest
-from chessGame.enums import ChessColor, PieceType
+from chessGame.enums import ChessColor
 from chessGame.square import Square
 from chessGame.piece import Piece
 
@@ -43,7 +43,7 @@ class TestSquare(unittest.TestCase):
         """tests the is_occupied method."""
         self.assertFalse(self.test_square.is_occupied())
 
-        self.test_square.piece = Piece(PieceType.PAWN, ChessColor.BLACK, 0, 0)
+        self.test_square.piece = Piece.from_string('b a1')
         self.assertTrue(self.test_square.is_occupied())
 
     def test_clear(self):
@@ -54,7 +54,7 @@ class TestSquare(unittest.TestCase):
         self.test_square.clear()
         self.assertIsNone(self.test_square.piece)
 
-        self.test_square.piece = Piece(PieceType.PAWN, ChessColor.BLACK, 0, 0)
+        self.test_square.piece = Piece.from_string('b a1')
         self.test_square.clear()
         self.assertIsNone(self.test_square.piece)
 

@@ -7,6 +7,7 @@ from chessGame import constants
 from chessGame.enums import ChessColor, PieceType
 from chessGame.custom_exceptions import PiecePlacementException
 
+pfs = Piece.from_string
 class BoardTest(unittest.TestCase):
     """tests for the Board class."""
     @patch.object(Board, '_create_squares')
@@ -73,8 +74,8 @@ class BoardTest(unittest.TestCase):
                 test_board.populate([test_piece])
         # raise if two pieces are populated to same square
         test_pieces_with_dup = [
-            Piece(PieceType.KING, ChessColor.WHITE, 1, 1),
-            Piece(PieceType.QUEEN, ChessColor.WHITE, 1, 1)
+            pfs('w Kb2'),
+            pfs('w Qb2')
         ]
         with self.assertRaises(PiecePlacementException):
             test_board.populate(test_pieces_with_dup)
@@ -82,10 +83,10 @@ class BoardTest(unittest.TestCase):
         # board not cleared if populate fails.
         test_board.clear()
         good_test_pieces = [
-            Piece(PieceType.KING, ChessColor.WHITE, 1, 3),
-            Piece(PieceType.QUEEN, ChessColor.WHITE, 3, 1),
-            Piece(PieceType.PAWN, ChessColor.BLACK, 7, 7),
-            Piece(PieceType.ROOK, ChessColor.BLACK, 4, 7),
+            pfs('w Kd2'),
+            pfs('w Qb4'),
+            pfs('b h8'),
+            pfs('b h5'),
         ]
         test_board.populate(good_test_pieces)
         for test_piece in good_test_pieces:

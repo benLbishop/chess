@@ -1,6 +1,5 @@
 """module for converting string representations of pieces/games to useable objects."""
 from .enums import ChessColor, PieceType
-from .piece import Piece
 
 def parse_piece_color_string(color_str):
     color_str = color_str.lower().strip()
@@ -69,7 +68,7 @@ def parse_piece_location_string(loc_str):
     return (piece_type, rank, actual_file)
     
 
-def parse_piece_string(piece_str):
+def get_piece_params(piece_str):
     """attempts to parse a string into a Piece.
 
     Raises a ValueError if anything cannot be parsed.
@@ -83,16 +82,7 @@ def parse_piece_string(piece_str):
     try:
         color = parse_piece_color_string(color_str)
         piece_type, rank, actual_file = parse_piece_location_string(loc_str)
-    except ValueError as err:
-        raise err
-
-    return Piece(piece_type, color, actual_file, rank)
-    
-
-def convert_strings_to_pieces(strings):
-    try:
-        piece_list = [parse_piece_string(piece_str) for piece_str in strings]
-        return separate_pieces(piece_list)
+        return (piece_type, color, actual_file, rank)
     except ValueError as err:
         raise err
 

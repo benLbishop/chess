@@ -11,6 +11,7 @@ from chessGame.piece import Piece
 from chessGame.enums import PieceType, ChessColor
 from chessGame.custom_exceptions import InvalidMoveException
 
+pfs = Piece.from_string
 class GameTest(unittest.TestCase):
     """tests for the Game class."""
 
@@ -33,15 +34,16 @@ class GameTest(unittest.TestCase):
         _set_up_pieces_mock.assert_called_once()
 
     @patch.object(Board, 'populate')
-    @patch.object(conv, 'convert_strings_to_pieces')
-    def test_set_up_pieces(self, convert_strings_mock, populate_mock):
+    @patch.object(conv, 'separate_pieces')
+    def test_set_up_pieces(self, separate_mock, populate_mock):
         # if piece_strings is empty, use std piece list
         white_config = {'name': 'Bob'}
         black_config = {'name': 'Allie'}
-        convert_strings_mock.return_value = ('dummy', 'vals')
+        separate_mock.return_value = ('dummy', 'vals')
         test_game = Game(None, white_config, black_config, [])
 
-        convert_strings_mock.assert_called_with(constants.STD_PIECE_STRINGS)
+        std_pieces = [Piece.from_string(s) for s in constants.STD_PIECE_STRINGS]
+        separate_mock.assert_called_with(std_pieces)
         # raise if piece_strings cannot be converted
         # TODO test conversion failure, populate failure, player piece assignment, sorting player pieces
 
@@ -54,8 +56,8 @@ class GameTest(unittest.TestCase):
         test_game = Game(None, white_config, black_config, [])
         start = test_game.board.squares[1][1]
         end = test_game.board.squares[2][1]
-        king = Piece(PieceType.KING, ChessColor.WHITE, 1, 1)
-        rook = Piece(PieceType.ROOK, ChessColor.BLACK, 2, 1)
+        king = pfs('w Kb2')
+        rook = pfs('b Rb3')
 
         move_mock.return_value = []
         # should raise if no move path found

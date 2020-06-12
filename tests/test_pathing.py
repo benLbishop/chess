@@ -10,6 +10,7 @@ from chessGame import constants
 from chessGame.move_logic import pathing, validation
 import chessGame.custom_exceptions as ce
 
+pfs = Piece.from_string
 class TestMoveLogic(unittest.TestCase):
     """tests for the move logic."""
 
@@ -80,11 +81,11 @@ class TestMoveLogic(unittest.TestCase):
         diag_end1 = squares[r + 1][c + 1]
         diag_end2 = squares[r + 1][c - 1]
 
-        pawn = Piece(PieceType.PAWN, ChessColor.WHITE, r, c)
+        pawn = pfs('w b2')
         start.piece = pawn
 
-        white_piece = Piece(PieceType.BISHOP, ChessColor.WHITE, 0, 0) # coords don't really matter
-        black_piece = Piece(PieceType.BISHOP, ChessColor.BLACK, 0, 0) # coords don't really matter
+        white_piece = pfs('w Ba1') # coords don't really matter
+        black_piece = pfs('b Ba1') # coords don't really matter
 
         # should raise if straight move attempted and ANY piece in way
         straight_end1.piece = white_piece
@@ -130,10 +131,10 @@ class TestMoveLogic(unittest.TestCase):
     def test_get_knight_path_to_destination(self):
         squares = self.board.squares
         end = squares[2][1]
-        knight = Piece(PieceType.KNIGHT, ChessColor.WHITE, 0, 0)
+        knight = pfs('w Na1')
 
         # should raise if player's piece is on end_square
-        end_pawn = Piece(PieceType.PAWN, ChessColor.WHITE, 2, 1)
+        end_pawn = pfs('w b3')
         end.piece = end_pawn
         with self.assertRaises(ce.InvalidMoveException):
             pathing.get_knight_path_to_destination(end, knight)
@@ -156,10 +157,10 @@ class TestMoveLogic(unittest.TestCase):
         gnmt_mock.return_value = MoveType.RIGHT
 
         self.board.clear()
-        rook = Piece(PieceType.ROOK, ChessColor.WHITE, 0, 0)
+        rook = pfs('w Ra1')
         start.piece = rook
-        white_pawn = Piece(PieceType.PAWN, ChessColor.WHITE, 0, 0)
-        black_pawn = Piece(PieceType.PAWN, ChessColor.BLACK, 0, 0)
+        white_pawn = pfs('w a1')
+        black_pawn = pfs('b a1')
         squares[0][2].piece = white_pawn
         end2 = squares[0][3]
         # should raise if we come across a piece on square that's not destination
@@ -203,7 +204,7 @@ class TestMoveLogic(unittest.TestCase):
 
         # should call pawn function if appropriate
         # should raise if pawn function raises
-        pawn = Piece(PieceType.PAWN, ChessColor.WHITE, 0, 0)
+        pawn = pfs('w a1')
         pawn_end = squares[1][0]
         pptd_mock.side_effect = ce.InvalidMoveException('dummy exception')
         with self.assertRaises(ce.InvalidMoveException):
@@ -216,7 +217,7 @@ class TestMoveLogic(unittest.TestCase):
 
         # should handle knights appropriately
         # should raise if knight function raises
-        knight = Piece(PieceType.KNIGHT, ChessColor.WHITE, 0, 0)
+        knight = pfs('w Na1')
         knight_end = squares[2][1]
         kptd_mock.side_effect = ce.InvalidMoveException('dummy exception')
         with self.assertRaises(ce.InvalidMoveException):
@@ -229,10 +230,10 @@ class TestMoveLogic(unittest.TestCase):
 
         # should handle other piece types properly
         other_pieces = [
-            Piece(PieceType.ROOK, ChessColor.WHITE, 0, 0),
-            Piece(PieceType.BISHOP, ChessColor.WHITE, 0, 0),
-            Piece(PieceType.QUEEN, ChessColor.WHITE, 0, 0),
-            Piece(PieceType.KING, ChessColor.WHITE, 0, 0)
+            pfs('w Ra1'),
+            pfs('w Ba1'),
+            pfs('w Qa1'),
+            pfs('w Ka1')
         ]
         optd_mock.side_effect = ce.InvalidMoveException('dummy exception')
         for piece in other_pieces:

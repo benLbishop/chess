@@ -1,7 +1,6 @@
 """module for testing the methods in conversion.py."""
 import unittest
 from unittest.mock import patch
-from chessGame.piece import Piece
 from chessGame.enums import ChessColor, PieceType
 import chessGame.conversion as conv
 
@@ -130,29 +129,13 @@ class ConversionTest(unittest.TestCase):
             file_mock.assert_called_with(file_input)
         # TODO: invalid tests
 
-    def test_parse_piece_string(self):
+    def test_get_piece_params(self):
         # should handle white space
         test_cases = [
-            ('w a4', Piece(PieceType.PAWN, ChessColor.WHITE, 3, 0)),
-            ('b Na4', Piece(PieceType.KNIGHT, ChessColor.BLACK, 3, 0)),
+            ('w a4', (PieceType.PAWN, ChessColor.WHITE, 3, 0)),
+            ('b Na4', (PieceType.KNIGHT, ChessColor.BLACK, 3, 0)),
         ]
         # TODO: more tests, failure cases
         for piece_str, expected_res in test_cases:
-            res = conv.parse_piece_string(piece_str)
+            res = conv.get_piece_params(piece_str)
             self.assertEqual(res, expected_res)
-
-    @patch.object(conv, 'parse_piece_string')
-    def test_convert_strings_to_pieces(self, parse_string_mock):
-        # raise if any of the strings can't be parsed
-        test_strs = [
-            '',
-            '',
-            '',
-            ''
-        ]
-        parse_string_mock.side_effect = ['res1', 'res2', ValueError('dummy error')]
-
-        with self.assertRaises(ValueError):
-            conv.convert_strings_to_pieces(test_strs)
-
-        # TODO: more tests

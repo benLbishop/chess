@@ -1,6 +1,7 @@
 """module containing the Game class."""
 from .board import Board, StandardBoard
 from .player import Player
+from .piece import Piece
 from .enums import ChessColor
 from .custom_exceptions import PiecePlacementException, InvalidMoveException
 from . import constants, conversion
@@ -30,7 +31,8 @@ class Game:
             piece_strings = constants.STD_PIECE_STRINGS
 
         try:
-            white_pieces, black_pieces = conversion.convert_strings_to_pieces(piece_strings)
+            piece_list = [Piece.from_string(s) for s in piece_strings]
+            white_pieces, black_pieces = conversion.separate_pieces(piece_list)
             self.board.populate(white_pieces + black_pieces)
         except PiecePlacementException as err:
             raise err

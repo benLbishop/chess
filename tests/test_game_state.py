@@ -8,9 +8,10 @@ from chessGame.board import Board
 from chessGame.player import Player
 from chessGame import constants
 from chessGame.custom_exceptions import InvalidMoveException
-from chessGame.conversion import convert_strings_to_pieces
-
+from chessGame.conversion import separate_pieces
 from . import board_lists
+
+pfs = Piece.from_string
 
 class GameStateTest(unittest.TestCase):
     """tests for the game state logic."""
@@ -34,7 +35,8 @@ class GameStateTest(unittest.TestCase):
         # test checkmate results
         for test_board in board_lists.checkmate_list:
             piece_strings, mated_color = test_board
-            white_pieces, black_pieces = convert_strings_to_pieces(piece_strings)
+            piece_list = [Piece.from_string(s) for s in piece_strings]
+            white_pieces, black_pieces = separate_pieces(piece_list)
             self.board.populate(white_pieces + black_pieces)
             self.white_player.active_pieces = white_pieces
             self.black_player.active_pieces = black_pieces
@@ -60,8 +62,8 @@ class GameStateTest(unittest.TestCase):
     @patch.object(pathing, 'get_move_path')
     def test_get_checking_pieces(self, move_mock):
         # not check situations
-        black_king = Piece(PieceType.KING, ChessColor.BLACK, 7, 0)
-        white_king = Piece(PieceType.KING, ChessColor.WHITE, 0, 0)
+        black_king = pfs('b Ka8')
+        white_king = pfs('w Ka1')
         # TODO: since I'm mocking get_move_path, probably don't need to assign to board
         self.board.squares[7][0] = black_king
         self.board.squares[0][0] = white_king
@@ -75,13 +77,13 @@ class GameStateTest(unittest.TestCase):
     # TODO: move
     def test_get_move_options(self):
         row_idx, col_idx = 3, 3
-        white_pawn = Piece(PieceType.PAWN, ChessColor.WHITE, row_idx, col_idx)
-        black_pawn = Piece(PieceType.PAWN, ChessColor.BLACK, row_idx, col_idx)
-        knight = Piece(PieceType.KNIGHT, ChessColor.WHITE, row_idx, col_idx)
-        bishop = Piece(PieceType.BISHOP, ChessColor.WHITE, row_idx, col_idx)
-        rook = Piece(PieceType.ROOK, ChessColor.WHITE, row_idx, col_idx)
-        queen = Piece(PieceType.QUEEN, ChessColor.WHITE, row_idx, col_idx)
-        king = Piece(PieceType.KING, ChessColor.WHITE, row_idx, col_idx)
+        white_pawn = pfs('w d4')
+        black_pawn = pfs('b d4')
+        knight = pfs('w Nd4')
+        bishop = pfs('w Bd4')
+        rook = pfs('w Rd4')
+        queen = pfs('w Qd4')
+        king = pfs('w Kd4')
         test_cases = [
             (white_pawn, constants.PAWN_WHITE_MOVES),
             (black_pawn, constants.PAWN_BLACK_MOVES),
@@ -100,7 +102,8 @@ class GameStateTest(unittest.TestCase):
             (['w a2', 'b a3'], [])
         ]
         for piece_strings, expected_res in valid_move_tests:
-            white_pieces, black_pieces = convert_strings_to_pieces(piece_strings)
+            piece_list = [Piece.from_string(s) for s in piece_strings]
+            white_pieces, black_pieces = separate_pieces(piece_list)
             self.white_player.active_pieces = white_pieces
             self.black_player.active_pieces = black_pieces
             self.board.populate(white_pieces + black_pieces)
