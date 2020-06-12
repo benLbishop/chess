@@ -10,7 +10,7 @@ from .move_logic import pathing, game_state
 class Game:
     """class representing an instance of a game of chess."""
 
-    def __init__(self, board_config, white_player_config, black_player_config, piece_strings):
+    def __init__(self, board_config, white_player_config, black_player_config, piece_strings = None):
         white_player_config['color'] = ChessColor.WHITE
         self.white_player = Player(white_player_config)
 
@@ -27,7 +27,7 @@ class Game:
         """takes a list of strings, attempts to convert them to pieces,
             and places the pieces in the necessary structures.
         """
-        if len(piece_strings) == 0:
+        if piece_strings is None:
             piece_strings = constants.STD_PIECE_STRINGS
 
         try:
@@ -67,7 +67,7 @@ class Game:
         end_square.piece = moving_piece
         moving_piece.row_idx = end_square.row_idx
         moving_piece.col_idx = end_square.col_idx
-        start_square.piece = None
+        start_square.clear()
         # if piece was captured, update player piece lists
         if captured_piece is not None:
             cur_opponent.active_pieces.remove(captured_piece)
@@ -80,8 +80,12 @@ class Game:
             moving_piece.row_idx = start_square.row_idx
             moving_piece.col_idx = start_square.col_idx
             end_square.piece = captured_piece
-            cur_player.captured_pieces.append(captured_piece) # TODO: resort
+            if captured_piece is not None:
+                cur_opponent.active_pieces.append(captured_piece) # TODO: resort
             raise InvalidMoveException('player tried to put themselves in check')
+        else:
+            if captured_piece is not None:
+                cur_player.captured_pieces.append(captured_piece)
             
 
         # TODO: log move w/ notation

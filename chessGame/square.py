@@ -28,3 +28,6 @@ class Square:
     def clear(self):
         """ removes the piece (if there is one) from the square."""
         self.piece = None
+
+    def add_piece(self, piece):
+        self.piece = piece

@@ -40,7 +40,7 @@ class GameTest(unittest.TestCase):
         white_config = {'name': 'Bob'}
         black_config = {'name': 'Allie'}
         separate_mock.return_value = ('dummy', 'vals')
-        test_game = Game(None, white_config, black_config, [])
+        test_game = Game(None, white_config, black_config)
 
         std_pieces = [Piece.from_string(s) for s in constants.STD_PIECE_STRINGS]
         separate_mock.assert_called_with(std_pieces)
@@ -49,61 +49,69 @@ class GameTest(unittest.TestCase):
 
     @patch.object(game_state, 'get_checking_pieces')
     @patch.object(pathing, 'get_move_path')
-    def test_move_piece(self, move_mock, check_mock):
+    def test_move_piece(self, path_mock, check_mock):
         """tests function that actually moves pieces in the game."""
         white_config = {'name': 'Bob'}
         black_config = {'name': 'Allie'}
         test_game = Game(None, white_config, black_config, [])
         start = test_game.board.squares[1][1]
         end = test_game.board.squares[2][1]
-        king = pfs('w Kb2')
+        white_king = pfs('w Kb2')
+        black_king = pfs('b Kb2')
         rook = pfs('b Rb3')
 
-        move_mock.return_value = []
+        path_mock.return_value = []
         # should raise if no move path found
-        move_mock.side_effect = InvalidMoveException('dummy exception')
+        path_mock.side_effect = InvalidMoveException('dummy exception')
         with self.assertRaises(InvalidMoveException):
             test_game._move_piece(start, end)
 
-        move_mock.side_effect = None
+        path_mock.side_effect = None
         # should use the proper players as cur_player/opponent
+        start.piece = white_king
         test_game._move_piece(start, end)
-        move_mock.assert_called_with(start, end, test_game.board, test_game.white_player)
+        path_mock.assert_called_with(start, end, test_game.board, test_game.white_player)
+        end.clear()
         # test black player
+        start.piece = black_king
         test_game.is_white_turn = False
         test_game._move_piece(start, end)
-        move_mock.assert_called_with(start, end, test_game.board, test_game.black_player)
+        path_mock.assert_called_with(start, end, test_game.board, test_game.black_player)
+        end.clear()
 
         test_game.board.clear()
-        start.piece = king
+
         test_game.is_white_turn = True
         # should raise if move puts player in check
         check_mock.return_value = ['something']
         with self.assertRaises(InvalidMoveException):
+            start.piece = white_king
             test_game._move_piece(start, end)
         # make sure piece location wasn't updated permanently
         self.assertIsNone(end.piece)
-        self.assertEqual(start.piece, king)
+        self.assertEqual(start.piece, white_king)
 
         # test again with a piece on destination square
         end.piece = rook
+        test_game.black_player.active_pieces = [rook]
         with self.assertRaises(InvalidMoveException):
             test_game._move_piece(start, end)
         self.assertEqual(end.piece, rook)
-        self.assertEqual(start.piece, king)
+        self.assertEqual(start.piece, white_king)
+        test_game.black_player.active_pieces = []
 
             # should properly update capture list, if something like that occurs
         check_mock.return_value = []
         
         test_game.board.clear()
-        start.piece = king
+        start.piece = white_king
         test_game.black_player.active_pieces = [rook]
         test_game._move_piece(start, end)
         self.assertEqual(test_game.black_player.active_pieces, [rook])
         self.assertEqual(test_game.white_player.captured_pieces, [])
 
         test_game.board.clear()
-        start.piece = king
+        start.piece = white_king
         end.piece = rook
         test_game._move_piece(start, end)
         self.assertEqual(test_game.black_player.active_pieces, [])

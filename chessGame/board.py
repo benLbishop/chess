@@ -38,7 +38,7 @@ class Board:
         """empties all squares on the board."""
         for row in self.squares:
             for square in row:
-                square.piece = None
+                square.clear()
 
     def populate(self, piece_list):
         """places the given pieces on the board."""

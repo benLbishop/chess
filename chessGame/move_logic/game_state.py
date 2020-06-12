@@ -24,7 +24,7 @@ def player_is_checkmated(board, player, opponent, checking_pieces):
         square.piece = player_king
         player_king.row_idx = square.row_idx
         player_king.col_idx = square.col_idx
-        king_square.piece = None
+        king_square.clear()
         check_pieces = get_checking_pieces(board, player, opponent)
 
         # clean up
