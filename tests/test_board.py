@@ -3,7 +3,7 @@ import unittest
 from unittest.mock import patch
 from chessGame.board import Board, StandardBoard
 from chessGame.piece import Piece
-from chessGame import constants, conversion as conv
+from chessGame import constants, input, conversion as conv
 from chessGame.enums import ChessColor, PieceType
 from chessGame.custom_exceptions import PiecePlacementException
 
@@ -66,10 +66,6 @@ class BoardTest(unittest.TestCase):
         num_cols = constants.STD_BOARD_HEIGHT
         test_board = Board({'num_rows': num_rows, 'num_cols': num_cols})
 
-        def map_std_notation_str(s):
-            piece_params, coordinates = psns(s)
-            return Piece(*piece_params), coordinates
-
         # raise if piece's indexes are out of bounds
         test_pieces_with_oob = [
             (Piece(PieceType.PAWN, ChessColor.WHITE), (num_rows, 0)),
@@ -83,7 +79,7 @@ class BoardTest(unittest.TestCase):
             'w Kb2',
             'w Qb2'
         ]
-        dup_piece_list = list(map(map_std_notation_str, dup_piece_strings))
+        dup_piece_list = input.std_strings_to_piece_mapping(dup_piece_strings)
         with self.assertRaises(PiecePlacementException):
             test_board.populate(dup_piece_list)
 
@@ -95,7 +91,7 @@ class BoardTest(unittest.TestCase):
             'b h8',
             'b h5'
         ]
-        good_test_list = list(map(map_std_notation_str, good_test_strings))
+        good_test_list = input.std_strings_to_piece_mapping(good_test_strings)
         # TODO: make function for generating mapping
         test_board.populate(good_test_list)
         for test_piece, coordinates in good_test_list:

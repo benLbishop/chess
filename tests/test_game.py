@@ -4,8 +4,7 @@ from unittest.mock import patch
 from chessGame.game import Game
 from chessGame.board import Board, StandardBoard
 from chessGame.player import Player
-import chessGame.conversion as conv
-from chessGame import constants
+from chessGame import constants, input, conversion as conv
 from chessGame.move_logic import pathing, game_state
 from chessGame.piece import Piece
 from chessGame.enums import PieceType, ChessColor
@@ -34,16 +33,15 @@ class GameTest(unittest.TestCase):
         _set_up_pieces_mock.assert_called_once()
 
     @patch.object(Board, 'populate')
-    @patch.object(conv, 'separate_pieces')
-    def test_set_up_pieces(self, separate_mock, populate_mock):
+    @patch.object(input, 'std_strings_to_piece_mapping')
+    def test_set_up_pieces(self, mapping_mock, populate_mock):
         # if piece_strings is empty, use std piece list
         white_config = {'name': 'Bob'}
         black_config = {'name': 'Allie'}
-        separate_mock.return_value = ('dummy', 'vals')
+        mapping_mock.return_value = ('dummy', 'vals')
         test_game = Game(None, white_config, black_config)
 
-        std_pieces = [Piece.from_string(s) for s in constants.STD_PIECE_STRINGS]
-        separate_mock.assert_called_with(std_pieces)
+        mapping_mock.assert_called_with(constants.STD_PIECE_STRINGS)
         # raise if piece_strings cannot be converted
         # TODO test conversion failure, populate failure, player piece assignment, sorting player pieces
 
@@ -56,9 +54,9 @@ class GameTest(unittest.TestCase):
         test_game = Game(None, white_config, black_config, [])
         start = test_game.board.squares[1][1]
         end = test_game.board.squares[2][1]
-        white_king = pfs('w Kb2')
-        black_king = pfs('b Kb2')
-        rook = pfs('b Rb3')
+        white_king = pfs('w K')
+        black_king = pfs('b K')
+        rook = pfs('b R')
 
         path_mock.return_value = []
         # should raise if no move path found

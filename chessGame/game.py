@@ -4,7 +4,7 @@ from .player import Player
 from .piece import Piece
 from .enums import ChessColor
 from .custom_exceptions import PiecePlacementException, InvalidMoveException
-from . import constants, conversion
+from . import constants, conversion, input
 from .move_logic import pathing, game_state
 
 class Game:
@@ -31,16 +31,12 @@ class Game:
             piece_strings = constants.STD_PIECE_STRINGS
 
         try:
-            piece_list = [Piece.from_string(s) for s in piece_strings]
-            white_pieces, black_pieces = conversion.separate_pieces(piece_list)
-            self.board.populate(white_pieces + black_pieces)
+            piece_mapping = input.std_strings_to_piece_mapping(piece_strings)
+            self.board.populate(piece_mapping)
         except PiecePlacementException as err:
             raise err
         except ValueError as err:
             raise err
-
-        self.white_player.active_pieces = white_pieces
-        self.black_player.active_pieces = black_pieces
 
     def _validate_initial_game_state(self):
         # both players have exactly 1 king (maybe at least 1 in the future)
