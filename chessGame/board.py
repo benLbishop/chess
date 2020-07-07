@@ -43,15 +43,15 @@ class Board:
     def populate(self, piece_list):
         """places the given pieces on the board."""
         # TODO: clear board on failure?
-        for piece in piece_list:
-            row_idx = piece.row_idx
-            col_idx = piece.col_idx
+        for piece, coordinate in piece_list:
+            row_idx, col_idx = coordinate
             if row_idx >= self.NUM_ROWS or col_idx >= self.NUM_COLS:
                 raise PiecePlacementException('piece out of bounds')
-            if self.squares[row_idx][col_idx].is_occupied():
+            square = self.squares[row_idx][col_idx]
+            if square.is_occupied():
                 raise PiecePlacementException('tried to place piece on occupied square')
             # TODO: might want an add_piece fn for squares to validate piece/square idxs
-            self.squares[row_idx][col_idx].piece = piece
+            square.piece = piece
 
 class StandardBoard(Board):
     """class representing a chess board of the standard 8x8 size."""

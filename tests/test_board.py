@@ -3,11 +3,11 @@ import unittest
 from unittest.mock import patch
 from chessGame.board import Board, StandardBoard
 from chessGame.piece import Piece
-from chessGame import constants
+from chessGame import constants, conversion as conv
 from chessGame.enums import ChessColor, PieceType
 from chessGame.custom_exceptions import PiecePlacementException
 
-pfs = Piece.from_string
+psns = conv.parse_std_notation_string
 class BoardTest(unittest.TestCase):
     """tests for the Board class."""
     @patch.object(Board, '_create_squares')
@@ -50,6 +50,7 @@ class BoardTest(unittest.TestCase):
         test_board = Board({'num_rows': num_rows, 'num_cols': num_cols})
 
         # TODO: decouple testing for this from Square logic
+        # TODO: actually populate board first
         # test clearing when board is already empty
         test_board.clear()
         for row in test_board.squares:
@@ -64,34 +65,42 @@ class BoardTest(unittest.TestCase):
         num_rows = constants.STD_BOARD_WIDTH
         num_cols = constants.STD_BOARD_HEIGHT
         test_board = Board({'num_rows': num_rows, 'num_cols': num_cols})
+
+        def map_std_notation_str(s):
+            piece_params, coordinates = psns(s)
+            return Piece(*piece_params), coordinates
+
         # raise if piece's indexes are out of bounds
         test_pieces_with_oob = [
-            Piece(PieceType.PAWN, ChessColor.WHITE, num_rows, 0),
-            Piece(PieceType.PAWN, ChessColor.WHITE, 0, num_cols)
+            (Piece(PieceType.PAWN, ChessColor.WHITE), (num_rows, 0)),
+            (Piece(PieceType.PAWN, ChessColor.WHITE), (0, num_cols))
         ]
-        for test_piece in test_pieces_with_oob:
+        for pair in test_pieces_with_oob:
             with self.assertRaises(PiecePlacementException):
-                test_board.populate([test_piece])
+                test_board.populate([pair])
         # raise if two pieces are populated to same square
-        test_pieces_with_dup = [
-            pfs('w Kb2'),
-            pfs('w Qb2')
+        dup_piece_strings = [
+            'w Kb2',
+            'w Qb2'
         ]
+        dup_piece_list = list(map(map_std_notation_str, dup_piece_strings))
         with self.assertRaises(PiecePlacementException):
-            test_board.populate(test_pieces_with_dup)
+            test_board.populate(dup_piece_list)
 
         # board not cleared if populate fails.
         test_board.clear()
-        good_test_pieces = [
-            pfs('w Kd2'),
-            pfs('w Qb4'),
-            pfs('b h8'),
-            pfs('b h5'),
+        good_test_strings = [
+            'w Kd2',
+            'w Qb4',
+            'b h8',
+            'b h5'
         ]
-        test_board.populate(good_test_pieces)
-        for test_piece in good_test_pieces:
-            row_idx = test_piece.row_idx
-            col_idx = test_piece.col_idx
+        good_test_list = list(map(map_std_notation_str, good_test_strings))
+        # TODO: make function for generating mapping
+        test_board.populate(good_test_list)
+        for test_piece, coordinates in good_test_list:
+            row_idx = coordinates[0]
+            col_idx = coordinates[1]
             self.assertEqual(test_board.squares[row_idx][col_idx].piece, test_piece)
 
 class StandardBoardTest(unittest.TestCase):

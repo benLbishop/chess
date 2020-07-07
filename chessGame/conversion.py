@@ -1,29 +1,35 @@
 """module for converting string representations of pieces/games to useable objects."""
 from .enums import ChessColor, PieceType
 
-def parse_piece_color_string(color_str):
-    color_str = color_str.lower().strip()
-    if color_str == 'w':
+def parse_piece_color_char(char):
+    """Converts a char to a ChessColor."""
+    char = char.lower().strip()
+    if char == 'w':
         return ChessColor.WHITE
-    elif color_str == 'b':
+    if char == 'b':
         return ChessColor.BLACK
     raise ValueError('color string not recognized.')
 
-def parse_piece_type_char(type_char):
-    type_char = type_char.lower()
-    if type_char == 'k':
+def parse_piece_type_char(char):
+    """Converts a char to a PieceType."""
+    char = char.lower()
+    if char == 'k':
         return PieceType.KING
-    if type_char == 'q':
+    if char == 'q':
         return PieceType.QUEEN
-    if type_char == 'r':
+    if char == 'r':
         return PieceType.ROOK
-    if type_char == 'b':
+    if char == 'b':
         return PieceType.BISHOP
-    if type_char == 'n':
+    if char == 'n':
         return PieceType.KNIGHT
     raise ValueError('invalid piece type character')
 
 def parse_rank_char(rank_char):
+    """Takes in a character and returns the 0-indexed rank for the piece.
+        This expects to take in a string of length one representing a 1-indexed rank
+        (normally a char in the range 1-8).
+    """
     min_rank_val = ord('a')
     rank_val = ord(rank_char)
     val_diff = rank_val - min_rank_val
@@ -34,7 +40,8 @@ def parse_rank_char(rank_char):
 
 def parse_file_char(file_char):
     """Takes in a character and returns the 0-indexed file for the piece.
-        This expects to take in a string of length one representing a 1-indexed file.
+        This expects to take in a string of length one representing a 1-indexed file
+        (normally a char in the range a-h).
     """
     if not file_char.isdigit():
         raise ValueError('invalid file provided for piece, not an integer')
@@ -45,30 +52,20 @@ def parse_file_char(file_char):
         raise ValueError('invalid file provided for piece, not in range')
     return actual_file
 
-# TODO: rename
 def parse_piece_location_string(loc_str):
+    """attempts to take the std. notation location and convert it to row, column coordinates."""
     loc_str = loc_str.strip()
     if len(loc_str) < 2:
         raise ValueError('piece location too short.')
 
-    chars = [char for char in loc_str]
     try:
-        if len(chars) == 2:
-            # pawn, should only be constructing location
-            piece_type = PieceType.PAWN
-            rank = parse_rank_char(chars[0])
-            actual_file = parse_file_char(chars[1])
-        else:
-            piece_type = parse_piece_type_char(chars[0])
-            rank = parse_rank_char(chars[1])
-            actual_file = parse_file_char(chars[2])
+        rank = parse_rank_char(loc_str[0])
+        actual_file = parse_file_char(loc_str[1])
+        return (rank, actual_file)
     except ValueError as err:
         raise err
 
-    return (piece_type, rank, actual_file)
-    
-
-def get_piece_params(piece_str):
+def parse_std_notation_string(piece_str):
     """attempts to parse a string into a Piece.
 
     Raises a ValueError if anything cannot be parsed.
@@ -76,29 +73,44 @@ def get_piece_params(piece_str):
     split = " ".join(piece_str.split()).split()
     if len(split) < 2:
         raise ValueError('too few fields to define piece.')
-    
+
     color_str = split[0]
     loc_str = split[1]
+    if len(color_str) == 0:
+        raise ValueError('color string too short.')
+    if len(loc_str) == 0:
+        raise ValueError('type/location string too short.')
     try:
-        color = parse_piece_color_string(color_str)
-        piece_type, rank, actual_file = parse_piece_location_string(loc_str)
-        return (piece_type, color, actual_file, rank)
+        color = parse_piece_color_char(color_str)
+        piece_type = None
+        coordinate = None
+        if len(loc_str) == 2:
+            # trying to parse pawn.
+            piece_type = PieceType.PAWN
+            coordinate = parse_piece_location_string(loc_str)
+        else:
+            piece_type = parse_piece_type_char(loc_str[0])
+            coordinate = parse_piece_location_string(loc_str[1:])
+        return (piece_type, color), coordinate
     except ValueError as err:
         raise err
 
-def separate_pieces(piece_list):
-    """takes a list of pieces of mixed color and separates them into white and black.
+def parse_piece_string(piece_str):
+    """attempts to parse a string into a Piece.
 
-    Describing colors in chess should never be taken out of context.
+    Raises a ValueError if anything cannot be parsed.
     """
-    # TODO: test
-    white_pieces, black_pieces = [], []
-    for piece in piece_list:
-        if piece.color == ChessColor.WHITE:
-            white_pieces.append(piece)
-        else:
-            black_pieces.append(piece)
+    piece_str = piece_str.lower().strip()
+    if len(piece_str) == 0:
+        raise ValueError('too few fields to define piece.')
 
-    sorted_white = sorted(white_pieces, key=lambda piece: piece.name.value)
-    sorted_black = sorted(black_pieces, key=lambda piece: piece.name.value)
-    return (sorted_white, sorted_black)
+    try:
+        color = parse_piece_color_char(piece_str[0])
+        piece_type = None
+        if len(piece_str) == 1:
+            piece_type = PieceType.PAWN
+        else:
+            piece_type = parse_piece_type_char(piece_str[-1])
+        return (piece_type, color)
+    except ValueError as err:
+        raise err

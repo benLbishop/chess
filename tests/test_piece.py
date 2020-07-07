@@ -11,30 +11,21 @@ class PieceTest(unittest.TestCase):
 
     def test_init(self):
         """tests the constructor."""
-        row_idx, col_idx = 3, 4
-        pawn = pfs('b e4')
+        pawn = Piece(PieceType.PAWN, ChessColor.BLACK)
         self.assertEqual(pawn.name, PieceType.PAWN)
         self.assertEqual(pawn.color, ChessColor.BLACK)
-        self.assertEqual(pawn.row_idx, row_idx)
-        self.assertEqual(pawn.col_idx, col_idx)
         self.assertEqual(pawn.has_moved, False)
 
     def test_eq(self):
         """test the __eq__ classmethod."""
-        pawn = pfs('b e4')
-        pawn2 = pfs('b e4')
-        pawn3 = pfs('w e4')
-        pawn4 = pfs('b e1')
-        pawn5 = pfs('b a4')
-        rook = pfs('b Re4')
+        pawn = pfs('b')
+        pawn2 = pfs('b')
+        rook = pfs('b R')
 
         self.assertEqual(pawn, pawn2)
-        self.assertNotEqual(pawn, pawn3)
-        self.assertNotEqual(pawn, pawn4)
-        self.assertNotEqual(pawn, pawn5)
         self.assertNotEqual(pawn, rook)
 
-    @patch.object(conv, 'get_piece_params')
+    @patch.object(conv, 'parse_piece_string')
     def test_from_string(self, get_params_mock):
         """tests the constructor class method that makes pieces from strings."""
         # should raise if string cannot be parsed

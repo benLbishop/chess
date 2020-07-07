@@ -7,7 +7,7 @@ import chessGame.conversion as conv
 class ConversionTest(unittest.TestCase):
     """tests for methods in conversion.py."""
 
-    def test_parse_piece_color_string(self):
+    def test_parse_piece_color_char(self):
         white = ChessColor.WHITE
         black = ChessColor.BLACK
         valid_tests = [
@@ -20,7 +20,7 @@ class ConversionTest(unittest.TestCase):
             (' B ', black)
         ]
         for s, result in valid_tests:
-            self.assertEqual(conv.parse_piece_color_string(s), result)
+            self.assertEqual(conv.parse_piece_color_char(s), result)
 
         # TODO: invalid tests
 
@@ -79,13 +79,10 @@ class ConversionTest(unittest.TestCase):
 
     @patch.object(conv, 'parse_file_char')
     @patch.object(conv, 'parse_rank_char')
-    @patch.object(conv, 'parse_piece_type_char')
-    def test_parse_piece_location_string(self, piece_type_mock, rank_mock, file_mock):
-        dummy_type = 'dummy type'
-        dummy_rank = 'dummy rank'
-        dummy_file = 'dummy file'
-        dummy_res = (dummy_type, dummy_rank, dummy_file)
-        piece_type_mock.return_value = dummy_type
+    def test_parse_piece_location_string(self, rank_mock, file_mock):
+        dummy_rank = 999
+        dummy_file = 999
+        dummy_res = (dummy_rank, dummy_file)
         rank_mock.return_value = dummy_rank
         file_mock.return_value = dummy_file
 
@@ -93,49 +90,74 @@ class ConversionTest(unittest.TestCase):
         short_strs = [
             '',
             'a',
-            '   a ',
+            'a ',
             'a    '
         ]
         for s in short_strs:
             with self.assertRaises(ValueError):
                 conv.parse_piece_location_string(s)
 
-        # len == 2 tests
         pawn_tests = [
             ('a4', 'a', '4'),
-            ('    b3', 'b', '3'),
-            ('  h8 ', 'h', '8')
+            ('b3 ', 'b', '3'),
+            ('h8   ', 'h', '8')
         ]
         for test_str, rank_input, file_input in pawn_tests:
             res = conv.parse_piece_location_string(test_str)
-            self.assertTupleEqual(res, (PieceType.PAWN, dummy_rank, dummy_file))
+            self.assertTupleEqual(res, (dummy_rank, dummy_file))
 
-            piece_type_mock.assert_not_called()
-            rank_mock.assert_called_with(rank_input)
-            file_mock.assert_called_with(file_input)
-
-        # len > 2 tests
-        other_type_tests = [
-            ('Na4', 'N', 'a', '4'),
-            ('    Bb3', 'B', 'b', '3'),
-            ('  Kh8 ', 'K', 'h', '8')
-        ]
-        for test_str, type_input, rank_input, file_input in other_type_tests:
-            res = conv.parse_piece_location_string(test_str)
-            self.assertTupleEqual(res, dummy_res)
-
-            piece_type_mock.assert_called_with(type_input)
             rank_mock.assert_called_with(rank_input)
             file_mock.assert_called_with(file_input)
         # TODO: invalid tests
 
-    def test_get_piece_params(self):
-        # should handle white space
-        test_cases = [
-            ('w a4', (PieceType.PAWN, ChessColor.WHITE, 3, 0)),
-            ('b Na4', (PieceType.KNIGHT, ChessColor.BLACK, 3, 0)),
+    @patch.object(conv, 'parse_piece_location_string')
+    @patch.object(conv, 'parse_piece_type_char')
+    @patch.object(conv, 'parse_piece_color_char')
+    def test_parse_std_notation_string(self, parse_color_mock, parse_type_mock, parse_loc_mock):
+        parse_color_mock.return_value = 'dummy_color'
+        parse_type_mock.return_value = 'dummy_type'
+        dummy_loc = ('dummy_rank', 'dummy_file')
+        parse_loc_mock.return_value = dummy_loc
+        expected_res = (('dummy_type', 'dummy_color'), dummy_loc)
+        pawn_tests = [
+            ('w a4', 'w', 'a4'),
+            ('b b3 ', 'b', 'b3'),
+            ('w h8   ', 'w', 'h8')
         ]
-        # TODO: more tests, failure cases
-        for piece_str, expected_res in test_cases:
-            res = conv.get_piece_params(piece_str)
+        pawn_res = ((PieceType.PAWN, 'dummy_color'), dummy_loc)
+        for test_str, color_input, loc_input in pawn_tests:
+            res = conv.parse_std_notation_string(test_str)
+            self.assertEqual(res, pawn_res)
+            parse_type_mock.assert_not_called()
+            parse_color_mock.assert_called_with(color_input)
+            parse_loc_mock.assert_called_with(loc_input)
+
+        # TODO: more tests
+
+
+    def test_parse_piece_string(self):
+        white_tests = [
+            ('w', (PieceType.PAWN, ChessColor.WHITE)),
+            ('w N', (PieceType.KNIGHT, ChessColor.WHITE)),
+            ('w B', (PieceType.BISHOP, ChessColor.WHITE)),
+            ('w R', (PieceType.ROOK, ChessColor.WHITE)),
+            ('w Q', (PieceType.QUEEN, ChessColor.WHITE)),
+            ('w K', (PieceType.KING, ChessColor.WHITE)),
+        ]
+
+        black_tests = [
+            ('b', (PieceType.PAWN, ChessColor.BLACK)),
+            ('b N', (PieceType.KNIGHT, ChessColor.BLACK)),
+            ('b B', (PieceType.BISHOP, ChessColor.BLACK)),
+            ('b R', (PieceType.ROOK, ChessColor.BLACK)),
+            ('b Q', (PieceType.QUEEN, ChessColor.BLACK)),
+            ('b K', (PieceType.KING, ChessColor.BLACK))
+        ]
+
+        for s, expected_res in white_tests:
+            res = conv.parse_piece_string(s)
+            self.assertEqual(res, expected_res)
+
+        for s, expected_res in black_tests:
+            res = conv.parse_piece_string(s)
             self.assertEqual(res, expected_res)
