@@ -6,11 +6,11 @@ from chessGame.piece import Piece
 from chessGame.enums import PieceType, ChessColor, MoveType
 from chessGame.board import Board
 from chessGame.player import Player
-from chessGame import constants
+from chessGame import constants, conversion
 from chessGame.custom_exceptions import InvalidMoveException
-from chessGame.conversion import separate_pieces
 from . import board_lists
 
+psns = conversion.parse_std_notation_string
 pfs = Piece.from_string
 
 class GameStateTest(unittest.TestCase):
@@ -23,33 +23,31 @@ class GameStateTest(unittest.TestCase):
 
     def tearDown(self):
         self.board.clear()
-        self.white_player.active_pieces = []
-        self.black_player.active_pieces = []
 
-    def test_player_is_checkmated(self):
-        # if len(checking_pieces) > 1, only need to check if king can move and no longer be in check
-        # otherwise...
-        #   1. check if king can move and no longer be in check (so just do this first regardless)
-        #   2. for checking piece's path to king, see if any of player's pieces can intercede path
-        #       or capture checking piece without opening up another check situation
-        # test checkmate results
-        for test_board in board_lists.checkmate_list:
-            piece_strings, mated_color = test_board
-            piece_list = [Piece.from_string(s) for s in piece_strings]
-            white_pieces, black_pieces = separate_pieces(piece_list)
-            self.board.populate(white_pieces + black_pieces)
-            self.white_player.active_pieces = white_pieces
-            self.black_player.active_pieces = black_pieces
-            # TODO: how do I get the checking pieces?
-            if mated_color is ChessColor.WHITE:
-                checking_pieces = gs.get_checking_pieces(self.board, self.white_player, self.black_player)
-                res = gs.player_is_checkmated(self.board, self.white_player, self.black_player, checking_pieces)
-            else:
-                checking_pieces = gs.get_checking_pieces(self.board, self.black_player, self.white_player)
-                res = gs.player_is_checkmated(self.board, self.black_player, self.white_player, checking_pieces)
-            self.assertEqual(res, True)
-            self.tearDown()
-        # TODO: test non-checkmates
+    # def test_player_is_checkmated(self):
+    #     # if len(checking_pieces) > 1, only need to check if king can move and no longer be in check
+    #     # otherwise...
+    #     #   1. check if king can move and no longer be in check (so just do this first regardless)
+    #     #   2. for checking piece's path to king, see if any of player's pieces can intercede path
+    #     #       or capture checking piece without opening up another check situation
+    #     # test checkmate results
+    #     for test_board in board_lists.checkmate_list:
+    #         piece_strings, mated_color = test_board
+    #         piece_list = [Piece.from_string(s) for s in piece_strings]
+    #         white_pieces, black_pieces = separate_pieces(piece_list)
+    #         self.board.populate(white_pieces + black_pieces)
+    #         self.white_player.active_pieces = white_pieces
+    #         self.black_player.active_pieces = black_pieces
+    #         # TODO: how do I get the checking pieces?
+    #         if mated_color is ChessColor.WHITE:
+    #             checking_pieces = gs.get_checking_pieces(self.board, self.white_player, self.black_player)
+    #             res = gs.player_is_checkmated(self.board, self.white_player, self.black_player, checking_pieces)
+    #         else:
+    #             checking_pieces = gs.get_checking_pieces(self.board, self.black_player, self.white_player)
+    #             res = gs.player_is_checkmated(self.board, self.black_player, self.white_player, checking_pieces)
+    #         self.assertEqual(res, True)
+    #         self.tearDown()
+    #     # TODO: test non-checkmates
 
             
 
@@ -62,13 +60,13 @@ class GameStateTest(unittest.TestCase):
     @patch.object(pathing, 'get_move_path')
     def test_get_checking_pieces(self, move_mock):
         # not check situations
-        black_king = pfs('b Ka8')
-        white_king = pfs('w Ka1')
+        black_king_params, black_coords = psns('b Ka8')
+        white_king_params, white_coords = psns('w Ka1')
+        black_king = Piece(*black_king_params)
+        white_king = Piece(*white_king_params)
         # TODO: since I'm mocking get_move_path, probably don't need to assign to board
-        self.board.squares[7][0] = black_king
-        self.board.squares[0][0] = white_king
-        self.white_player.active_pieces = [white_king]
-        self.black_player.active_pieces = [black_king]
+        self.board.squares[black_coords[0]][black_coords[1]].piece = black_king
+        self.board.squares[white_coords[0]][white_coords[1]].piece = white_king
 
         move_mock.side_effect = [InvalidMoveException('dummy exception')]
         self.assertEqual(gs.get_checking_pieces(self.board, self.white_player, self.black_player), [])
@@ -77,13 +75,13 @@ class GameStateTest(unittest.TestCase):
     # TODO: move
     def test_get_move_options(self):
         row_idx, col_idx = 3, 3
-        white_pawn = pfs('w d4')
-        black_pawn = pfs('b d4')
-        knight = pfs('w Nd4')
-        bishop = pfs('w Bd4')
-        rook = pfs('w Rd4')
-        queen = pfs('w Qd4')
-        king = pfs('w Kd4')
+        white_pawn = pfs('w')
+        black_pawn = pfs('b')
+        knight = pfs('w N')
+        bishop = pfs('w B')
+        rook = pfs('w R')
+        queen = pfs('w Q')
+        king = pfs('w K')
         test_cases = [
             (white_pawn, constants.PAWN_WHITE_MOVES),
             (black_pawn, constants.PAWN_BLACK_MOVES),
@@ -102,16 +100,5 @@ class GameStateTest(unittest.TestCase):
             (['w a2', 'b a3'], [])
         ]
         for piece_strings, expected_res in valid_move_tests:
-            piece_list = [Piece.from_string(s) for s in piece_strings]
-            white_pieces, black_pieces = separate_pieces(piece_list)
-            self.white_player.active_pieces = white_pieces
-            self.black_player.active_pieces = black_pieces
-            self.board.populate(white_pieces + black_pieces)
-
-            res = gs.get_valid_adjacent_squares(white_pieces[0], self.board, self.black_player)
-            self.assertEqual(res, expected_res)
-            self.tearDown()
-        # check every possible square the piece could move to in 1 unit.
-        # if blocked, return false
-        # if move results in player being in check, return false
+            pass # TODO
 

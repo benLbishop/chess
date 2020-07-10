@@ -61,27 +61,18 @@ class Game:
         moving_piece = start_square.piece
         captured_piece = end_square.piece # could be None
         end_square.piece = moving_piece
-        moving_piece.row_idx = end_square.row_idx
-        moving_piece.col_idx = end_square.col_idx
         start_square.clear()
-        # if piece was captured, update player piece lists
-        if captured_piece is not None:
-            cur_opponent.active_pieces.remove(captured_piece)
 
         # see if player put themselves in check
         checking_pieces = game_state.get_checking_pieces(self.board, cur_player, cur_opponent)
         if len(checking_pieces) > 0:
             # cur_player put themselves in check, not allowed. Reset moved pieces
             start_square.piece = moving_piece
-            moving_piece.row_idx = start_square.row_idx
-            moving_piece.col_idx = start_square.col_idx
             end_square.piece = captured_piece
-            if captured_piece is not None:
-                cur_opponent.active_pieces.append(captured_piece) # TODO: resort
             raise InvalidMoveException('player tried to put themselves in check')
-        else:
-            if captured_piece is not None:
-                cur_player.captured_pieces.append(captured_piece)
+        # update captured piece list if it occurred
+        if captured_piece is not None:
+            cur_player.captured_pieces.append(captured_piece)
             
 
         # TODO: log move w/ notation

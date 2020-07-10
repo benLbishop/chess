@@ -22,8 +22,6 @@ class TestMoveLogic(unittest.TestCase):
 
     def tearDown(self):
         self.board.clear()
-        self.player.active_pieces = []
-        self.opponent.active_pieces = []
 
     def test_square_is_in_bounds(self):
         # squares can't be constructed with negative bounds, so just test if row/col length exceeded

@@ -11,11 +11,7 @@ class Piece:
         return "{} {}".format(self.color, self.name)
 
     def __eq__(self, other):
-        if self.name is not other.name:
-            return False
-        if self.color is not other.color:
-            return False
-        return True
+        return (self.name, self.color) == (other.name, other.color)
 
     @classmethod
     def from_string(cls, piece_string):

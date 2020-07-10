@@ -98,6 +98,33 @@ class BoardTest(unittest.TestCase):
             row_idx = coordinates[0]
             col_idx = coordinates[1]
             self.assertEqual(test_board.squares[row_idx][col_idx].piece, test_piece)
+    
+    def test_get_active_pieces(self):
+        num_rows = constants.STD_BOARD_WIDTH
+        num_cols = constants.STD_BOARD_HEIGHT
+        test_board = Board({'num_rows': num_rows, 'num_cols': num_cols})
+
+        # test with empty piece list
+        res = test_board.get_active_pieces()
+        self.assertTupleEqual(res, ([], []))
+
+        test1 = [
+            'w Kd2',
+            'w Qb4',
+            'b h8',
+            'b h5'
+        ]
+        test1_mapping = input.std_strings_to_piece_mapping(test1)
+        test_board.populate(test1_mapping)
+
+        test1_pieces = [elt[0] for elt in test1_mapping]
+        white_pieces = test1_pieces[0:2]
+        black_pieces = test1_pieces[2:]
+
+        res = test_board.get_active_pieces()
+        self.assertTupleEqual(res, (white_pieces, black_pieces))
+
+        # TODO: more tests
 
 class StandardBoardTest(unittest.TestCase):
     """tests for the derived Board class StandardBoard."""

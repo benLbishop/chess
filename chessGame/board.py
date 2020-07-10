@@ -2,6 +2,7 @@
 from .square import Square
 from . import constants
 from .custom_exceptions import PiecePlacementException
+from .enums import ChessColor
 
 class Board:
     """class representing a chess board of any size."""
@@ -52,6 +53,22 @@ class Board:
                 raise PiecePlacementException('tried to place piece on occupied square')
             # TODO: might want an add_piece fn for squares to validate piece/square idxs
             square.piece = piece
+
+    def get_active_pieces(self):
+        """gets the list of white and black pieces on the board."""
+        white_pieces = []
+        black_pieces = []
+        for row in self.squares:
+            for square in row:
+                if square.is_occupied():
+                    piece = square.piece
+                    if piece.color == ChessColor.WHITE:
+                        white_pieces.append(piece)
+                    else:
+                        black_pieces.append(piece)
+        white_pieces.sort(key=lambda p: p.name.value)
+        black_pieces.sort(key=lambda p: p.name.value)
+        return white_pieces, black_pieces
 
 class StandardBoard(Board):
     """class representing a chess board of the standard 8x8 size."""

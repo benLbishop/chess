@@ -10,48 +10,6 @@ def player_is_checkmated(board, player, opponent, checking_pieces):
     This should only after it's confirmed that the player is in check.
     """
     # TODO
-    # see if king can move and escape check.
-    player_king = player.active_pieces[0]
-    king_row_idx = player_king.row_idx
-    king_col_idx = player_king.col_idx
-    king_square = board.squares[king_row_idx][king_col_idx]
-    valid_squares = get_valid_adjacent_squares(player_king, board, player)
-    for square in valid_squares:
-        # see if king can move and player resultingly is no longer in check.
-        captured_piece = square.piece
-        if captured_piece is not None:
-            opponent.active_pieces.remove(captured_piece)
-        square.piece = player_king
-        player_king.row_idx = square.row_idx
-        player_king.col_idx = square.col_idx
-        king_square.clear()
-        check_pieces = get_checking_pieces(board, player, opponent)
-
-        # clean up
-        if captured_piece is not None:
-            opponent.active_pieces.append(captured_piece) # TODO: re-sort list
-        king_square.piece = player_king
-        square.piece = captured_piece
-        # if so, return False
-        if len(check_pieces) == 0:
-            # No checking pieces in simulated move of king, not checkmate
-            return False
-    if len(checking_pieces) > 1:
-        # can't capture/block both pieces. checkmate
-        return True
-    # check to see if we can capture/block single checking piece and not open another check
-    other_player_pieces = player.active_pieces[1:]
-    for piece in other_player_pieces:
-        piece_square = board.squares[piece.row_idx][piece.col_idx]
-        for path_square in checking_pieces.move_path:
-            try:
-                pathing.get_move_path(piece_square, path_square, board, player)
-                # TODO: check if this put us in check
-                return True
-            except InvalidMoveException:
-                continue
-        # try to move to each square in checking_piece's move_path, then check for check
-    return False
 
 def player_is_stalemated(board, player, opponent):
     """Does what it sounds like, a.k.a. returns whether or not the game has reached a stalemate.
@@ -66,7 +24,8 @@ def get_checking_pieces(board, player, opponent):
         If none found, returns an empty list.
     """
     # king should always be first piece in array
-    player_king = player.active_pieces[0]
+    white_pieces, black_pieces = board.get_active_pieces()
+    player_king = white_pieces[0] if player.color == ChessColor.WHITE else black_pieces[0]
     king_square = board.squares[player_king.row_idx][player_king.col_idx]
 
     checking_pieces = []

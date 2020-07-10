@@ -91,28 +91,23 @@ class GameTest(unittest.TestCase):
 
         # test again with a piece on destination square
         end.piece = rook
-        test_game.black_player.active_pieces = [rook]
         with self.assertRaises(InvalidMoveException):
             test_game._move_piece(start, end)
         self.assertEqual(end.piece, rook)
         self.assertEqual(start.piece, white_king)
-        test_game.black_player.active_pieces = []
 
             # should properly update capture list, if something like that occurs
         check_mock.return_value = []
         
         test_game.board.clear()
         start.piece = white_king
-        test_game.black_player.active_pieces = [rook]
         test_game._move_piece(start, end)
-        self.assertEqual(test_game.black_player.active_pieces, [rook])
         self.assertEqual(test_game.white_player.captured_pieces, [])
 
         test_game.board.clear()
         start.piece = white_king
         end.piece = rook
         test_game._move_piece(start, end)
-        self.assertEqual(test_game.black_player.active_pieces, [])
         self.assertEqual(test_game.white_player.captured_pieces, [rook])
 
         # TODO: test this with same piece type but different locations, i.e. two pawns.

@@ -22,8 +22,6 @@ class TestMoveLogic(unittest.TestCase):
 
     def tearDown(self):
         self.board.clear()
-        self.player.active_pieces = []
-        self.opponent.active_pieces = []
 
     def test_get_necessary_move_type(self):
         start_row, start_col = 4, 4
