@@ -21,6 +21,7 @@ class BoardTest(unittest.TestCase):
         # if dimensions become customizable, make sure they're > 0
         self.assertEqual(test_board.NUM_ROWS, constants.STD_BOARD_WIDTH)
         self.assertEqual(test_board.NUM_COLS, constants.STD_BOARD_HEIGHT)
+        self.assertIsNone(test_board.last_move)
         _create_squares_mock.assert_called_once()
 
     def test_create_squares(self):
@@ -160,6 +161,7 @@ class BoardTest(unittest.TestCase):
         self.assertEqual(res, (dummy_path, None))
         self.assertFalse(start_square.is_occupied())
         self.assertEqual(test_piece, end_square.piece)
+        self.assertEqual(test_board.last_move, (start_square, end_square, None))
 
         # should return the captured piece (if it occurred)
         start_square.add_piece(test_piece)
@@ -169,13 +171,42 @@ class BoardTest(unittest.TestCase):
 
         res = test_board.move_piece(start_coords, end_coords, ChessColor.WHITE)
         self.assertEqual(res, (dummy_path, test_piece2))
+        self.assertEqual(test_board.last_move, (start_square, end_square, test_piece2))
         
         # TODO: test this with same piece type but different locations, i.e. two pawns.
         # want to make sure the correct pawn is removed from player list
 
     def test_undo_move(self):
         # TODO
-        self.assertTrue(False)
+        num_rows = constants.STD_BOARD_WIDTH
+        num_cols = constants.STD_BOARD_HEIGHT
+        test_board = Board({'num_rows': num_rows, 'num_cols': num_cols})
+        test_piece = Piece(ChessColor.BLACK)
+        last_start = test_board.squares[0][0]
+        last_end = test_board.squares[2][2]
+
+        # should raise if no last move
+        with self.assertRaises(InvalidMoveException):
+            test_board.undo_move()
+
+        # should move piece from last end to last start
+        test_board.last_move = (last_start, last_end, None)
+        last_end.piece = test_piece
+        self.assertIsNone(last_start.piece)
+        test_board.undo_move()
+        self.assertEqual(last_start.piece, test_piece)
+        self.assertIsNone(last_end.piece)
+
+        last_start.clear()
+        last_end.clear()
+        # should replace piece if it was captured
+        test_piece2 = Piece(ChessColor.WHITE)
+        test_board.last_move = (last_start, last_end, test_piece2)
+        last_end.piece = test_piece
+        self.assertIsNone(last_start.piece)
+        test_board.undo_move()
+        self.assertEqual(last_start.piece, test_piece)
+        self.assertEqual(last_end.piece, test_piece2)
     
     def test_get_active_pieces(self):
         num_rows = constants.STD_BOARD_WIDTH

@@ -4,8 +4,8 @@ from unittest.mock import patch
 from chessGame.game import Game
 from chessGame.board import Board, StandardBoard
 from chessGame.player import Player
-from chessGame import constants, conversion as conv
-from chessGame.move_logic import pathing, game_state
+from chessGame import conversion as conv
+from chessGame.move_logic import game_state
 from chessGame.custom_exceptions import InvalidMoveException
 from chessGame.enums import ChessColor
 
@@ -70,38 +70,44 @@ class GameTest(unittest.TestCase):
         test_game.is_white_turn = False
         test_game.make_move(start_coords, end_coords)
         move_mock.assert_called_with(start_coords, end_coords, ChessColor.BLACK)
+
+        test_game.is_white_turn = True
         # should raise if piece can't be moved
         move_mock.side_effect = InvalidMoveException('dummy exception')
         with self.assertRaises(InvalidMoveException):
             test_game.make_move(start_coords, end_coords)
 
         move_mock.side_effect = None
-        # update check/checkmate/stalemate status. end the game if appropriate
-        # update current player if game not over
+
+        # should raise if player puts themselves in check
         check_mock.return_value = ['something']
-        # TODO: test check happening
-        undo_move_mock.assert_called_once()
-        checkmate_mock.return_value = False
-        test_game.make_move(start_coords, end_coords)
-        self.assertEqual(test_game.is_complete, False)
-        self.assertEqual(test_game.is_white_turn, False)
+        with self.assertRaises(InvalidMoveException):
+            test_game.make_move(start_coords, end_coords)
+            undo_move_mock.assert_called_once()
+            self.assertEqual(test_game.is_white_turn, False)
 
+        check_mock.return_value = []
 
+        # make sure checkmate will cauuse the game to end
+        check_mock.side_effect = [[], ['something']]
         checkmate_mock.return_value = True
         test_game.make_move(start_coords, end_coords)
+        checkmate_mock.assert_called_once()
         self.assertEqual(test_game.is_complete, True)
 
-        test_game.is_white_turn = True # TODO: put this in teardown or something
-
+        # make sure game doesn't end if not in stalemate
         test_game.is_complete = False
-        check_mock.return_value = []
+        test_game.is_white_turn = True
+        check_mock.side_effect = None
         stalemate_mock.return_value = False
         test_game.make_move(start_coords, end_coords)
         self.assertEqual(test_game.is_complete, False)
         self.assertEqual(test_game.is_white_turn, False)
 
+        # make sure game ends if in stalemate
         stalemate_mock.return_value = True
         test_game.make_move(start_coords, end_coords)
         self.assertEqual(test_game.is_complete, True)
 
-    
+        # TODO: verify tests
+ 

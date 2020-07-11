@@ -4,7 +4,7 @@ from .player import Player
 from .enums import ChessColor
 from .custom_exceptions import PiecePlacementException, InvalidMoveException
 from . import constants, conversion
-from .move_logic import pathing, game_state
+from .move_logic import game_state
 
 class Game:
     """class representing an instance of a game of chess."""
@@ -40,7 +40,7 @@ class Game:
     def _validate_initial_game_state(self):
         # both players have exactly 1 king (maybe at least 1 in the future)
         # neither player is starting in checkmate/stalemate
-        # TODO: test
+        # TODO
         pass
 
     def make_move(self, start_coords, end_coords):

@@ -9,6 +9,9 @@ class Board:
     def __init__(self, board_config):
         self.NUM_ROWS = board_config['num_rows']
         self.NUM_COLS = board_config['num_cols']
+        # TODO: have move_history. Should this be in Game class?
+        # TODO: make this a namedtuple
+        self.last_move = None
         self._create_squares()
 
     def __str__(self):
@@ -95,10 +98,17 @@ class Board:
         end_square.add_piece(moving_piece)
         start_square.clear()
 
+        self.last_move = (start_square, end_square, captured_piece)
         return move_path, captured_piece
 
     def undo_move(self):
-        pass # TODO
+        """Reverts the last move made on the board."""
+        if not self.last_move:
+            raise InvalidMoveException('no move to undo.')
+
+        last_start, last_end, captured_piece = self.last_move
+        last_start.piece = last_end.piece
+        last_end.piece = captured_piece
 
     def get_active_pieces(self):
         """gets the list of white and black pieces on the board."""
