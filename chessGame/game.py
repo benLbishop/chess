@@ -1,7 +1,6 @@
 """module containing the Game class."""
 from .board import Board, StandardBoard
 from .player import Player
-from .piece import Piece
 from .enums import ChessColor
 from .custom_exceptions import PiecePlacementException, InvalidMoveException
 from . import constants, conversion, input

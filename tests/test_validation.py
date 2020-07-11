@@ -3,14 +3,13 @@ import unittest
 from unittest.mock import patch
 from chessGame.square import Square
 from chessGame.player import Player
-from chessGame.piece import Piece
-from chessGame.enums import ChessColor, PieceType
+from chessGame.enums import ChessColor
 from chessGame.board import Board
-from chessGame import constants
+from chessGame import constants, conversion
 from chessGame.move_logic import validation
 import chessGame.custom_exceptions as ce
 
-pfs = Piece.from_string
+pps = conversion.parse_piece_string
 class TestMoveLogic(unittest.TestCase):
     """tests for the move logic."""
 
@@ -225,12 +224,12 @@ class TestMoveLogic(unittest.TestCase):
             king_mock
         ):
         # should call the appropriate fn based on the piece type
-        pawn = pfs('w')
-        knight = pfs('w N')
-        bishop = pfs('w B')
-        rook = pfs('w R')
-        queen = pfs('w Q')
-        king = pfs('w K')
+        pawn = pps('w')
+        knight = pps('w N')
+        bishop = pps('w B')
+        rook = pps('w R')
+        queen = pps('w Q')
+        king = pps('w K')
 
         start = Square(0, 0)
         end = Square(1, 1)
@@ -254,10 +253,10 @@ class TestMoveLogic(unittest.TestCase):
     @patch.object(validation, 'square_is_in_bounds')
     def test_validate_move(self, siib_mock, valid_dest_mock):
         """test main logic for if a move is legal."""
-        white_piece = pfs('w Q')
+        white_piece = pps('w Q')
         start = Square(0, 0)
         start.piece = white_piece
-        black_piece = pfs('b Q')
+        black_piece = pps('b Q')
         end = Square(0, 1)
         end.piece = black_piece
         # should raise error if start square not in bounds

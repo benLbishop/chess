@@ -2,9 +2,9 @@
 import unittest
 from unittest.mock import patch
 from chessGame.board import Board, StandardBoard
-from chessGame.piece import Piece
-from chessGame import constants, input, conversion as conv
-from chessGame.enums import ChessColor, PieceType
+from chessGame.pieces.pawn import Pawn
+from chessGame import constants, conversion as conv
+from chessGame.enums import ChessColor
 from chessGame.custom_exceptions import PiecePlacementException
 
 psns = conv.parse_std_notation_string
@@ -68,8 +68,8 @@ class BoardTest(unittest.TestCase):
 
         # raise if piece's indexes are out of bounds
         test_pieces_with_oob = [
-            (Piece(PieceType.PAWN, ChessColor.WHITE), (num_rows, 0)),
-            (Piece(PieceType.PAWN, ChessColor.WHITE), (0, num_cols))
+            (Pawn(ChessColor.WHITE), (num_rows, 0)),
+            (Pawn(ChessColor.WHITE), (0, num_cols))
         ]
         for pair in test_pieces_with_oob:
             with self.assertRaises(PiecePlacementException):
@@ -79,7 +79,7 @@ class BoardTest(unittest.TestCase):
             'w Kb2',
             'w Qb2'
         ]
-        dup_piece_list = input.std_strings_to_piece_mapping(dup_piece_strings)
+        dup_piece_list = [psns(s) for s in dup_piece_strings]
         with self.assertRaises(PiecePlacementException):
             test_board.populate(dup_piece_list)
 
@@ -91,7 +91,7 @@ class BoardTest(unittest.TestCase):
             'b h8',
             'b h5'
         ]
-        good_test_list = input.std_strings_to_piece_mapping(good_test_strings)
+        good_test_list = [psns(s) for s in good_test_strings]
         # TODO: make function for generating mapping
         test_board.populate(good_test_list)
         for test_piece, coordinates in good_test_list:
@@ -114,7 +114,7 @@ class BoardTest(unittest.TestCase):
             'b h8',
             'b h5'
         ]
-        test1_mapping = input.std_strings_to_piece_mapping(test1)
+        test1_mapping = [psns(s) for s in test1]
         test_board.populate(test1_mapping)
 
         test1_pieces = [elt[0] for elt in test1_mapping]

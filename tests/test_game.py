@@ -4,13 +4,10 @@ from unittest.mock import patch
 from chessGame.game import Game
 from chessGame.board import Board, StandardBoard
 from chessGame.player import Player
-from chessGame import constants, input, conversion as conv
+from chessGame import constants, conversion as conv
 from chessGame.move_logic import pathing, game_state
-from chessGame.piece import Piece
-from chessGame.enums import PieceType, ChessColor
 from chessGame.custom_exceptions import InvalidMoveException
 
-pfs = Piece.from_string
 class GameTest(unittest.TestCase):
     """tests for the Game class."""
 
@@ -54,9 +51,9 @@ class GameTest(unittest.TestCase):
         test_game = Game(None, white_config, black_config, [])
         start = test_game.board.squares[1][1]
         end = test_game.board.squares[2][1]
-        white_king = pfs('w K')
-        black_king = pfs('b K')
-        rook = pfs('b R')
+        white_king = conv.parse_piece_string('w K')
+        black_king = conv.parse_piece_string('b K')
+        rook = conv.parse_piece_string('b R')
 
         path_mock.return_value = []
         # should raise if no move path found

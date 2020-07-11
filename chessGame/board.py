@@ -66,8 +66,7 @@ class Board:
                         white_pieces.append(piece)
                     else:
                         black_pieces.append(piece)
-        white_pieces.sort(key=lambda p: p.name.value)
-        black_pieces.sort(key=lambda p: p.name.value)
+        # TODO: sort pieces
         return white_pieces, black_pieces
 
 class StandardBoard(Board):

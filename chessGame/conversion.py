@@ -1,5 +1,13 @@
 """module for converting string representations of pieces/games to useable objects."""
-from .enums import ChessColor, PieceType
+from .enums import ChessColor
+from .pieces import (
+    king,
+    queen,
+    rook,
+    bishop,
+    knight,
+    pawn
+)
 
 def parse_piece_color_char(char):
     """Converts a char to a ChessColor."""
@@ -11,18 +19,18 @@ def parse_piece_color_char(char):
     raise ValueError('color string not recognized.')
 
 def parse_piece_type_char(char):
-    """Converts a char to a PieceType."""
+    """Converts a char to its corresponding piece class."""
     char = char.lower()
     if char == 'k':
-        return PieceType.KING
+        return king.King
     if char == 'q':
-        return PieceType.QUEEN
+        return queen.Queen
     if char == 'r':
-        return PieceType.ROOK
+        return rook.Rook
     if char == 'b':
-        return PieceType.BISHOP
+        return bishop.Bishop
     if char == 'n':
-        return PieceType.KNIGHT
+        return knight.Knight
     raise ValueError('invalid piece type character')
 
 def parse_rank_char(rank_char):
@@ -82,16 +90,16 @@ def parse_std_notation_string(piece_str):
         raise ValueError('type/location string too short.')
     try:
         color = parse_piece_color_char(color_str)
-        piece_type = None
+        piece_class = None
         coordinate = None
         if len(loc_str) == 2:
             # trying to parse pawn.
-            piece_type = PieceType.PAWN
+            piece_class = pawn.Pawn
             coordinate = parse_piece_location_string(loc_str)
         else:
-            piece_type = parse_piece_type_char(loc_str[0])
+            piece_class = parse_piece_type_char(loc_str[0])
             coordinate = parse_piece_location_string(loc_str[1:])
-        return (piece_type, color), coordinate
+        return piece_class(color), coordinate
     except ValueError as err:
         raise err
 
@@ -106,11 +114,11 @@ def parse_piece_string(piece_str):
 
     try:
         color = parse_piece_color_char(piece_str[0])
-        piece_type = None
+        piece_class = None
         if len(piece_str) == 1:
-            piece_type = PieceType.PAWN
+            piece_class = pawn.Pawn
         else:
-            piece_type = parse_piece_type_char(piece_str[-1])
-        return (piece_type, color)
+            piece_class = parse_piece_type_char(piece_str[-1])
+        return piece_class(color)
     except ValueError as err:
         raise err

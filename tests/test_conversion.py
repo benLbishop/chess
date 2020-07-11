@@ -1,8 +1,16 @@
 """module for testing the methods in conversion.py."""
 import unittest
 from unittest.mock import patch
-from chessGame.enums import ChessColor, PieceType
-import chessGame.conversion as conv
+from chessGame.enums import ChessColor
+from chessGame import conversion as conv
+from chessGame.pieces import (
+    king,
+    queen,
+    rook,
+    bishop,
+    knight,
+    pawn
+)
 
 class ConversionTest(unittest.TestCase):
     """tests for methods in conversion.py."""
@@ -26,16 +34,16 @@ class ConversionTest(unittest.TestCase):
 
     def test_parse_piece_type_char(self):
         valid_tests = [
-            ('k', PieceType.KING),
-            ('K', PieceType.KING),
-            ('q', PieceType.QUEEN),
-            ('Q', PieceType.QUEEN),
-            ('r', PieceType.ROOK),
-            ('R', PieceType.ROOK),
-            ('b', PieceType.BISHOP),
-            ('B', PieceType.BISHOP),
-            ('n', PieceType.KNIGHT),
-            ('N', PieceType.KNIGHT)
+            ('k', king.King),
+            ('K', king.King),
+            ('q', queen.Queen),
+            ('Q', queen.Queen),
+            ('r', rook.Rook),
+            ('R', rook.Rook),
+            ('b', bishop.Bishop),
+            ('B', bishop.Bishop),
+            ('n', knight.Knight),
+            ('N', knight.Knight)
         ]
 
         for char, result in valid_tests:
@@ -114,20 +122,21 @@ class ConversionTest(unittest.TestCase):
     @patch.object(conv, 'parse_piece_type_char')
     @patch.object(conv, 'parse_piece_color_char')
     def test_parse_std_notation_string(self, parse_color_mock, parse_type_mock, parse_loc_mock):
-        parse_color_mock.return_value = 'dummy_color'
+        dummy_color = ChessColor.WHITE
+        parse_color_mock.return_value = dummy_color
         parse_type_mock.return_value = 'dummy_type'
         dummy_loc = ('dummy_rank', 'dummy_file')
         parse_loc_mock.return_value = dummy_loc
-        expected_res = (('dummy_type', 'dummy_color'), dummy_loc)
         pawn_tests = [
             ('w a4', 'w', 'a4'),
             ('b b3 ', 'b', 'b3'),
             ('w h8   ', 'w', 'h8')
         ]
-        pawn_res = ((PieceType.PAWN, 'dummy_color'), dummy_loc)
         for test_str, color_input, loc_input in pawn_tests:
             res = conv.parse_std_notation_string(test_str)
-            self.assertEqual(res, pawn_res)
+            p = res[0]
+            self.assertTrue(isinstance(p, pawn.Pawn))
+            self.assertEqual(p.color, dummy_color)
             parse_type_mock.assert_not_called()
             parse_color_mock.assert_called_with(color_input)
             parse_loc_mock.assert_called_with(loc_input)
@@ -137,27 +146,29 @@ class ConversionTest(unittest.TestCase):
 
     def test_parse_piece_string(self):
         white_tests = [
-            ('w', (PieceType.PAWN, ChessColor.WHITE)),
-            ('w N', (PieceType.KNIGHT, ChessColor.WHITE)),
-            ('w B', (PieceType.BISHOP, ChessColor.WHITE)),
-            ('w R', (PieceType.ROOK, ChessColor.WHITE)),
-            ('w Q', (PieceType.QUEEN, ChessColor.WHITE)),
-            ('w K', (PieceType.KING, ChessColor.WHITE)),
+            ('w', pawn.Pawn, ChessColor.WHITE),
+            ('w N', knight.Knight, ChessColor.WHITE),
+            ('w B', bishop.Bishop, ChessColor.WHITE),
+            ('w R', rook.Rook, ChessColor.WHITE),
+            ('w Q', queen.Queen, ChessColor.WHITE),
+            ('w K', king.King, ChessColor.WHITE)
         ]
 
         black_tests = [
-            ('b', (PieceType.PAWN, ChessColor.BLACK)),
-            ('b N', (PieceType.KNIGHT, ChessColor.BLACK)),
-            ('b B', (PieceType.BISHOP, ChessColor.BLACK)),
-            ('b R', (PieceType.ROOK, ChessColor.BLACK)),
-            ('b Q', (PieceType.QUEEN, ChessColor.BLACK)),
-            ('b K', (PieceType.KING, ChessColor.BLACK))
+            ('b', pawn.Pawn, ChessColor.BLACK),
+            ('b N', knight.Knight, ChessColor.BLACK),
+            ('b B', bishop.Bishop, ChessColor.BLACK),
+            ('b R', rook.Rook, ChessColor.BLACK),
+            ('b Q', queen.Queen, ChessColor.BLACK),
+            ('b K', king.King, ChessColor.BLACK)
         ]
 
-        for s, expected_res in white_tests:
+        for s, expected_class, expected_color in white_tests:
             res = conv.parse_piece_string(s)
-            self.assertEqual(res, expected_res)
+            self.assertTrue(isinstance(res, expected_class))
+            self.assertEqual(res.color, expected_color)
 
-        for s, expected_res in black_tests:
+        for s, expected_class, expected_color in black_tests:
             res = conv.parse_piece_string(s)
-            self.assertEqual(res, expected_res)
+            self.assertTrue(isinstance(res, expected_class))
+            self.assertEqual(res.color, expected_color)

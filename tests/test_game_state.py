@@ -2,8 +2,7 @@
 import unittest
 from unittest.mock import patch
 from chessGame.move_logic import pathing, game_state as gs
-from chessGame.piece import Piece
-from chessGame.enums import PieceType, ChessColor, MoveType
+from chessGame.enums import ChessColor
 from chessGame.board import Board
 from chessGame.player import Player
 from chessGame import constants, conversion
@@ -11,7 +10,7 @@ from chessGame.custom_exceptions import InvalidMoveException
 from . import board_lists
 
 psns = conversion.parse_std_notation_string
-pfs = Piece.from_string
+pps = conversion.parse_piece_string
 
 class GameStateTest(unittest.TestCase):
     """tests for the game state logic."""
@@ -60,10 +59,8 @@ class GameStateTest(unittest.TestCase):
     @patch.object(pathing, 'get_move_path')
     def test_get_checking_pieces(self, move_mock):
         # not check situations
-        black_king_params, black_coords = psns('b Ka8')
-        white_king_params, white_coords = psns('w Ka1')
-        black_king = Piece(*black_king_params)
-        white_king = Piece(*white_king_params)
+        black_king, black_coords = psns('b Ka8')
+        white_king, white_coords = psns('w Ka1')
         # TODO: since I'm mocking get_move_path, probably don't need to assign to board
         self.board.squares[black_coords[0]][black_coords[1]].piece = black_king
         self.board.squares[white_coords[0]][white_coords[1]].piece = white_king
@@ -75,13 +72,13 @@ class GameStateTest(unittest.TestCase):
     # TODO: move
     def test_get_move_options(self):
         row_idx, col_idx = 3, 3
-        white_pawn = pfs('w')
-        black_pawn = pfs('b')
-        knight = pfs('w N')
-        bishop = pfs('w B')
-        rook = pfs('w R')
-        queen = pfs('w Q')
-        king = pfs('w K')
+        white_pawn = pps('w')
+        black_pawn = pps('b')
+        knight = pps('w N')
+        bishop = pps('w B')
+        rook = pps('w R')
+        queen = pps('w Q')
+        king = pps('w K')
         test_cases = [
             (white_pawn, constants.PAWN_WHITE_MOVES),
             (black_pawn, constants.PAWN_BLACK_MOVES),
