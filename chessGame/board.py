@@ -113,14 +113,15 @@ class Board:
         """gets the list of white and black pieces on the board."""
         white_pieces = []
         black_pieces = []
-        for row in self.squares:
-            for square in row:
+        for row_idx, row in enumerate(self.squares):
+            for col_idx, square in enumerate(row):
+                coordinate = (row_idx, col_idx)
                 if square.is_occupied():
                     piece = square.piece
                     if piece.color == ChessColor.WHITE:
-                        white_pieces.append(piece)
+                        white_pieces.append((piece, coordinate))
                     else:
-                        black_pieces.append(piece)
+                        black_pieces.append((piece, coordinate))
         # return the pieces from highest value (should be king) to lowest
         return sorted(white_pieces, reverse=True), sorted(black_pieces, reverse=True)
 

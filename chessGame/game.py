@@ -45,12 +45,7 @@ class Game:
 
     def make_move(self, start_coords, end_coords):
         """Given the user's input, tries to move a piece to a new square."""
-        cur_player = self.white_player
-        cur_opponent = self.black_player
-        if not self.is_white_turn:
-            cur_player = self.black_player
-            cur_opponent = self.white_player
-
+        cur_player = self.white_player if self.is_white_turn else self.black_player
         # move piece
         try:
             move_path, captured_piece = self.board.move_piece(start_coords, end_coords, cur_player.color)
@@ -58,7 +53,7 @@ class Game:
             raise err
 
         # see if player put themselves in check
-        checking_pieces = game_state.get_checking_pieces(self.board, cur_player, cur_opponent)
+        checking_pieces = game_state.get_checking_pieces(self.board, cur_player.color)
         if len(checking_pieces) > 0:
             # cur_player put themselves in check, not allowed. Reset moved pieces
             self.board.undo_move()
@@ -70,20 +65,25 @@ class Game:
             
         # TODO: log move w/ notation
 
-        # see if opponent is now in check/checkmate/stalemate
-        opp_check_pieces = game_state.get_checking_pieces(self.board, cur_opponent, cur_player)
-        if len(opp_check_pieces) > 0:
+        # switch turns
+        self.is_white_turn = not self.is_white_turn
+
+        self.check_for_end_of_game()
+
+    def check_for_end_of_game(self):
+        """checks to see if the game has been completed (i.e. reached a checkmate or stalemate)"""
+        cur_player = self.white_player if self.is_white_turn else self.black_player
+        checking_pieces = game_state.get_checking_pieces(self.board, cur_player.color)
+        if len(checking_pieces) > 0:
             # check for checkmate
-            is_checkmate = game_state.player_is_checkmated(self.board, cur_opponent, cur_player, opp_check_pieces)
+            is_checkmate = game_state.player_is_checkmated(self.board, cur_player.color, checking_pieces)
             if is_checkmate:
                 self.is_complete = True
                 # TODO: end game somehow
         else:
             # check for stalemate.
             # TODO: do I need to do this every time?
-            is_stalemate = game_state.player_is_stalemated(self.board, cur_opponent, cur_player)
+            is_stalemate = game_state.player_is_stalemated(self.board, cur_player.color)
             if is_stalemate:
                 self.is_complete = True
                 # TODO: end game somehow
-        # game not over. switch turns
-        self.is_white_turn = not self.is_white_turn

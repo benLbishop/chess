@@ -224,12 +224,11 @@ class BoardTest(unittest.TestCase):
         test1_mapping = [psns(s) for s in test1]
         test_board.populate(test1_mapping)
 
-        test1_pieces = [elt[0] for elt in test1_mapping]
-        white_pieces = test1_pieces[0:2]
-        black_pieces = test1_pieces[2:]
+        white_mapping = test1_mapping[0:2]
+        black_mapping = test1_mapping[2:]
 
         res = test_board.get_active_pieces()
-        self.assertTupleEqual(res, (white_pieces, black_pieces))
+        self.assertTupleEqual(res, (white_mapping, black_mapping))
 
         # TODO: more tests
 

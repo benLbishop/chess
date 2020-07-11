@@ -40,20 +40,12 @@ class GameTest(unittest.TestCase):
         test_game = Game(None, white_config, black_config)
 
         # TODO test conversion failure, populate failure, player piece assignment, sorting player pieces
-        
-    @patch.object(game_state, 'player_is_stalemated')
-    @patch.object(game_state, 'player_is_checkmated')
+    
+    @patch.object(Game, 'check_for_end_of_game')
     @patch.object(game_state, 'get_checking_pieces')
     @patch.object(Board, 'undo_move')
     @patch.object(Board, 'move_piece')
-    def test_make_move(
-        self,
-        move_mock,
-        undo_move_mock,
-        check_mock,
-        checkmate_mock,
-        stalemate_mock
-    ):
+    def test_make_move(self, move_mock, undo_move_mock, check_mock, end_mock):
         """tests function that processes an attempted move of a piece."""
         # TODO: should be in Board class?
         white_config = {'name': 'Bob'}
@@ -88,26 +80,39 @@ class GameTest(unittest.TestCase):
 
         check_mock.return_value = []
 
-        # make sure checkmate will cauuse the game to end
-        check_mock.side_effect = [[], ['something']]
+        # should call end of game method
+        # TODO
+
+    @patch.object(game_state, 'player_is_stalemated')
+    @patch.object(game_state, 'player_is_checkmated')
+    @patch.object(game_state, 'get_checking_pieces')
+    def test_check_for_end_of_game(self, check_mock, checkmate_mock, stalemate_mock):
+        white_config = {'name': 'Bob'}
+        black_config = {'name': 'Allie'}
+        test_game = Game(None, white_config, black_config, [])
+
+        check_mock.return_value = ['something']
+        checkmate_mock.return_value = False
+        stalemate_mock.return_value = False
+
+        # make sure game doesn't end if not in checkmate
+        test_game.check_for_end_of_game()
+        self.assertEqual(test_game.is_complete, False)
+
+        # make sure game ends if in checkmate
         checkmate_mock.return_value = True
-        test_game.make_move(start_coords, end_coords)
-        checkmate_mock.assert_called_once()
+        test_game.check_for_end_of_game()
         self.assertEqual(test_game.is_complete, True)
 
-        # make sure game doesn't end if not in stalemate
         test_game.is_complete = False
-        test_game.is_white_turn = True
-        check_mock.side_effect = None
-        stalemate_mock.return_value = False
-        test_game.make_move(start_coords, end_coords)
+        check_mock.return_value = []
+
+        # make sure game doesn't end if not in stalemate
+        test_game.check_for_end_of_game()
         self.assertEqual(test_game.is_complete, False)
-        self.assertEqual(test_game.is_white_turn, False)
 
         # make sure game ends if in stalemate
         stalemate_mock.return_value = True
-        test_game.make_move(start_coords, end_coords)
+        test_game.check_for_end_of_game()
         self.assertEqual(test_game.is_complete, True)
-
-        # TODO: verify tests
  
