@@ -93,7 +93,6 @@ class BoardTest(unittest.TestCase):
             'b h5'
         ]
         good_test_list = [psns(s) for s in good_test_strings]
-        # TODO: make function for generating mapping
         test_board.populate(good_test_list)
         for test_piece, coordinates in good_test_list:
             row_idx = coordinates[0]
@@ -133,7 +132,7 @@ class BoardTest(unittest.TestCase):
         with self.assertRaises(InvalidMoveException):
             test_board.move_piece(start_coords, end_coords, ChessColor.WHITE)
 
-        test_board.squares[0][0].piece = test_piece
+        test_board.squares[0][0].add_piece(test_piece)
         # should raise if active_color is not equal to the piece being moved
         with self.assertRaises(InvalidMoveException):
             test_board.move_piece(start_coords, end_coords, ChessColor.BLACK)
@@ -177,7 +176,6 @@ class BoardTest(unittest.TestCase):
         # want to make sure the correct pawn is removed from player list
 
     def test_undo_move(self):
-        # TODO
         num_rows = constants.STD_BOARD_WIDTH
         num_cols = constants.STD_BOARD_HEIGHT
         test_board = Board({'num_rows': num_rows, 'num_cols': num_cols})
@@ -191,7 +189,7 @@ class BoardTest(unittest.TestCase):
 
         # should move piece from last end to last start
         test_board.last_move = (last_start, last_end, None)
-        last_end.piece = test_piece
+        last_end.add_piece(test_piece)
         self.assertIsNone(last_start.piece)
         test_board.undo_move()
         self.assertEqual(last_start.piece, test_piece)
@@ -202,7 +200,7 @@ class BoardTest(unittest.TestCase):
         # should replace piece if it was captured
         test_piece2 = Piece(ChessColor.WHITE)
         test_board.last_move = (last_start, last_end, test_piece2)
-        last_end.piece = test_piece
+        last_end.add_piece(test_piece)
         self.assertIsNone(last_start.piece)
         test_board.undo_move()
         self.assertEqual(last_start.piece, test_piece)

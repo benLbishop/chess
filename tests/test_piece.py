@@ -40,10 +40,10 @@ class PieceTest(unittest.TestCase):
 
         self.board.clear()
         moving_white_piece = Piece(ChessColor.WHITE)
-        start.piece = moving_white_piece
+        start.add_piece(moving_white_piece)
         white_piece = Piece(ChessColor.WHITE)
         black_piece = Piece(ChessColor.BLACK)
-        squares[0][2].piece = white_piece
+        squares[0][2].add_piece(white_piece)
         end2 = squares[0][3]
         # should raise if we come across a piece on square that's not destination
         get_next_square_mock.side_effect = [(0, 1), (0, 2)]
@@ -57,7 +57,7 @@ class PieceTest(unittest.TestCase):
             moving_white_piece.get_path_to_square(start, end3, self.board)
 
         # should return safely if piece on destination is opponent's
-        squares[0][2].piece = black_piece
+        squares[0][2].add_piece(black_piece)
         get_next_square_mock.side_effect = [(0, 1), (0, 2)]
         res = moving_white_piece.get_path_to_square(start, end3, self.board)
         self.assertEqual(res, [squares[0][1], squares[0][2]])

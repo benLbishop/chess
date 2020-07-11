@@ -14,13 +14,6 @@ class Square:
         self.col_idx = col_idx
         self.piece = None
 
-    def __eq__(self, other):
-        if not isinstance(other, Square):
-            # don't attempt to compare against unrelated types
-            return NotImplemented
-        # TODO: What if one square has a piece and the other doesn't? Can that happen?
-        return self.row_idx == other.row_idx and self.col_idx == other.col_idx
-
     def is_occupied(self):
         """ returns a boolean indicating whether or not a piece is on this square. """
         return self.piece is not None

@@ -73,17 +73,17 @@ class PawnTest(unittest.TestCase):
         diag_end2 = squares[r + 1][c - 1]
 
         pawn = self.white_pawn
-        start.piece = pawn
+        start.add_piece(pawn)
 
         white_piece = Pawn(ChessColor.WHITE)
         black_piece = Pawn(ChessColor.BLACK)
 
         # should raise if straight move attempted and ANY piece in way
-        straight_end1.piece = white_piece
+        straight_end1.add_piece(white_piece)
         with self.assertRaises(InvalidMoveException):
             self.white_pawn.get_path_to_square(start, straight_end1, self.board)
 
-        straight_end1.piece = black_piece
+        straight_end1.add_piece(black_piece)
         with self.assertRaises(InvalidMoveException):
             self.white_pawn.get_path_to_square(start, straight_end1, self.board)
 
@@ -97,12 +97,12 @@ class PawnTest(unittest.TestCase):
         pawn.has_moved = False
 
         # should raise if moving 2 is squares is valid, but blocking piece
-        straight_end1.piece = black_piece
+        straight_end1.add_piece(black_piece)
         with self.assertRaises(InvalidMoveException):
             self.white_pawn.get_path_to_square(start, straight_end2, self.board)
 
         straight_end1.clear()
-        straight_end2.piece = black_piece
+        straight_end2.add_piece(black_piece)
         with self.assertRaises(InvalidMoveException):
             self.white_pawn.get_path_to_square(start, straight_end2, self.board)
 

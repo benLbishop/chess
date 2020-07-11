@@ -54,8 +54,7 @@ class Board:
             square = self.squares[row_idx][col_idx]
             if square.is_occupied():
                 raise PiecePlacementException('tried to place piece on occupied square')
-            # TODO: might want an add_piece fn for squares to validate piece/square idxs
-            square.piece = piece
+            square.add_piece(piece)
 
     def move_piece(self, start_coords, end_coords, active_color):
         """Attempts to move a piece (if it exists) from the start to the end."""
@@ -107,8 +106,8 @@ class Board:
             raise InvalidMoveException('no move to undo.')
 
         last_start, last_end, captured_piece = self.last_move
-        last_start.piece = last_end.piece
-        last_end.piece = captured_piece
+        last_start.add_piece(last_end.piece)
+        last_end.add_piece(captured_piece)
 
     def get_active_pieces(self):
         """gets the list of white and black pieces on the board."""

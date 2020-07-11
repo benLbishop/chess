@@ -24,21 +24,6 @@ class TestSquare(unittest.TestCase):
         for b_s in black_squares:
             self.assertEqual(b_s.color, ChessColor.BLACK)
 
-    def test_eq(self):
-        """Test the equality magic function."""
-        sq1 = Square(2, 5)
-        sq2 = Square(2, 5)
-        sq3 = Square(5, 2)
-        sq4 = Square(0, 0)
-        sq5 = Square(5, 2)
-
-        self.assertEqual(sq1, sq2)
-        self.assertEqual(sq3, sq5)
-        self.assertNotEqual(sq1, sq3)
-        self.assertNotEqual(sq1, sq4)
-        self.assertNotEqual(sq2, sq5)
-
-
     def test_is_occupied(self):
         """tests the is_occupied method."""
         self.assertFalse(self.test_square.is_occupied())

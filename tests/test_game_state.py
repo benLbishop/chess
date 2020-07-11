@@ -52,6 +52,7 @@ class GameStateTest(unittest.TestCase):
 
     def test_player_is_stalemated(self):
         pass
+        # TODO
         # for each piece in player.active_pieces...
         #   try to move piece one increment. If possible and player isn't in check from the resulting move, return False
         # return true if can't find a valid move for any piece

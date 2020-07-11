@@ -25,20 +25,19 @@ class Piece:
 
         cur_square = start
         path = []
-        while True:
+        while cur_square is not end:
             next_row_idx, next_col_idx = pathing.get_next_square_indexes(cur_square, move_type)
             cur_square = board.squares[next_row_idx][next_col_idx]
-            # TODO: clean up this logic, a bit confusing
-            if cur_square is end:
-                if not cur_square.is_occupied():
-                    path.append(cur_square)
-                    return path
-                # raise if moving piece color is same as end square piece color
-                if cur_square.piece.color is self.color:
-                    raise InvalidMoveException('cannot move into square occupied by player piece')
-                path.append(cur_square)
-                return path
-            # raise if piece cannot move due to a blocking piece
-            if cur_square.is_occupied():
-                raise InvalidMoveException('destination not reachable due to block')
             path.append(cur_square)
+            if cur_square.is_occupied():
+                break
+        if cur_square is not end:
+            # reached a block on the path. raise
+            raise InvalidMoveException('destination not reachable due to block')
+        # on end square. Check to see if occupied
+        if cur_square.is_occupied():
+            # raise if moving piece color is same as end square piece color
+            if cur_square.piece.color is self.color:
+                raise InvalidMoveException('cannot move into square occupied by player piece')
+        # found a valid path
+        return path

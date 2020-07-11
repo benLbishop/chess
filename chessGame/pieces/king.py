@@ -12,6 +12,7 @@ class King(Piece):
 
             Returns a boolean.
         """
+        # TODO: castling
         row_dist = abs(start.row_idx - end.row_idx)
         col_dist = abs(start.col_idx - end.col_idx)
         return row_dist < 2 and col_dist < 2
