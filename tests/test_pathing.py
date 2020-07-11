@@ -6,7 +6,7 @@ from chessGame.player import Player
 from chessGame.enums import ChessColor, MoveType
 from chessGame.board import Board
 from chessGame import constants, conversion
-from chessGame.move_logic import pathing, validation
+from chessGame.move_logic import pathing
 from chessGame.custom_exceptions import InvalidMoveException
 from chessGame.pieces.piece import Piece
 
@@ -67,32 +67,6 @@ class TestMoveLogic(unittest.TestCase):
 
         for move_type, result in test_cases:
             self.assertEqual(pathing.get_next_square_indexes(start, move_type), result)
-
-    @patch.object(Piece, 'get_path_to_square')
-    @patch.object(validation, 'validate_move')
-    def test_get_move_path(self, validate_move_mock, piece_mock):
-        start = Square(0, 0)
-        start.piece = Piece(ChessColor.BLACK)
-        end = Square(1, 1)
-
-        # raise if validate_move fails
-        validate_move_mock.side_effect = InvalidMoveException('dummy exception')
-        with self.assertRaises(InvalidMoveException):
-            pathing.get_move_path(start, end, self.board, self.player)
-
-        validate_move_mock.side_effect = None
-
-        # raise if pieget_path_to_square throws
-        piece_mock.side_effect = InvalidMoveException('mock exception')
-        with self.assertRaises(InvalidMoveException):
-            pathing.get_move_path(start, end, self.board, self.player)
-
-        piece_mock.side_effect = None
-        dummy_path = ['dummy', 'path']
-        piece_mock.return_value = dummy_path
-        # should successfully complete otherwise
-        res = pathing.get_move_path(start, end, self.board, self.player)
-        self.assertEqual(res, dummy_path)
 
 if __name__ == '__main__':
     unittest.main()

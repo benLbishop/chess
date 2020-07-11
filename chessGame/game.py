@@ -42,54 +42,34 @@ class Game:
         # neither player is starting in checkmate/stalemate
         # TODO: test
         pass
-    
-    def _move_piece(self, start_square, end_square):
-        """tries to move a piece from start_square to end_square."""
-        if self.is_white_turn:
-            cur_player = self.white_player
-            cur_opponent = self.black_player
-        else:
+
+    def make_move(self, start_coords, end_coords):
+        """Given the user's input, tries to move a piece to a new square."""
+        cur_player = self.white_player
+        cur_opponent = self.black_player
+        if not self.is_white_turn:
             cur_player = self.black_player
             cur_opponent = self.white_player
+
+        # move piece
         try:
-            move_path = pathing.get_move_path(start_square, end_square, self.board, cur_player)
+            move_path, captured_piece = self.board.move_piece(start_coords, end_coords, cur_player.color)
         except InvalidMoveException as err:
             raise err
-
-        # update pieces
-        moving_piece = start_square.piece
-        captured_piece = end_square.piece # could be None
-        end_square.piece = moving_piece
-        start_square.clear()
 
         # see if player put themselves in check
         checking_pieces = game_state.get_checking_pieces(self.board, cur_player, cur_opponent)
         if len(checking_pieces) > 0:
             # cur_player put themselves in check, not allowed. Reset moved pieces
-            start_square.piece = moving_piece
-            end_square.piece = captured_piece
+            self.board.undo_move()
             raise InvalidMoveException('player tried to put themselves in check')
-        # update captured piece list if it occurred
+
+        # update captured piece list if move was successful
         if captured_piece is not None:
             cur_player.captured_pieces.append(captured_piece)
             
-
         # TODO: log move w/ notation
 
-
-    def make_move(self, start_square, end_square):
-        """Given the user's input, tries to move a piece to a new square."""
-        try:
-            self._move_piece(start_square, end_square)
-        except InvalidMoveException as err:
-            raise err
-        # TODO: don't duplicate with _move_piece
-        if self.is_white_turn:
-            cur_player = self.white_player
-            cur_opponent = self.black_player
-        else:
-            cur_player = self.black_player
-            cur_opponent = self.white_player
         # see if opponent is now in check/checkmate/stalemate
         opp_check_pieces = game_state.get_checking_pieces(self.board, cur_opponent, cur_player)
         if len(opp_check_pieces) > 0:

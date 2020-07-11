@@ -2,10 +2,10 @@
 import unittest
 from unittest.mock import patch
 from chessGame.board import Board, StandardBoard
-from chessGame.pieces.pawn import Pawn
+from chessGame.pieces.piece import Piece
 from chessGame import constants, conversion as conv
 from chessGame.enums import ChessColor
-from chessGame.custom_exceptions import PiecePlacementException
+from chessGame.custom_exceptions import PiecePlacementException, InvalidMoveException
 
 psns = conv.parse_std_notation_string
 class BoardTest(unittest.TestCase):
@@ -68,8 +68,8 @@ class BoardTest(unittest.TestCase):
 
         # raise if piece's indexes are out of bounds
         test_pieces_with_oob = [
-            (Pawn(ChessColor.WHITE), (num_rows, 0)),
-            (Pawn(ChessColor.WHITE), (0, num_cols))
+            (Piece(ChessColor.WHITE), (num_rows, 0)),
+            (Piece(ChessColor.WHITE), (0, num_cols))
         ]
         for pair in test_pieces_with_oob:
             with self.assertRaises(PiecePlacementException):
@@ -98,6 +98,84 @@ class BoardTest(unittest.TestCase):
             row_idx = coordinates[0]
             col_idx = coordinates[1]
             self.assertEqual(test_board.squares[row_idx][col_idx].piece, test_piece)
+
+    @patch.object(Piece, 'get_path_to_square')
+    @patch.object(Piece, 'can_reach_square')
+    def test_move_piece(self, reach_mock, path_mock):
+        """tests function that actually moves pieces in the game."""
+        num_rows = constants.STD_BOARD_WIDTH
+        num_cols = constants.STD_BOARD_HEIGHT
+        test_board = Board({'num_rows': num_rows, 'num_cols': num_cols})
+        test_piece = Piece(ChessColor.WHITE)
+
+        # should raise if coordinates are out of bounds
+        oob_cases = [
+            ((num_rows, 0), (0, 0)),
+            ((0, 0), (num_rows, 0)),
+            ((0, num_cols), (0, 0)),
+            ((0, 0), (0, num_cols)),
+            ((-1, 0), (0, 0)),
+            ((0, 0), (-1, 0)),
+            ((0, -1), (0, 0)),
+            ((0, 0), (0, -1)),
+        ]
+        for oob_start, oob_end in oob_cases:
+            with self.assertRaises(ValueError):
+                test_board.move_piece(oob_start, oob_end, ChessColor.WHITE)
+
+        start_coords, end_coords = ((0, 0), (1, 0))
+        # should throw if start and end coords are equal
+        with self.assertRaises(InvalidMoveException):
+            test_board.move_piece(start_coords, start_coords, ChessColor.WHITE)
+
+        # should raise if no piece lies on starting square
+        with self.assertRaises(InvalidMoveException):
+            test_board.move_piece(start_coords, end_coords, ChessColor.WHITE)
+
+        test_board.squares[0][0].piece = test_piece
+        # should raise if active_color is not equal to the piece being moved
+        with self.assertRaises(InvalidMoveException):
+            test_board.move_piece(start_coords, end_coords, ChessColor.BLACK)
+
+        # should raise if piece cannot reach end square
+        reach_mock.return_value = False
+        with self.assertRaises(InvalidMoveException):
+            test_board.move_piece(start_coords, end_coords, ChessColor.WHITE)
+
+        reach_mock.return_value = True
+
+        # should raise if piece.get_path_to_square throws
+        path_mock.side_effect = InvalidMoveException('mock exception')
+        with self.assertRaises(InvalidMoveException):
+            test_board.move_piece(start_coords, end_coords, ChessColor.WHITE)
+
+        # should successfully move the piece otherwise
+        path_mock.side_effect = None
+        dummy_path = ['dummy', 'path']
+        path_mock.return_value = dummy_path
+        start_square = test_board.squares[start_coords[0]][start_coords[1]]
+        end_square = test_board.squares[end_coords[0]][end_coords[1]]
+
+        res = test_board.move_piece(start_coords, end_coords, ChessColor.WHITE)
+        self.assertEqual(res, (dummy_path, None))
+        self.assertFalse(start_square.is_occupied())
+        self.assertEqual(test_piece, end_square.piece)
+
+        # should return the captured piece (if it occurred)
+        start_square.add_piece(test_piece)
+        end_square.clear()
+        test_piece2 = Piece(ChessColor.BLACK)
+        end_square.add_piece(test_piece2)
+
+        res = test_board.move_piece(start_coords, end_coords, ChessColor.WHITE)
+        self.assertEqual(res, (dummy_path, test_piece2))
+        
+        # TODO: test this with same piece type but different locations, i.e. two pawns.
+        # want to make sure the correct pawn is removed from player list
+
+    def test_undo_move(self):
+        # TODO
+        self.assertTrue(False)
     
     def test_get_active_pieces(self):
         num_rows = constants.STD_BOARD_WIDTH

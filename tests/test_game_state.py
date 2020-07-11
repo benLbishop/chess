@@ -56,15 +56,6 @@ class GameStateTest(unittest.TestCase):
         #   try to move piece one increment. If possible and player isn't in check from the resulting move, return False
         # return true if can't find a valid move for any piece
 
-    @patch.object(pathing, 'get_move_path')
-    def test_get_checking_pieces(self, move_mock):
-        # not check situations
-        black_king, black_coords = psns('b Ka8')
-        white_king, white_coords = psns('w Ka1')
-        # TODO: since I'm mocking get_move_path, probably don't need to assign to board
-        self.board.squares[black_coords[0]][black_coords[1]].piece = black_king
-        self.board.squares[white_coords[0]][white_coords[1]].piece = white_king
-
-        move_mock.side_effect = [InvalidMoveException('dummy exception')]
-        self.assertEqual(gs.get_checking_pieces(self.board, self.white_player, self.black_player), [])
-        # TODO: more testing. A lot more
+    def test_get_checking_pieces(self):
+        # TODO
+        pass

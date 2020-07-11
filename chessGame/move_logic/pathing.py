@@ -1,7 +1,6 @@
 """module containing functions for determing paths pieces can take."""
 from chessGame.enums import MoveType
 from chessGame.custom_exceptions import InvalidMoveException
-from . import validation
 
 def get_necessary_move_type(start_square, end_square):
     """Returns the MoveType required to properly get to end_square from start_square.
@@ -42,19 +41,3 @@ def get_next_square_indexes(cur_square, move_type):
         return (r_idx - 1, c_idx - 1)
     # MoveType.DOWN_RIGHT:
     return (r_idx - 1, c_idx + 1)
-
-def get_move_path(start_square, end_square, board, player):
-    """Tries to get the path for the given move.
-
-    Raises an InvalidMoveException if the path cannot be found.
-    """
-    try:
-        validation.validate_move(start_square, end_square, board, player)
-    except InvalidMoveException as err:
-        raise err
-    # get the path
-    piece = start_square.piece # TODO: this is jank, rework how to validate this isn't None
-    try:
-        return piece.get_path_to_square(start_square, end_square, board)
-    except InvalidMoveException as err:
-        raise err

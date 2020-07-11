@@ -1,7 +1,7 @@
 """module containing the Board class."""
 from .square import Square
 from . import constants
-from .custom_exceptions import PiecePlacementException
+from .custom_exceptions import PiecePlacementException, InvalidMoveException
 from .enums import ChessColor
 
 class Board:
@@ -53,6 +53,52 @@ class Board:
                 raise PiecePlacementException('tried to place piece on occupied square')
             # TODO: might want an add_piece fn for squares to validate piece/square idxs
             square.piece = piece
+
+    def move_piece(self, start_coords, end_coords, active_color):
+        """Attempts to move a piece (if it exists) from the start to the end."""
+        # TODO: split apart a bit
+        start_row, start_col = start_coords
+        end_row, end_col = end_coords
+
+        if start_row < 0 or start_row >= self.NUM_ROWS:
+            raise ValueError('start row {} out of bounds.'.format(start_row))
+        if start_col < 0 or start_col >= self.NUM_COLS:
+            raise ValueError('start column {} out of bounds.'.format(start_col))
+        if end_row < 0 or end_row >= self.NUM_ROWS:
+            raise ValueError('end row {} out of bounds.'.format(end_row))
+        if end_col < 0 or end_col >= self.NUM_COLS:
+            raise ValueError('end column {} out of bounds.'.format(end_col))
+
+        if start_coords == end_coords:
+            raise InvalidMoveException('cannot move to the same square.')
+
+        start_square = self.squares[start_row][start_col]
+        end_square = self.squares[end_row][end_col]
+
+        moving_piece = start_square.piece
+        if not moving_piece:
+            raise InvalidMoveException('no piece on starting square.')
+        if moving_piece.color is not active_color:
+            raise InvalidMoveException('tried to move piece with different color.')
+
+        # check if we can reach destination given the piece's moveset
+        if not moving_piece.can_reach_square(start_square, end_square):
+            raise InvalidMoveException('destination not reachable with piece')
+
+        move_path = None
+        try:
+            move_path = moving_piece.get_path_to_square(start_square, end_square, self)
+        except InvalidMoveException as err:
+            raise err
+
+        captured_piece = end_square.piece
+        end_square.add_piece(moving_piece)
+        start_square.clear()
+
+        return move_path, captured_piece
+
+    def undo_move(self):
+        pass # TODO
 
     def get_active_pieces(self):
         """gets the list of white and black pieces on the board."""
