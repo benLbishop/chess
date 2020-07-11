@@ -34,15 +34,19 @@ class GameStateTest(unittest.TestCase):
             piece_mapping = [conversion.parse_std_notation_string(s) for s in piece_strings]
             self.board.populate(piece_mapping)
 
-            non_mated_color = ChessColor.BLACK if mated_color is ChessColor.WHITE else ChessColor.WHITE
-            # TODO: how do I get the checking pieces?
-            checking_pieces = gs.get_checking_pieces(self.board, non_mated_color)
+            checking_pieces = gs.get_checking_pieces(self.board, mated_color)
             res = gs.player_is_checkmated(self.board, mated_color, checking_pieces)
             self.assertEqual(res, True)
             self.tearDown()
         # TODO: test non-checkmates
 
-            
+    def test_king_can_escape_check(self):
+        # TODO
+        pass
+
+    def test_can_block_checking_piece(self):
+        # TODO
+        pass
 
     def test_player_is_stalemated(self):
         pass

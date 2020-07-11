@@ -110,7 +110,7 @@ class PawnTest(unittest.TestCase):
 
         # should get the proper path for 2 otherwise
         res = self.white_pawn.get_path_to_square(start, straight_end2, self.board)
-        self.assertEqual(res, [straight_end1, straight_end2])
+        self.assertEqual(res, [start, straight_end1, straight_end2])
 
         # should raise if diagonal move attempted and no piece on end
         # and not performing En-Passant

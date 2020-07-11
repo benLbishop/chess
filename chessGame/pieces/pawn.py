@@ -55,9 +55,9 @@ class Pawn(Piece):
             intermediate_square = board.squares[intermediate_row_idx][start.col_idx]
             if intermediate_square.is_occupied():
                 raise InvalidMoveException('pawn blocked straight ahead')
-            return [intermediate_square, end]
+            return [start, intermediate_square, end]
         # row offset must be 1
-        path = [end]
+        path = [start, end]
         if col_offset == 0:
             if end.is_occupied():
                 raise InvalidMoveException('pawn blocked straight ahead')

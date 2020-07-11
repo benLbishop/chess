@@ -18,7 +18,7 @@ class Knight(Piece):
         """Attempts to get the path for knights.
         Raises an InvalidMoveException if the move is illegal for some reason.
         """
-        path = [end]
+        path = [start, end]
         if not end.is_occupied():
             return path
         # some piece on destination. Check color

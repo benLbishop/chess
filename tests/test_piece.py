@@ -62,13 +62,13 @@ class PieceTest(unittest.TestCase):
         squares[0][2].add_piece(black_piece)
         get_next_square_mock.side_effect = [(0, 1), (0, 2)]
         res = moving_white_piece.get_path_to_square(start, end3, self.board)
-        self.assertEqual(res, [squares[0][1], squares[0][2]])
+        self.assertEqual(res, [squares[0][0], squares[0][1], squares[0][2]])
 
         # should return safely if no piece in path
         self.board.clear()
         get_next_square_mock.side_effect = [(0, 1), (0, 2), (0, 3)]
         res = moving_white_piece.get_path_to_square(start, end2, self.board)
-        self.assertEqual(res, [squares[0][1], squares[0][2], squares[0][3]])
+        self.assertEqual(res, [squares[0][0], squares[0][1], squares[0][2], squares[0][3]])
 
         # TODO: many more tests
 

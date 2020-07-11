@@ -51,6 +51,8 @@ class Game:
             move_path, captured_piece = self.board.move_piece(start_coords, end_coords, cur_player.color)
         except InvalidMoveException as err:
             raise err
+        except ValueError as err:
+            raise err
 
         # see if player put themselves in check
         checking_pieces = game_state.get_checking_pieces(self.board, cur_player.color)
@@ -76,14 +78,11 @@ class Game:
         checking_pieces = game_state.get_checking_pieces(self.board, cur_player.color)
         if len(checking_pieces) > 0:
             # check for checkmate
-            is_checkmate = game_state.player_is_checkmated(self.board, cur_player.color, checking_pieces)
-            if is_checkmate:
+            if game_state.player_is_checkmated(self.board, cur_player.color, checking_pieces):
                 self.is_complete = True
                 # TODO: end game somehow
-        else:
+        elif game_state.player_is_stalemated(self.board, cur_player.color):
             # check for stalemate.
             # TODO: do I need to do this every time?
-            is_stalemate = game_state.player_is_stalemated(self.board, cur_player.color)
-            if is_stalemate:
-                self.is_complete = True
-                # TODO: end game somehow
+            self.is_complete = True
+            # TODO: end game somehow
