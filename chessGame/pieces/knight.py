@@ -4,9 +4,6 @@ from .piece import Piece
 
 class Knight(Piece):
     """class for the knight Piece."""
-    def __str__(self):
-        return "{} Knight".format(self.color)
-
     def can_reach_square(self, start, end):
         """checks to see if movement from start to end is possible
             for a knight, pretending that no other pieces exist on the board.

@@ -22,8 +22,10 @@ class PieceTest(unittest.TestCase):
         black_p = Piece(ChessColor.BLACK)
         white_p = Piece(ChessColor.WHITE)
         self.assertEqual(black_p.color, ChessColor.BLACK)
+        self.assertEqual(black_p._value, -1)
         self.assertEqual(black_p.has_moved, False)
         self.assertEqual(white_p.color, ChessColor.WHITE)
+        self.assertEqual(white_p._value, -1)
         self.assertEqual(white_p.has_moved, False)
 
     def test_can_reach_square(self):

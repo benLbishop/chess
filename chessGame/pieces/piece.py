@@ -1,14 +1,26 @@
 """module for the Piece class."""
 from chessGame.custom_exceptions import InvalidMoveException
 from chessGame.move_logic import pathing
+from chessGame import constants
 class Piece:
     """Class representing a chess piece."""
     def __init__(self, color):
         self.color = color
+        self._value = constants.PIECE_VALUES.get(type(self).__name__, -1) # TODO: test for subclasses
         self.has_moved = False # TODO: works for initial game state, but what about endgames?
 
     def __str__(self):
-        raise NotImplementedError
+        # TODO: format color to be readable
+        return "{} {}".format(self.color, type(self).__name__)
+
+    def __eq__(self, other):
+        return (self._value, self.color) == (other._value, other.color)
+
+    def __lt__(self, other):
+        return (self._value, self.color) < (other._value, other.color)
+
+    def __le__(self, other):
+        return (self._value, self.color) <= (other._value, other.color)
 
     def can_reach_square(self, start, end):
         """Abstract method for validating if a piece can move from one square to another.

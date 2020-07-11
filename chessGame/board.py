@@ -121,8 +121,8 @@ class Board:
                         white_pieces.append(piece)
                     else:
                         black_pieces.append(piece)
-        # TODO: sort pieces
-        return white_pieces, black_pieces
+        # return the pieces from highest value (should be king) to lowest
+        return sorted(white_pieces, reverse=True), sorted(black_pieces, reverse=True)
 
 class StandardBoard(Board):
     """class representing a chess board of the standard 8x8 size."""

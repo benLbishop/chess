@@ -5,9 +5,6 @@ from .piece import Piece
 
 class Pawn(Piece):
     """class for the pawn Piece."""
-    def __str__(self):
-        return "{} Pawn".format(self.color)
-
     def can_reach_square(self, start, end):
         """checks to see if movement from start to end is possible
             for a pawn, pretending that no other pieces exist on the board.

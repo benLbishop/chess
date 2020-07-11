@@ -13,8 +13,17 @@ PAWN_WHITE_MOVES = [MoveType.UP, MoveType.UP_LEFT, MoveType.UP_RIGHT]
 PAWN_BLACK_MOVES = [MoveType.DOWN, MoveType.DOWN_LEFT, MoveType.DOWN_RIGHT]
 BISHOP_MOVES = [MoveType.UP_LEFT, MoveType.UP_RIGHT, MoveType.DOWN_LEFT, MoveType.DOWN_RIGHT]
 ROOK_MOVES = [MoveType.UP, MoveType.DOWN, MoveType.LEFT, MoveType.RIGHT]
-QUEEN_MOVES = [move for move in MoveType]
-KING_MOVES = [move for move in MoveType]
+QUEEN_MOVES = list(MoveType)
+KING_MOVES = list(MoveType)
+
+PIECE_VALUES = {
+    'King': 5,
+    'Queen': 4,
+    'Rook': 3,
+    'Bishop': 2,
+    'Knight': 1,
+    'Pawn': 0
+}
 
 # board configurations
 STD_PIECE_STRINGS = [

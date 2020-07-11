@@ -3,9 +3,6 @@ from .piece import Piece
 
 class Bishop(Piece):
     """class for the bishop Piece."""
-    def __str__(self):
-        return "{} Bishop".format(self.color)
-
     def can_reach_square(self, start, end):
         """checks to see if movement from start_square to end_square is possible
             for a bishop, pretending that no other pieces exist on the board.

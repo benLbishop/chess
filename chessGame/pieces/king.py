@@ -3,9 +3,6 @@ from .piece import Piece
 
 class King(Piece):
     """class for the king Piece."""
-    def __str__(self):
-        return "{} King".format(self.color)
-
     def can_reach_square(self, start, end):
         """checks to see if movement from start_square to end_square is possible
             for a king, pretending that no other pieces exist on the board.
