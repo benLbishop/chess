@@ -1,6 +1,6 @@
 "module for checking the state of the game (check, checkmate, etc)"
 from chessGame.custom_exceptions import InvalidMoveException
-from chessGame.enums import PieceType, ChessColor
+from chessGame.enums import ChessColor
 from chessGame import constants
 from . import pathing
 
@@ -39,45 +39,3 @@ def get_checking_pieces(board, player, opponent):
     #     # move from piece to king is valid, so we have check
     #     checking_pieces.append(piece)
     # return checking_pieces
-
-# TODO: move
-def get_move_options(piece):
-    # TODO: I'd like to just pass in piece_type, but pawn is color-dependent.
-    # maybe find a way to put this in Piece class and make a Pawn subclass.
-    """takes a piece and returns all of the possible incremental moves."""
-    if piece.name == PieceType.PAWN:
-        if piece.color == ChessColor.WHITE:
-            return constants.PAWN_WHITE_MOVES
-        else:
-            return constants.PAWN_BLACK_MOVES
-    if piece.name == PieceType.BISHOP:
-        return constants.BISHOP_MOVES
-    if piece.name == PieceType.ROOK:
-        return constants.ROOK_MOVES
-    if piece.name == PieceType.QUEEN:
-        return constants.QUEEN_MOVES
-    if piece.name == PieceType.KING:
-        return constants.KING_MOVES
-    # Knight
-    return [] # TODO: wat
-
-def get_valid_adjacent_squares(piece, board, player):
-    """Determines if the given piece has any valid move."""
-    start_row_idx = piece.row_idx
-    start_col_idx = piece.col_idx
-    start_square = board.squares[start_row_idx][start_col_idx]
-    move_list = get_move_options(piece)
-
-    valid_squares = []
-    for move in move_list:
-        next_row_idx, next_col_idx = pathing.get_next_square_indexes(start_square, move)
-        if next_row_idx >= board.NUM_ROWS or next_col_idx >= board.NUM_COLS:
-            # out of bounds
-            continue
-        next_square = board.squares[next_row_idx][next_col_idx]
-        try:
-            pathing.get_move_path(start_square, next_square, board, player)
-            valid_squares.append(next_square)
-        except InvalidMoveException:
-            continue
-    return valid_squares

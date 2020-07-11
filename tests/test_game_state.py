@@ -68,34 +68,3 @@ class GameStateTest(unittest.TestCase):
         move_mock.side_effect = [InvalidMoveException('dummy exception')]
         self.assertEqual(gs.get_checking_pieces(self.board, self.white_player, self.black_player), [])
         # TODO: more testing. A lot more
-
-    # TODO: move
-    def test_get_move_options(self):
-        row_idx, col_idx = 3, 3
-        white_pawn = pps('w')
-        black_pawn = pps('b')
-        knight = pps('w N')
-        bishop = pps('w B')
-        rook = pps('w R')
-        queen = pps('w Q')
-        king = pps('w K')
-        test_cases = [
-            (white_pawn, constants.PAWN_WHITE_MOVES),
-            (black_pawn, constants.PAWN_BLACK_MOVES),
-            (knight, []), # TODO uhhhh
-            (bishop, constants.BISHOP_MOVES),
-            (rook, constants.ROOK_MOVES),
-            (queen, constants.QUEEN_MOVES),
-            (king, constants.KING_MOVES)
-        ]
-        for piece, expected_res in test_cases:
-            res = gs.get_move_options(piece)
-            self.assertEqual(res, expected_res)
-
-    def test_get_valid_adjacent_squares(self):
-        valid_move_tests = [
-            (['w a2', 'b a3'], [])
-        ]
-        for piece_strings, expected_res in valid_move_tests:
-            pass # TODO
-

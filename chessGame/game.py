@@ -3,7 +3,7 @@ from .board import Board, StandardBoard
 from .player import Player
 from .enums import ChessColor
 from .custom_exceptions import PiecePlacementException, InvalidMoveException
-from . import constants, conversion, input
+from . import constants, conversion
 from .move_logic import pathing, game_state
 
 class Game:
@@ -30,7 +30,7 @@ class Game:
             piece_strings = constants.STD_PIECE_STRINGS
 
         try:
-            piece_mapping = input.std_strings_to_piece_mapping(piece_strings)
+            piece_mapping = [conversion.parse_std_notation_string(s) for s in piece_strings]
             self.board.populate(piece_mapping)
         except PiecePlacementException as err:
             raise err

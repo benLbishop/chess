@@ -6,15 +6,6 @@ class ChessColor(Enum):
     WHITE = 0
     BLACK = 1
 
-class PieceType(Enum):
-    """Enum for the different types of chess pieces."""
-    KING = 0
-    QUEEN = 1
-    ROOK = 2
-    BISHOP = 3
-    KNIGHT = 4
-    PAWN = 5
-
 class MoveType(Enum):
     """Enum for the types of movements pieces can make to adjacent squares."""
     UP = 0

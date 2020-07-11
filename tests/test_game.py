@@ -30,16 +30,14 @@ class GameTest(unittest.TestCase):
         _set_up_pieces_mock.assert_called_once()
 
     @patch.object(Board, 'populate')
-    @patch.object(input, 'std_strings_to_piece_mapping')
-    def test_set_up_pieces(self, mapping_mock, populate_mock):
+    @patch.object(conv, 'parse_std_notation_string')
+    def test_set_up_pieces(self, parse_mock, populate_mock):
         # if piece_strings is empty, use std piece list
         white_config = {'name': 'Bob'}
         black_config = {'name': 'Allie'}
-        mapping_mock.return_value = ('dummy', 'vals')
+        parse_mock.return_value = ('dummy', 'vals')
         test_game = Game(None, white_config, black_config)
 
-        mapping_mock.assert_called_with(constants.STD_PIECE_STRINGS)
-        # raise if piece_strings cannot be converted
         # TODO test conversion failure, populate failure, player piece assignment, sorting player pieces
 
     @patch.object(game_state, 'get_checking_pieces')
