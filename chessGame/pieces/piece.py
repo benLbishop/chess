@@ -1,4 +1,6 @@
 """module for the Piece class."""
+from chessGame.custom_exceptions import InvalidMoveException
+from chessGame.move_logic import pathing
 class Piece:
     """Class representing a chess piece."""
     def __init__(self, color):
@@ -9,7 +11,34 @@ class Piece:
         raise NotImplementedError
 
     def can_reach_square(self, start, end):
-        """Virtual method for validating if a piece can move from one square to another.
+        """Abstract method for validating if a piece can move from one square to another.
             Must be implemented by subclasses.
         """
         raise NotImplementedError
+
+    def get_path_to_square(self, start, end, board):
+        """Attempts to get the path for standard pieces (bishops, rooks, and queens).
+        Raises an InvalidMoveException if the move is illegal for some reason.
+        """
+        # get the movement necessary to reach destination
+        move_type = pathing.get_necessary_move_type(start, end)
+
+        cur_square = start
+        path = []
+        while True:
+            next_row_idx, next_col_idx = pathing.get_next_square_indexes(cur_square, move_type)
+            cur_square = board.squares[next_row_idx][next_col_idx]
+            # TODO: clean up this logic, a bit confusing
+            if cur_square is end:
+                if not cur_square.is_occupied():
+                    path.append(cur_square)
+                    return path
+                # raise if moving piece color is same as end square piece color
+                if cur_square.piece.color is self.color:
+                    raise InvalidMoveException('cannot move into square occupied by player piece')
+                path.append(cur_square)
+                return path
+            # raise if piece cannot move due to a blocking piece
+            if cur_square.is_occupied():
+                raise InvalidMoveException('destination not reachable due to block')
+            path.append(cur_square)
