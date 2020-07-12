@@ -1,31 +1,6 @@
 "module for checking the state of the game (check, checkmate, etc)"
 from chessGame.custom_exceptions import InvalidMoveException
 from chessGame.enums import ChessColor
-from chessGame import constants
-from . import pathing
-
-def king_can_escape_check(king_square, board):
-    """Sees if the king can change squares and no longer be in check."""
-    # TODO: castling out of check?
-    king_coords = (king_square.row_idx, king_square.col_idx)
-    king = king_square.piece
-    move_options = constants.KING_MOVES
-
-    can_escape = False
-    for move in move_options:
-        next_coords = pathing.get_next_square_indexes(king_square, move)
-        try:
-            board.move_piece(king_coords, next_coords, king.color)
-            if len(get_checking_pieces(board, king.color)) == 0:
-                can_escape = True
-                board.undo_move()
-                break
-            board.undo_move()
-        except InvalidMoveException:
-            continue
-        except ValueError:
-            continue
-    return can_escape
 
 def can_block_checking_piece(checking_piece_data, board, player_piece_mapping):
     _, checking_path = checking_piece_data
@@ -56,9 +31,9 @@ def player_is_checkmated(board, active_player_color, checking_pieces):
     white_mapping, black_mapping = board.get_active_pieces()
     player_piece_mapping = white_mapping if active_player_color is ChessColor.WHITE else black_mapping
 
-    _, (king_row_idx, king_col_idx) = player_piece_mapping[0]
+    king, (king_row_idx, king_col_idx) = player_piece_mapping[0]
     king_square = board.squares[king_row_idx][king_col_idx]
-    if king_can_escape_check(king_square, board):
+    if king.has_valid_move(king_square, board):
         return False
     if len(checking_pieces) > 1:
         # more than one checking piece, and king can't move to get out of check. Checkmate
@@ -71,7 +46,15 @@ def player_is_stalemated(board, active_player_color):
 
     This should only after it's confirmed that the player is not in check.
     """
-    # TODO
+    white_mapping, black_mapping = board.get_active_pieces()
+    player_piece_mapping = white_mapping if active_player_color is ChessColor.WHITE else black_mapping
+
+    player_has_move = False
+    for piece, _ in player_piece_mapping:
+        if piece.has_valid_move():
+            player_has_move = True
+            break
+    return not player_has_move
 
 def get_checking_pieces(board, active_player_color):
     """Finds any pieces that have the player's king in check.

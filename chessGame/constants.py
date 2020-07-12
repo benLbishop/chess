@@ -1,6 +1,4 @@
 """module containing constants for the application."""
-from .enums import MoveType
-
 # Game Configuration
 STD_BOARD_WIDTH = 8
 STD_BOARD_HEIGHT = 8
@@ -9,12 +7,35 @@ MIN_BOARD_ROWS = 2
 MIN_BOARD_COLS = 2
 
 # Move options
-PAWN_WHITE_MOVES = [MoveType.UP, MoveType.UP_LEFT, MoveType.UP_RIGHT]
-PAWN_BLACK_MOVES = [MoveType.DOWN, MoveType.DOWN_LEFT, MoveType.DOWN_RIGHT]
-BISHOP_MOVES = [MoveType.UP_LEFT, MoveType.UP_RIGHT, MoveType.DOWN_LEFT, MoveType.DOWN_RIGHT]
-ROOK_MOVES = [MoveType.UP, MoveType.DOWN, MoveType.LEFT, MoveType.RIGHT]
-QUEEN_MOVES = list(MoveType)
-KING_MOVES = list(MoveType)
+STRAIGHT_OFFSETS = [
+    (1, 0),
+    (-1, 0),
+    (0, 1),
+    (0, -1)
+]
+DIAGONAL_OFFSETS = [
+    (1, 1),
+    (1, -1),
+    (-1, 1),
+    (-1, -1)
+]
+KNIGHT_OFFSETS = [
+    (2, 1),
+    (2, -1),
+    (-2, 1),
+    (-2, -1),
+    (1, 2),
+    (1, -2),
+    (-1, 2),
+    (-1, -2)
+]
+PIECE_OFFSETS = {
+    'King': STRAIGHT_OFFSETS + DIAGONAL_OFFSETS,
+    'Queen': STRAIGHT_OFFSETS + DIAGONAL_OFFSETS,
+    'Rook': STRAIGHT_OFFSETS,
+    'Bishop': DIAGONAL_OFFSETS,
+    'Knight': KNIGHT_OFFSETS
+}
 
 PIECE_VALUES = {
     'King': 5,

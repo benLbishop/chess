@@ -3,7 +3,7 @@ import unittest
 from unittest.mock import patch
 
 from chessGame import constants, custom_exceptions
-from chessGame.enums import ChessColor, MoveType
+from chessGame.enums import ChessColor
 from chessGame.move_logic import pathing
 from chessGame.board import Board
 from chessGame.pieces.piece import Piece
@@ -33,12 +33,11 @@ class PieceTest(unittest.TestCase):
         with self.assertRaises(NotImplementedError):
             p.can_reach_square(None, None)
 
-    @patch.object(pathing, 'get_next_square_indexes')
-    @patch.object(pathing, 'get_necessary_move_type')
-    def test_get_path_to_square(self, gnmt_mock, get_next_square_mock):
+    @patch.object(pathing, 'get_necessary_offset')
+    def test_get_path_to_square(self, offset_mock):
         squares = self.board.squares
         start = squares[0][0]
-        gnmt_mock.return_value = MoveType.RIGHT
+        offset_mock.return_value = (0, 1)
 
         self.board.clear()
         moving_white_piece = Piece(ChessColor.WHITE)
@@ -48,25 +47,21 @@ class PieceTest(unittest.TestCase):
         squares[0][2].add_piece(white_piece)
         end2 = squares[0][3]
         # should raise if we come across a piece on square that's not destination
-        get_next_square_mock.side_effect = [(0, 1), (0, 2)]
         with self.assertRaises(custom_exceptions.InvalidMoveException):
             moving_white_piece.get_path_to_square(start, end2, self.board)
 
         # should raise if piece on destination is same color
         end3 = squares[0][2]
-        get_next_square_mock.side_effect = [(0, 1), (0, 2)]
         with self.assertRaises(custom_exceptions.InvalidMoveException):
             moving_white_piece.get_path_to_square(start, end3, self.board)
 
         # should return safely if piece on destination is opponent's
         squares[0][2].add_piece(black_piece)
-        get_next_square_mock.side_effect = [(0, 1), (0, 2)]
         res = moving_white_piece.get_path_to_square(start, end3, self.board)
         self.assertEqual(res, [squares[0][0], squares[0][1], squares[0][2]])
 
         # should return safely if no piece in path
         self.board.clear()
-        get_next_square_mock.side_effect = [(0, 1), (0, 2), (0, 3)]
         res = moving_white_piece.get_path_to_square(start, end2, self.board)
         self.assertEqual(res, [squares[0][0], squares[0][1], squares[0][2], squares[0][3]])
 
