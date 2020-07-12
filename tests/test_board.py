@@ -156,6 +156,9 @@ class BoardTest(unittest.TestCase):
         self.assertFalse(start_square.is_occupied())
         self.assertEqual(test_piece, end_square.piece)
         self.assertEqual(test_board.last_move, basic_move)
+        self.assertTrue(test_piece.has_moved)
+
+        test_piece.has_moved = False
 
         # should call the side effect function if appropriate
         end_square.clear()

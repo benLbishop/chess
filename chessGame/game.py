@@ -47,8 +47,9 @@ class Game:
         """Given the user's input, tries to move a piece to a new square."""
         cur_player = self.white_player if self.is_white_turn else self.black_player
         # move piece
+        move = None
         try:
-            move_path, captured_piece = self.board.move_piece(start_coords, end_coords, cur_player.color)
+            move = self.board.move_piece(start_coords, end_coords, cur_player.color)
         except InvalidMoveException as err:
             raise err
         except ValueError as err:
@@ -62,8 +63,8 @@ class Game:
             raise InvalidMoveException('player tried to put themselves in check')
 
         # update captured piece list if move was successful
-        if captured_piece is not None:
-            cur_player.captured_pieces.append(captured_piece)
+        if move.captured_piece is not None:
+            cur_player.captured_pieces.append(move.captured_piece)
             
         # TODO: log move w/ notation
 

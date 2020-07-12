@@ -8,6 +8,7 @@ from chessGame import conversion as conv
 from chessGame.move_logic import game_state
 from chessGame.custom_exceptions import InvalidMoveException
 from chessGame.enums import ChessColor
+from chessGame.move import Move
 
 class GameTest(unittest.TestCase):
     """tests for the Game class."""
@@ -53,7 +54,7 @@ class GameTest(unittest.TestCase):
         test_game = Game(None, white_config, black_config, [])
         start_coords, end_coords = ((1, 1), (2, 1))
 
-        move_mock.return_value = ([], None) # TODO: test adding captured piece to player
+        move_mock.return_value = Move((0, 0), (1, 0)) # TODO: test adding captured piece to player
 
         # should use the proper players as cur_player/opponent
         test_game.make_move(start_coords, end_coords)

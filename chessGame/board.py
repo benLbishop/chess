@@ -2,7 +2,7 @@
 from .square import Square
 from . import constants
 from .custom_exceptions import PiecePlacementException, InvalidMoveException
-from .enums import ChessColor
+from .enums import ChessColor, MoveSideEffect
 from .move import Move
 
 class Board:
@@ -57,9 +57,26 @@ class Board:
                 raise PiecePlacementException('tried to place piece on occupied square')
             square.add_piece(piece)
 
+    def _handle_castle_side_effect(self, move):
+        # TODO: test
+        row_idx, start_col_idx = move.start_coords
+        _, end_col_idx = move.end_coords
+
+        is_right_castle = end_col_idx > start_col_idx
+        rook_start_col_idx = self.NUM_COLS - 1 if is_right_castle else 0
+        rook_end_col_idx = start_col_idx + 1 if is_right_castle else start_col_idx - 1
+        rook_start = self.squares[row_idx][rook_start_col_idx]
+        rook_end = self.squares[row_idx][rook_end_col_idx]
+        rook_end.add_piece(rook_start.piece)
+        rook_start.clear()
+
     def _handle_move_side_effect(self, move):
-        # TODO - remove en passant pieces, pawn promotion, castling
-        pass
+        # TODO - remove en passant pieces, pawn promotion
+        side_effect = move.side_effect
+        if side_effect is MoveSideEffect.CASTLE:
+            self._handle_castle_side_effect(move)
+        else:
+            raise NotImplementedError
 
     def move_piece(self, start_coords, end_coords, active_color):
         """Attempts to move a piece (if it exists) from the start to the end."""
@@ -94,13 +111,14 @@ class Board:
             move = Move(*move_params)
         except InvalidMoveException as err:
             raise err
-        
+
         if move.side_effect:
             self._handle_move_side_effect(move)
 
         # actually move piece
         end_square.add_piece(moving_piece)
         start_square.clear()
+        moving_piece.has_moved = True
 
         self.last_move = move
         return move
@@ -108,9 +126,10 @@ class Board:
     def undo_move(self):
         """Reverts the last move made on the board."""
         # TODO: Undoing castle, En-passant, pawn promotion
+        # TODO: if a piece moved for the first time, it's has_moved needs to be undone
         if not self.last_move:
             raise InvalidMoveException('no move to undo.')
-        
+
         # TODO: maybe make Move have squares instead of coords
         start_row, start_col = self.last_move.start_coords
         end_row, end_col = self.last_move.end_coords
