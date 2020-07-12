@@ -1,5 +1,5 @@
 import unittest
-
+from unittest.mock import patch
 from chessGame.square import Square
 from chessGame.pieces.pawn import Pawn
 from chessGame.enums import ChessColor
@@ -61,10 +61,10 @@ class PawnTest(unittest.TestCase):
             self.assertFalse(self.white_pawn.can_reach_square(start, dest))
             self.assertFalse(self.black_pawn.can_reach_square(start, dest))
 
-    def test_get_path_to_square(self):
+    @patch.object(Pawn, 'can_reach_square')
+    def test_get_path_to_square(self, reach_mock):
         squares = self.board.squares
         r, c = 1, 1
-        # should handle pawns appropriately
         start = squares[r][c]
         # TODO: test ends for if moving pawn is black
         straight_end1 = squares[r + 1][c]
@@ -77,6 +77,12 @@ class PawnTest(unittest.TestCase):
 
         white_piece = Pawn(ChessColor.WHITE)
         black_piece = Pawn(ChessColor.BLACK)
+
+        reach_mock.return_value = False
+        # should raise if piece cannot reach end square
+        with self.assertRaises(InvalidMoveException):
+            self.black_pawn.get_path_to_square(start, straight_end1, self.board)
+        reach_mock.return_value = True
 
         # should raise if straight move attempted and ANY piece in way
         straight_end1.add_piece(white_piece)

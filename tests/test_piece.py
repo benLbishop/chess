@@ -34,7 +34,8 @@ class PieceTest(unittest.TestCase):
             p.can_reach_square(None, None)
 
     @patch.object(pathing, 'get_necessary_offset')
-    def test_get_path_to_square(self, offset_mock):
+    @patch.object(Piece, 'can_reach_square')
+    def test_get_path_to_square(self, reach_mock, offset_mock):
         squares = self.board.squares
         start = squares[0][0]
         offset_mock.return_value = (0, 1)
@@ -46,6 +47,13 @@ class PieceTest(unittest.TestCase):
         black_piece = Piece(ChessColor.BLACK)
         squares[0][2].add_piece(white_piece)
         end2 = squares[0][3]
+
+        reach_mock.return_value = False
+        # should raise if piece cannot reach end square
+        with self.assertRaises(custom_exceptions.InvalidMoveException):
+            moving_white_piece.get_path_to_square(start, end2, self.board)
+        reach_mock.return_value = True
+
         # should raise if we come across a piece on square that's not destination
         with self.assertRaises(custom_exceptions.InvalidMoveException):
             moving_white_piece.get_path_to_square(start, end2, self.board)

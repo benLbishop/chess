@@ -68,6 +68,9 @@ class Pawn(Piece):
 
         Raises an InvalidMoveException if the move is illegal for some reason.
         """
+        if not self.can_reach_square(start, end):
+            raise InvalidMoveException('destination not reachable with piece')
+        
         row_offset = end.row_idx - start.row_idx
         col_offset = end.col_idx - start.col_idx
         if abs(row_offset) == 2:

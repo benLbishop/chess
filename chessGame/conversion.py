@@ -69,7 +69,7 @@ def parse_piece_location_string(loc_str):
     try:
         rank = parse_rank_char(loc_str[0])
         actual_file = parse_file_char(loc_str[1])
-        return (rank, actual_file)
+        return (actual_file, rank)
     except ValueError as err:
         raise err
 

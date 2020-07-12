@@ -100,8 +100,7 @@ class BoardTest(unittest.TestCase):
             self.assertEqual(test_board.squares[row_idx][col_idx].piece, test_piece)
 
     @patch.object(Piece, 'get_path_to_square')
-    @patch.object(Piece, 'can_reach_square')
-    def test_move_piece(self, reach_mock, path_mock):
+    def test_move_piece(self, path_mock):
         """tests function that actually moves pieces in the game."""
         num_rows = constants.STD_BOARD_WIDTH
         num_cols = constants.STD_BOARD_HEIGHT
@@ -136,13 +135,6 @@ class BoardTest(unittest.TestCase):
         # should raise if active_color is not equal to the piece being moved
         with self.assertRaises(InvalidMoveException):
             test_board.move_piece(start_coords, end_coords, ChessColor.BLACK)
-
-        # should raise if piece cannot reach end square
-        reach_mock.return_value = False
-        with self.assertRaises(InvalidMoveException):
-            test_board.move_piece(start_coords, end_coords, ChessColor.WHITE)
-
-        reach_mock.return_value = True
 
         # should raise if piece.get_path_to_square throws
         path_mock.side_effect = InvalidMoveException('mock exception')

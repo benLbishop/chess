@@ -83,10 +83,6 @@ class Board:
         if moving_piece.color is not active_color:
             raise InvalidMoveException('tried to move piece with different color.')
 
-        # check if we can reach destination given the piece's moveset
-        if not moving_piece.can_reach_square(start_square, end_square):
-            raise InvalidMoveException('destination not reachable with piece')
-
         move_path = None
         try:
             move_path = moving_piece.get_path_to_square(start_square, end_square, self)
@@ -102,6 +98,7 @@ class Board:
 
     def undo_move(self):
         """Reverts the last move made on the board."""
+        # TODO: Undoing castle, En-passant, pawn promotion
         if not self.last_move:
             raise InvalidMoveException('no move to undo.')
 

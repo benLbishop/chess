@@ -56,6 +56,9 @@ class Piece:
         """Attempts to get the path for standard pieces (bishops, rooks, and queens).
         Raises an InvalidMoveException if the move is illegal for some reason.
         """
+        # check if we can reach destination given the piece's moveset
+        if not self.can_reach_square(start, end):
+            raise InvalidMoveException('destination not reachable with piece')
         # get the movement necessary to reach destination
         offset = pathing.get_necessary_offset(start, end)
 

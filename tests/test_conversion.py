@@ -89,7 +89,7 @@ class ConversionTest(unittest.TestCase):
     @patch.object(conv, 'parse_rank_char')
     def test_parse_piece_location_string(self, rank_mock, file_mock):
         dummy_rank = 999
-        dummy_file = 999
+        dummy_file = 123
         dummy_res = (dummy_rank, dummy_file)
         rank_mock.return_value = dummy_rank
         file_mock.return_value = dummy_file
@@ -112,7 +112,7 @@ class ConversionTest(unittest.TestCase):
         ]
         for test_str, rank_input, file_input in pawn_tests:
             res = conv.parse_piece_location_string(test_str)
-            self.assertTupleEqual(res, (dummy_rank, dummy_file))
+            self.assertTupleEqual(res, (dummy_file, dummy_rank))
 
             rank_mock.assert_called_with(rank_input)
             file_mock.assert_called_with(file_input)

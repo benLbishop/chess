@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import patch
 from chessGame.square import Square
 from chessGame.enums import ChessColor
 from chessGame.pieces.knight import Knight
@@ -43,10 +44,17 @@ class KnightTest(unittest.TestCase):
         for dest in invalid_dests:
             self.assertFalse(self.knight.can_reach_square(start, dest))
 
-    def test_get_path_to_square(self):
+    @patch.object(Knight, 'can_reach_square')
+    def test_get_path_to_square(self, reach_mock):
         squares = self.board.squares
         start = squares[0][0]
         end = squares[2][1]
+
+        reach_mock.return_value = False
+        # should raise if piece cannot reach end square
+        with self.assertRaises(custom_exceptions.InvalidMoveException):
+            self.knight.get_path_to_square(start, end, self.board)
+        reach_mock.return_value = True
 
         # should return path if no piece on end_square
         res = self.knight.get_path_to_square(start, end, self.board)

@@ -73,8 +73,6 @@ def get_checking_pieces(board, active_player_color):
     checking_pieces = []
     for piece, (row_idx, col_idx) in opponent_piece_mapping:
         piece_square = board.squares[row_idx][col_idx]
-        if not piece.can_reach_square(piece_square, king_square):
-            continue
         try:
             check_path = piece.get_path_to_square(piece_square, king_square, board)
             # move from piece to king is valid, so it is checking king

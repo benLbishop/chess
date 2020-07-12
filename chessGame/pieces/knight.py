@@ -18,6 +18,9 @@ class Knight(Piece):
         """Attempts to get the path for knights.
         Raises an InvalidMoveException if the move is illegal for some reason.
         """
+        if not self.can_reach_square(start, end):
+            raise InvalidMoveException('destination not reachable with piece')
+
         path = [start, end]
         if not end.is_occupied():
             return path
