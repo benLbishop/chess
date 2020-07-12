@@ -50,8 +50,9 @@ def player_is_stalemated(board, active_player_color):
     player_piece_mapping = white_mapping if active_player_color is ChessColor.WHITE else black_mapping
 
     player_has_move = False
-    for piece, _ in player_piece_mapping:
-        if piece.has_valid_move():
+    for piece, (row_idx, col_idx) in player_piece_mapping:
+        cur_square = board.squares[row_idx][col_idx]
+        if piece.has_valid_move(cur_square, board):
             player_has_move = True
             break
     return not player_has_move
