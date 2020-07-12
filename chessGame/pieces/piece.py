@@ -9,6 +9,7 @@ class Piece:
         self.has_moved = False # TODO: works for initial game state, but what about endgames?
         # TODO: test this way of setting data for subclasses
         class_name = type(self).__name__
+        self.char = constants.PIECE_CHARS.get(class_name, '?')
         self._value = constants.PIECE_VALUES.get(class_name, -1)
         self._offsets = constants.PIECE_OFFSETS.get(class_name, [])
 

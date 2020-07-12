@@ -27,13 +27,7 @@ class Board:
                 if not square.is_occupied():
                     row_str = row_str + '. '
                 else:
-                    piece_char = type(square.piece).__name__[0]
-                    if isinstance(square.piece, Pawn):
-                        piece_char = piece_char.lower()
-                    if isinstance(square.piece, Piece):
-                        piece_char = '?'
-
-                    row_str = row_str + piece_char + ' '
+                    row_str = row_str + square.piece.char + ' '
             # adding from bottom up
             board_str = row_str + '\n' + board_str
         return board_str

@@ -46,6 +46,15 @@ PIECE_VALUES = {
     'Pawn': 0
 }
 
+PIECE_CHARS = {
+    'King': 'K',
+    'Queen': 'Q',
+    'Rook': 'R',
+    'Bishop': 'B',
+    'Knight': 'N',
+    'Pawn': 'p'
+}
+
 # board configurations
 STD_PIECE_STRINGS = [
     'w a2',
