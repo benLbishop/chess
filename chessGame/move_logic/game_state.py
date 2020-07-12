@@ -74,7 +74,7 @@ def get_checking_pieces(board, active_player_color):
     for piece, (row_idx, col_idx) in opponent_piece_mapping:
         piece_square = board.squares[row_idx][col_idx]
         try:
-            check_path = piece.get_path_to_square(piece_square, king_square, board)
+            check_path, _ = piece.get_path_to_square(piece_square, king_square, board)
             # move from piece to king is valid, so it is checking king
             checking_pieces.append((piece, check_path)) # TODO: maybe make this a namedtuple
         except InvalidMoveException:

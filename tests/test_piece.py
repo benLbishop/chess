@@ -36,42 +36,44 @@ class PieceTest(unittest.TestCase):
     @patch.object(pathing, 'get_necessary_offset')
     @patch.object(Piece, 'can_reach_square')
     def test_get_path_to_square(self, reach_mock, offset_mock):
-        squares = self.board.squares
-        start = squares[0][0]
         offset_mock.return_value = (0, 1)
 
-        self.board.clear()
+        squares = self.board.squares
+        start = squares[0][0]
+        end2 = squares[0][2]
+        end3 = squares[0][3]
+        short_path = [squares[0][0], squares[0][1], squares[0][2]]
+        long_path = short_path[:] + [squares[0][3]]
+
         moving_white_piece = Piece(ChessColor.WHITE)
-        start.add_piece(moving_white_piece)
         white_piece = Piece(ChessColor.WHITE)
         black_piece = Piece(ChessColor.BLACK)
-        squares[0][2].add_piece(white_piece)
-        end2 = squares[0][3]
+        start.add_piece(moving_white_piece)
 
         reach_mock.return_value = False
         # should raise if piece cannot reach end square
         with self.assertRaises(custom_exceptions.InvalidMoveException):
-            moving_white_piece.get_path_to_square(start, end2, self.board)
+            moving_white_piece.get_path_to_square(start, end3, self.board)
         reach_mock.return_value = True
 
         # should raise if we come across a piece on square that's not destination
-        with self.assertRaises(custom_exceptions.InvalidMoveException):
-            moving_white_piece.get_path_to_square(start, end2, self.board)
-
-        # should raise if piece on destination is same color
-        end3 = squares[0][2]
+        end2.add_piece(white_piece)
         with self.assertRaises(custom_exceptions.InvalidMoveException):
             moving_white_piece.get_path_to_square(start, end3, self.board)
 
+        # should raise if piece on destination is same color
+        with self.assertRaises(custom_exceptions.InvalidMoveException):
+            moving_white_piece.get_path_to_square(start, end2, self.board)
+        end2.clear()
         # should return safely if piece on destination is opponent's
-        squares[0][2].add_piece(black_piece)
-        res = moving_white_piece.get_path_to_square(start, end3, self.board)
-        self.assertEqual(res, [squares[0][0], squares[0][1], squares[0][2]])
+        end2.add_piece(black_piece)
+        res = moving_white_piece.get_path_to_square(start, end2, self.board)
+        self.assertEqual(res, (short_path, black_piece))
 
         # should return safely if no piece in path
         self.board.clear()
-        res = moving_white_piece.get_path_to_square(start, end2, self.board)
-        self.assertEqual(res, [squares[0][0], squares[0][1], squares[0][2], squares[0][3]])
+        res = moving_white_piece.get_path_to_square(start, end3, self.board)
+        self.assertEqual(res, (long_path, None))
 
         # TODO: many more tests
 

@@ -3,7 +3,7 @@ from unittest.mock import patch
 from chessGame.square import Square
 from chessGame.enums import ChessColor
 from chessGame.pieces.knight import Knight
-from chessGame.pieces.pawn import Pawn
+from chessGame.pieces.piece import Piece
 from chessGame.board import Board
 from chessGame import constants, custom_exceptions
 
@@ -58,15 +58,15 @@ class KnightTest(unittest.TestCase):
 
         # should return path if no piece on end_square
         res = self.knight.get_path_to_square(start, end, self.board)
-        self.assertEqual(res, [start, end])
+        self.assertEqual(res, ([start, end], None))
 
         # should raise if player's piece is on end_square
-        end_pawn = Pawn(ChessColor.WHITE)
-        end.add_piece(end_pawn)
+        end_piece = Piece(ChessColor.WHITE)
+        end.add_piece(end_piece)
         with self.assertRaises(custom_exceptions.InvalidMoveException):
             self.knight.get_path_to_square(start, end, self.board)
 
         # should return path if opponent's piece is on end_square
-        end_pawn.color = ChessColor.BLACK
+        end_piece.color = ChessColor.BLACK
         res = self.knight.get_path_to_square(start, end, self.board)
-        self.assertEqual(res, [start, end])
+        self.assertEqual(res, ([start, end], end_piece))

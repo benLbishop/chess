@@ -23,9 +23,9 @@ class Knight(Piece):
 
         path = [start, end]
         if not end.is_occupied():
-            return path
+            return path, None
         # some piece on destination. Check color
         if end.piece.color is self.color:
             raise InvalidMoveException('cannot move into square occupied by player piece')
         # capturing opponent piece
-        return path
+        return path, end.piece

@@ -64,6 +64,7 @@ class Piece:
 
         cur_square = start
         path = [start]
+        captured_piece = None
         while cur_square is not end:
             cur_coords = (cur_square.row_idx, cur_square.col_idx)
             next_row_idx, next_col_idx = tuple(map(sum, zip(cur_coords, offset)))
@@ -79,5 +80,6 @@ class Piece:
             # raise if moving piece color is same as end square piece color
             if cur_square.piece.color is self.color:
                 raise InvalidMoveException('cannot move into square occupied by player piece')
+            captured_piece = cur_square.piece
         # found a valid path
-        return path
+        return path, captured_piece

@@ -63,6 +63,58 @@ class Pawn(Piece):
         # valid only if we move 0 or 1 columns
         return abs(col_offset) < 2
 
+    def attempt_en_passant_capture(self, start, end, board):
+        # 1) The move must be diagonal. Should be true based on when this is called.
+        # 2) There must be a pawn on the side of the diagonal move, but on the same row.
+        passant_row_idx = start.row_idx
+        passant_col_idx = end.col_idx
+        passant_square = board.squares[passant_row_idx][passant_col_idx]
+        passant_piece = passant_square.piece
+        if not passant_piece:
+            return None
+        # 3) The piece must be an opposing player's pawn.
+        if not isinstance(passant_piece, Pawn) or passant_piece.color is self.color:
+            return None
+        # 4) The pawn must have moved as the game's last move, and moved two squares.
+        last_start, last_end, _ = board.last_move
+        if last_end is not passant_square:
+            return None
+        last_row_offset = abs(last_start.row_idx - last_end.row_idx)
+        # since it's an opponent's pawn moving, don't need to check col_offset,
+        # since the row offset will only be 2 if we move straight ahead
+        if last_row_offset != 2:
+            return None
+        return passant_piece
+
+    def get_two_move_path(self, start, end, board):
+        if self.has_moved:
+            raise InvalidMoveException('Tried to move pawn two pieces after it had already moved.')
+        start_row_idx = start.row_idx
+        mid_row_idx = start_row_idx + 1 if self.color is ChessColor.WHITE else start_row_idx - 1
+        mid = board.squares[mid_row_idx][start.col_idx]
+        if mid.is_occupied() or end.is_occupied():
+            raise InvalidMoveException('Pawn blocked from moving forward.')
+        return [start, mid, end], None
+
+    def get_one_move_path(self, start, end, board):
+        path = [start, end]
+        col_offset = end.col_idx - start.col_idx
+        if col_offset == 0:
+            if end.is_occupied():
+                raise InvalidMoveException('Pawn blocked from moving forward.')
+            return path, None
+        # abs(col_offset) is 1, moving diagonally
+        if end.is_occupied():
+            # attempting capture. Make sure color is correct
+            if end.piece.color is self.color:
+                raise InvalidMoveException('Pawn cannot capture piece of same color.')
+            return path, end.piece
+        # no piece in diagonal move. only possible with en passant
+        captured_piece = self.attempt_en_passant_capture(start, end, board)
+        if not captured_piece:
+            raise InvalidMoveException('Pawn cannot move diagonally without capturing.')
+        return path, captured_piece
+
     def get_path_to_square(self, start, end, board):
         """Attempts to get the path from start to end given the piece is a pawn.
 
@@ -72,29 +124,9 @@ class Pawn(Piece):
             raise InvalidMoveException('destination not reachable with piece')
         
         row_offset = end.row_idx - start.row_idx
-        col_offset = end.col_idx - start.col_idx
-        if abs(row_offset) == 2:
-            if self.has_moved:
-                raise InvalidMoveException('pawn tried moving 2 squares, but has already moved')
-            # destination has been validated, so col_offset == 0
-            if end.is_occupied():
-                raise InvalidMoveException('pawn blocked straight ahead')
-            start_row_idx = start.row_idx
-            intermediate_row_idx = start_row_idx + 1 if row_offset > 0 else start_row_idx - 1
-            intermediate_square = board.squares[intermediate_row_idx][start.col_idx]
-            if intermediate_square.is_occupied():
-                raise InvalidMoveException('pawn blocked straight ahead')
-            return [start, intermediate_square, end]
-        # row offset must be 1
-        path = [start, end]
-        if col_offset == 0:
-            if end.is_occupied():
-                raise InvalidMoveException('pawn blocked straight ahead')
-            return path
-        # abs(col_offset) must be 1
-        # end must have a piece # TODO: En-passant
-        if not end.is_occupied():
-            raise InvalidMoveException('pawn cannot move diagonally without capturing')
-        if end.piece.color is self.color:
-            raise InvalidMoveException('cannot move into square occupied by player piece')
-        return path        
+        if row_offset == 2:
+            return self.get_two_move_path(start, end, board)
+        # row_offset of 1
+        return self.get_one_move_path(start, end, board)
+        
+        

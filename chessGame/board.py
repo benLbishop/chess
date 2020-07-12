@@ -85,11 +85,10 @@ class Board:
 
         move_path = None
         try:
-            move_path = moving_piece.get_path_to_square(start_square, end_square, self)
+            move_path, captured_piece = moving_piece.get_path_to_square(start_square, end_square, self)
         except InvalidMoveException as err:
             raise err
 
-        captured_piece = end_square.piece
         end_square.add_piece(moving_piece)
         start_square.clear()
 

@@ -144,7 +144,7 @@ class BoardTest(unittest.TestCase):
         # should successfully move the piece otherwise
         path_mock.side_effect = None
         dummy_path = ['dummy', 'path']
-        path_mock.return_value = dummy_path
+        path_mock.return_value = (dummy_path, None)
         start_square = test_board.squares[start_coords[0]][start_coords[1]]
         end_square = test_board.squares[end_coords[0]][end_coords[1]]
 
@@ -158,7 +158,7 @@ class BoardTest(unittest.TestCase):
         start_square.add_piece(test_piece)
         end_square.clear()
         test_piece2 = Piece(ChessColor.BLACK)
-        end_square.add_piece(test_piece2)
+        path_mock.return_value = (dummy_path, test_piece2)
 
         res = test_board.move_piece(start_coords, end_coords, ChessColor.WHITE)
         self.assertEqual(res, (dummy_path, test_piece2))
