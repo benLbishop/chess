@@ -1,7 +1,7 @@
 """module for the Piece class."""
 from chessGame.custom_exceptions import InvalidMoveException
 from chessGame.move_logic import pathing, game_state
-from chessGame import constants, move
+from chessGame import constants
 class Piece:
     """Abstract class representing a chess piece."""
     def __init__(self, color):
@@ -82,7 +82,8 @@ class Piece:
         # found a valid path
         return path
 
-    def get_move(self, start_coords, end_coords, board):
+    def get_move_params(self, start_coords, end_coords, board):
+        # NOTE: A move is not returned because importing the Move class would cause a circular import.
         start_row, start_col = start_coords
         end_row, end_col = end_coords
         start = board.squares[start_row][start_col]
@@ -96,4 +97,4 @@ class Piece:
         if end.is_occupied():
             captured_piece = end.piece
             captured_piece_coords = (end.row_idx, end.col_idx)
-        return move.Move(start_coords, end_coords, captured_piece, captured_piece_coords)
+        return (start_coords, end_coords, captured_piece, captured_piece_coords)

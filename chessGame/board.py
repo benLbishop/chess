@@ -3,6 +3,7 @@ from .square import Square
 from . import constants
 from .custom_exceptions import PiecePlacementException, InvalidMoveException
 from .enums import ChessColor
+from .move import Move
 
 class Board:
     """class representing a chess board of any size."""
@@ -89,7 +90,8 @@ class Board:
 
         move = None
         try:
-            move = moving_piece.get_move(start_coords, end_coords, self)
+            move_params = moving_piece.get_move_params(start_coords, end_coords, self)
+            move = Move(*move_params)
         except InvalidMoveException as err:
             raise err
         

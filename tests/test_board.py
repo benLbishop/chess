@@ -1,6 +1,5 @@
 """module containing tests for the Board class."""
 import unittest
-from copy import deepcopy
 from unittest.mock import patch
 from chessGame.board import Board, StandardBoard
 from chessGame.pieces.piece import Piece
@@ -102,7 +101,7 @@ class BoardTest(unittest.TestCase):
             self.assertEqual(test_board.squares[row_idx][col_idx].piece, test_piece)
 
     @patch.object(Board, '_handle_move_side_effect')
-    @patch.object(Piece, 'get_move')
+    @patch.object(Piece, 'get_move_params')
     def test_move_piece(self, move_mock, side_effect_mock):
         """tests function that actually moves pieces in the game."""
         num_rows = constants.STD_BOARD_WIDTH
@@ -148,8 +147,9 @@ class BoardTest(unittest.TestCase):
 
         # should successfully move the piece otherwise
         move_mock.side_effect = None
-        basic_move = Move((0, 0), (0, 0))
-        move_mock.return_value = basic_move
+        basic_move_params = ((0, 0), (0, 0))
+        basic_move = Move(*basic_move_params)
+        move_mock.return_value = basic_move_params
 
         res = test_board.move_piece(start_coords, end_coords, ChessColor.WHITE)
         self.assertEqual(res, basic_move)
@@ -160,9 +160,9 @@ class BoardTest(unittest.TestCase):
         # should call the side effect function if appropriate
         end_square.clear()
         start_square.add_piece(test_piece)
-        side_effect_move = deepcopy(basic_move)
-        side_effect_move.side_effect = 'some effect'
-        move_mock.return_value = side_effect_move
+        side_effect_move_params = ((0, 0), (0, 0), None, None, 'some effect')
+        side_effect_move = Move(*side_effect_move_params)
+        move_mock.return_value = side_effect_move_params
 
         res = test_board.move_piece(start_coords, end_coords, ChessColor.WHITE)
         self.assertEqual(res, side_effect_move)
