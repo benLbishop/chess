@@ -68,12 +68,12 @@ class PieceTest(unittest.TestCase):
         # should return safely if piece on destination is opponent's
         end2.add_piece(black_piece)
         res = moving_white_piece.get_path_to_square(start, end2, self.board)
-        self.assertEqual(res, (short_path, black_piece))
+        self.assertEqual(res, short_path)
 
         # should return safely if no piece in path
         self.board.clear()
         res = moving_white_piece.get_path_to_square(start, end3, self.board)
-        self.assertEqual(res, (long_path, None))
+        self.assertEqual(res, long_path)
 
         # TODO: many more tests
 

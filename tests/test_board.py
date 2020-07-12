@@ -1,11 +1,13 @@
 """module containing tests for the Board class."""
 import unittest
+from copy import deepcopy
 from unittest.mock import patch
 from chessGame.board import Board, StandardBoard
 from chessGame.pieces.piece import Piece
 from chessGame import constants, conversion as conv
 from chessGame.enums import ChessColor
 from chessGame.custom_exceptions import PiecePlacementException, InvalidMoveException
+from chessGame.move import Move
 
 psns = conv.parse_std_notation_string
 class BoardTest(unittest.TestCase):
@@ -99,8 +101,9 @@ class BoardTest(unittest.TestCase):
             col_idx = coordinates[1]
             self.assertEqual(test_board.squares[row_idx][col_idx].piece, test_piece)
 
-    @patch.object(Piece, 'get_path_to_square')
-    def test_move_piece(self, path_mock):
+    @patch.object(Board, '_handle_move_side_effect')
+    @patch.object(Piece, 'get_move')
+    def test_move_piece(self, move_mock, side_effect_mock):
         """tests function that actually moves pieces in the game."""
         num_rows = constants.STD_BOARD_WIDTH
         num_cols = constants.STD_BOARD_HEIGHT
@@ -123,6 +126,8 @@ class BoardTest(unittest.TestCase):
                 test_board.move_piece(oob_start, oob_end, ChessColor.WHITE)
 
         start_coords, end_coords = ((0, 0), (1, 0))
+        start_square = test_board.squares[start_coords[0]][start_coords[1]]
+        end_square = test_board.squares[end_coords[0]][end_coords[1]]
         # should throw if start and end coords are equal
         with self.assertRaises(InvalidMoveException):
             test_board.move_piece(start_coords, start_coords, ChessColor.WHITE)
@@ -131,39 +136,38 @@ class BoardTest(unittest.TestCase):
         with self.assertRaises(InvalidMoveException):
             test_board.move_piece(start_coords, end_coords, ChessColor.WHITE)
 
-        test_board.squares[0][0].add_piece(test_piece)
+        start_square.add_piece(test_piece)
         # should raise if active_color is not equal to the piece being moved
         with self.assertRaises(InvalidMoveException):
             test_board.move_piece(start_coords, end_coords, ChessColor.BLACK)
 
-        # should raise if piece.get_path_to_square throws
-        path_mock.side_effect = InvalidMoveException('mock exception')
+        # should raise if piece.get_move throws
+        move_mock.side_effect = InvalidMoveException('mock exception')
         with self.assertRaises(InvalidMoveException):
             test_board.move_piece(start_coords, end_coords, ChessColor.WHITE)
 
         # should successfully move the piece otherwise
-        path_mock.side_effect = None
-        dummy_path = ['dummy', 'path']
-        path_mock.return_value = (dummy_path, None)
-        start_square = test_board.squares[start_coords[0]][start_coords[1]]
-        end_square = test_board.squares[end_coords[0]][end_coords[1]]
+        move_mock.side_effect = None
+        basic_move = Move((0, 0), (0, 0))
+        move_mock.return_value = basic_move
 
         res = test_board.move_piece(start_coords, end_coords, ChessColor.WHITE)
-        self.assertEqual(res, (dummy_path, None))
+        self.assertEqual(res, basic_move)
         self.assertFalse(start_square.is_occupied())
         self.assertEqual(test_piece, end_square.piece)
-        self.assertEqual(test_board.last_move, (start_square, end_square, None))
+        self.assertEqual(test_board.last_move, basic_move)
 
-        # should return the captured piece (if it occurred)
-        start_square.add_piece(test_piece)
+        # should call the side effect function if appropriate
         end_square.clear()
-        test_piece2 = Piece(ChessColor.BLACK)
-        path_mock.return_value = (dummy_path, test_piece2)
+        start_square.add_piece(test_piece)
+        side_effect_move = deepcopy(basic_move)
+        side_effect_move.side_effect = 'some effect'
+        move_mock.return_value = side_effect_move
 
         res = test_board.move_piece(start_coords, end_coords, ChessColor.WHITE)
-        self.assertEqual(res, (dummy_path, test_piece2))
-        self.assertEqual(test_board.last_move, (start_square, end_square, test_piece2))
-        
+        self.assertEqual(res, side_effect_move)
+        side_effect_mock.assert_called_with(side_effect_move)
+
         # TODO: test this with same piece type but different locations, i.e. two pawns.
         # want to make sure the correct pawn is removed from player list
 
@@ -180,7 +184,7 @@ class BoardTest(unittest.TestCase):
             test_board.undo_move()
 
         # should move piece from last end to last start
-        test_board.last_move = (last_start, last_end, None)
+        test_board.last_move = Move((0, 0), (2, 2))
         last_end.add_piece(test_piece)
         self.assertIsNone(last_start.piece)
         test_board.undo_move()
@@ -191,7 +195,7 @@ class BoardTest(unittest.TestCase):
         last_end.clear()
         # should replace piece if it was captured
         test_piece2 = Piece(ChessColor.WHITE)
-        test_board.last_move = (last_start, last_end, test_piece2)
+        test_board.last_move = Move((0, 0), (2, 2), test_piece2, (2, 2))
         last_end.add_piece(test_piece)
         self.assertIsNone(last_start.piece)
         test_board.undo_move()

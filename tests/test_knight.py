@@ -69,4 +69,4 @@ class KnightTest(unittest.TestCase):
         # should return path if opponent's piece is on end_square
         end_piece.color = ChessColor.BLACK
         res = self.knight.get_path_to_square(start, end, self.board)
-        self.assertEqual(res, ([start, end], end_piece))
+        self.assertEqual(res, [start, end])

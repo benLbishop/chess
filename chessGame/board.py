@@ -56,6 +56,10 @@ class Board:
                 raise PiecePlacementException('tried to place piece on occupied square')
             square.add_piece(piece)
 
+    def _handle_move_side_effect(self, move):
+        # TODO - remove en passant pieces, pawn promotion, castling
+        pass
+
     def move_piece(self, start_coords, end_coords, active_color):
         """Attempts to move a piece (if it exists) from the start to the end."""
         # TODO: split apart a bit
@@ -83,27 +87,39 @@ class Board:
         if moving_piece.color is not active_color:
             raise InvalidMoveException('tried to move piece with different color.')
 
-        move_path = None
+        move = None
         try:
-            move_path, captured_piece = moving_piece.get_path_to_square(start_square, end_square, self)
+            move = moving_piece.get_move(start_coords, end_coords, self)
         except InvalidMoveException as err:
             raise err
+        
+        if move.side_effect:
+            self._handle_move_side_effect(move)
 
+        # actually move piece
         end_square.add_piece(moving_piece)
         start_square.clear()
 
-        self.last_move = (start_square, end_square, captured_piece)
-        return move_path, captured_piece
+        self.last_move = move
+        return move
 
     def undo_move(self):
         """Reverts the last move made on the board."""
         # TODO: Undoing castle, En-passant, pawn promotion
         if not self.last_move:
             raise InvalidMoveException('no move to undo.')
-
-        last_start, last_end, captured_piece = self.last_move
+        
+        # TODO: maybe make Move have squares instead of coords
+        start_row, start_col = self.last_move.start_coords
+        end_row, end_col = self.last_move.end_coords
+        last_start = self.squares[start_row][start_col]
+        last_end = self.squares[end_row][end_col]
         last_start.add_piece(last_end.piece)
-        last_end.add_piece(captured_piece)
+        last_end.clear()
+        if self.last_move.captured_piece:
+            captured_row, captured_col = self.last_move.captured_piece_coords
+            captured_square = self.squares[captured_row][captured_col]
+            captured_square.add_piece(self.last_move.captured_piece)
 
     def get_active_pieces(self):
         """gets the list of white and black pieces on the board."""

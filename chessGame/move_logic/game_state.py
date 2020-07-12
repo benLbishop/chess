@@ -8,15 +8,15 @@ def can_block_checking_piece(checking_piece_data, board, player_piece_mapping):
     for path_square in checking_path:
         path_coords = (path_square.row_idx, path_square.col_idx)
         for player_piece, player_piece_coords in player_piece_mapping:
-            # TODO: duplicate logic with king_can_escape_check. Might be able to
+            # TODO: duplicate logic with piece.has_valid_move. Might be able to
             # move this logic into the piece classes
             try:
                 board.move_piece(player_piece_coords, path_coords, player_piece.color)
-                if len(get_checking_pieces(board, player_piece.color)) == 0:
-                    can_block = True
-                    board.undo_move()
-                    break
+                checking_pieces = get_checking_pieces(board, player_piece.color)
                 board.undo_move()
+                if len(checking_pieces) == 0:
+                    can_block = True
+                    break
             except InvalidMoveException:
                 continue
         if can_block:
@@ -74,7 +74,7 @@ def get_checking_pieces(board, active_player_color):
     for piece, (row_idx, col_idx) in opponent_piece_mapping:
         piece_square = board.squares[row_idx][col_idx]
         try:
-            check_path, _ = piece.get_path_to_square(piece_square, king_square, board)
+            check_path = piece.get_path_to_square(piece_square, king_square, board)
             # move from piece to king is valid, so it is checking king
             checking_pieces.append((piece, check_path)) # TODO: maybe make this a namedtuple
         except InvalidMoveException:

@@ -1,6 +1,7 @@
 """Module containing the King class."""
 from .piece import Piece
 
+# TODO: override get_move to return castling side effect
 class King(Piece):
     """class for the king Piece."""
     def can_reach_square(self, start, end):

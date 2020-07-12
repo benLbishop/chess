@@ -28,4 +28,4 @@ class Knight(Piece):
         if end.piece.color is self.color:
             raise InvalidMoveException('cannot move into square occupied by player piece')
         # capturing opponent piece
-        return path, end.piece
+        return path

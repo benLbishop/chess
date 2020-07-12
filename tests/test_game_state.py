@@ -40,10 +40,6 @@ class GameStateTest(unittest.TestCase):
             self.tearDown()
         # TODO: test non-checkmates
 
-    def test_king_can_escape_check(self):
-        # TODO
-        pass
-
     def test_can_block_checking_piece(self):
         # TODO
         pass

@@ -4,6 +4,7 @@ from chessGame.enums import ChessColor
 from chessGame.move_logic import game_state
 from .piece import Piece
 
+# TODO: override get_move to return en-passant, pawn promotion
 class Pawn(Piece):
     """class for the pawn Piece."""
     def has_valid_move(self, cur_square, board):
@@ -37,7 +38,6 @@ class Pawn(Piece):
 
             Returns a boolean.
         """
-        # TODO: incorporate en-passant
         row_offset = end.row_idx - start.row_idx
         col_offset = end.col_idx - start.col_idx
         # pawn can't move side to side or more than 2 rows
@@ -94,7 +94,7 @@ class Pawn(Piece):
         mid = board.squares[mid_row_idx][start.col_idx]
         if mid.is_occupied() or end.is_occupied():
             raise InvalidMoveException('Pawn blocked from moving forward.')
-        return [start, mid, end], None
+        return [start, mid, end]
 
     def get_one_move_path(self, start, end, board):
         path = [start, end]
@@ -102,18 +102,18 @@ class Pawn(Piece):
         if col_offset == 0:
             if end.is_occupied():
                 raise InvalidMoveException('Pawn blocked from moving forward.')
-            return path, None
+            return path
         # abs(col_offset) is 1, moving diagonally
         if end.is_occupied():
             # attempting capture. Make sure color is correct
             if end.piece.color is self.color:
                 raise InvalidMoveException('Pawn cannot capture piece of same color.')
-            return path, end.piece
+            return path
         # no piece in diagonal move. only possible with en passant
         captured_piece = self.attempt_en_passant_capture(start, end, board)
         if not captured_piece:
             raise InvalidMoveException('Pawn cannot move diagonally without capturing.')
-        return path, captured_piece
+        return path
 
     def get_path_to_square(self, start, end, board):
         """Attempts to get the path from start to end given the piece is a pawn.
@@ -128,5 +128,3 @@ class Pawn(Piece):
             return self.get_two_move_path(start, end, board)
         # row_offset of 1
         return self.get_one_move_path(start, end, board)
-        
-        

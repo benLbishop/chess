@@ -1,7 +1,7 @@
 """module for the Piece class."""
 from chessGame.custom_exceptions import InvalidMoveException
 from chessGame.move_logic import pathing, game_state
-from chessGame import constants
+from chessGame import constants, move
 class Piece:
     """Abstract class representing a chess piece."""
     def __init__(self, color):
@@ -64,7 +64,6 @@ class Piece:
 
         cur_square = start
         path = [start]
-        captured_piece = None
         while cur_square is not end:
             cur_coords = (cur_square.row_idx, cur_square.col_idx)
             next_row_idx, next_col_idx = tuple(map(sum, zip(cur_coords, offset)))
@@ -80,6 +79,21 @@ class Piece:
             # raise if moving piece color is same as end square piece color
             if cur_square.piece.color is self.color:
                 raise InvalidMoveException('cannot move into square occupied by player piece')
-            captured_piece = cur_square.piece
         # found a valid path
-        return path, captured_piece
+        return path
+
+    def get_move(self, start_coords, end_coords, board):
+        start_row, start_col = start_coords
+        end_row, end_col = end_coords
+        start = board.squares[start_row][start_col]
+        end = board.squares[end_row][end_col]
+        try:
+            # TODO: make get_path_to_square take in coords instead of squares
+            self.get_path_to_square(start, end, board)
+        except InvalidMoveException as err:
+            raise err
+        captured_piece, captured_piece_coords = (None, None)
+        if end.is_occupied():
+            captured_piece = end.piece
+            captured_piece_coords = (end.row_idx, end.col_idx)
+        return move.Move(start_coords, end_coords, captured_piece, captured_piece_coords)

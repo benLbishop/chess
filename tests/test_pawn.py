@@ -74,6 +74,8 @@ class PawnTest(unittest.TestCase):
 
         self.assertIsNone(wp.attempt_en_passant_capture(b.squares[4][4], b.squares[5][5], b))
 
+        # TODO
+
     @patch.object(Pawn, 'attempt_en_passant_capture')
     def test_get_one_move_path(self, passant_mock):
         passant_mock.return_value = None
@@ -118,7 +120,7 @@ class PawnTest(unittest.TestCase):
         passant_return = 'dummy passant'
         passant_mock.return_value = passant_return
         res = self.white_pawn.get_path_to_square(start, left_diag, self.board)
-        self.assertEqual(res, ([start, left_diag], passant_return))
+        self.assertEqual(res, [start, left_diag])
 
         # should work otherwise TODO
 
@@ -150,7 +152,7 @@ class PawnTest(unittest.TestCase):
 
         # should get the proper path for 2 otherwise
         res = self.white_pawn.get_path_to_square(start, end, self.board)
-        self.assertEqual(res, ([start, mid, end], None))
+        self.assertEqual(res, [start, mid, end])
 
     @patch.object(Pawn, 'get_two_move_path')
     @patch.object(Pawn, 'get_one_move_path')
