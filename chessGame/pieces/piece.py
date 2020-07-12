@@ -89,7 +89,6 @@ class Piece:
         start = board.squares[start_row][start_col]
         end = board.squares[end_row][end_col]
         try:
-            # TODO: make get_path_to_square take in coords instead of squares
             self.get_path_to_square(start, end, board)
         except InvalidMoveException as err:
             raise err

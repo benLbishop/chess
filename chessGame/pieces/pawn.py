@@ -1,10 +1,9 @@
 """Module containing the Pawn class."""
 from chessGame.custom_exceptions import InvalidMoveException
-from chessGame.enums import ChessColor
+from chessGame.enums import ChessColor, MoveSideEffect
 from chessGame.move_logic import game_state
 from .piece import Piece
 
-# TODO: override get_move to return en-passant, pawn promotion
 class Pawn(Piece):
     """class for the pawn Piece."""
     def has_valid_move(self, cur_square, board):
@@ -76,7 +75,10 @@ class Pawn(Piece):
         if not isinstance(passant_piece, Pawn) or passant_piece.color is self.color:
             return None
         # 4) The pawn must have moved as the game's last move, and moved two squares.
-        last_start, last_end, _ = board.last_move
+        last_start_row, last_start_col = board.last_move.start_coords
+        last_end_row, last_end_col = board.last_move.end_coords
+        last_start = board.squares[last_start_row][last_start_col]
+        last_end = board.squares[last_end_row][last_end_col]
         if last_end is not passant_square:
             return None
         last_row_offset = abs(last_start.row_idx - last_end.row_idx)
@@ -128,3 +130,19 @@ class Pawn(Piece):
             return self.get_two_move_path(start, end, board)
         # row_offset of 1
         return self.get_one_move_path(start, end, board)
+
+    def get_move_params(self, start_coords, end_coords, board):
+        # NOTE: A move is not returned because importing the Move class would cause a circular import.
+        # TODO: test
+        default_res = super().get_move_params(start_coords, end_coords, board)
+        start_row, _ = start_coords
+        end_row, end_col = end_coords
+        row_offset = abs(end_row - start_row)
+        if row_offset != 0 and default_res[2] is None:
+            # moved diagonally without capturing on that square. Performed en passant
+            captured_coords = (start_row, end_col)
+            captured_square = board.squares[captured_coords[0]][captured_coords[1]]
+            captured_piece = captured_square.piece
+            return (default_res[0], default_res[1], captured_piece, captured_coords, MoveSideEffect.EN_PASSANT)
+        # TODO: pawn promotion
+        return default_res

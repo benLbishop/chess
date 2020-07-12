@@ -58,6 +58,7 @@ class Board:
             square.add_piece(piece)
 
     def _handle_castle_side_effect(self, move):
+        """Method in charge of moving the rook that's part of a castle move."""
         # TODO: test
         row_idx, start_col_idx = move.start_coords
         _, end_col_idx = move.end_coords
@@ -70,12 +71,22 @@ class Board:
         rook_end.add_piece(rook_start.piece)
         rook_start.clear()
 
+    def _handle_en_passant_side_effect(self, move):
+        """Method in charge of removing the piece captured via en passant."""
+        # TODO: test
+        row_idx, col_idx = move.captured_piece_coords
+        captured_square = self.squares[row_idx][col_idx]
+        captured_square.clear()
+
     def _handle_move_side_effect(self, move):
-        # TODO - remove en passant pieces, pawn promotion
+        # TODO: test
         side_effect = move.side_effect
         if side_effect is MoveSideEffect.CASTLE:
             self._handle_castle_side_effect(move)
+        elif side_effect is MoveSideEffect.EN_PASSANT:
+            self._handle_en_passant_side_effect(move)
         else:
+            # TODO: pawn promotion
             raise NotImplementedError
 
     def move_piece(self, start_coords, end_coords, active_color):
