@@ -1,4 +1,7 @@
 """module containing the Board class."""
+from chessGame.pieces.queen import Queen
+from chessGame.pieces.pawn import Pawn
+from chessGame.pieces.piece import Piece
 from .square import Square
 from . import constants
 from .custom_exceptions import PiecePlacementException, InvalidMoveException
@@ -24,8 +27,13 @@ class Board:
                 if not square.is_occupied():
                     row_str = row_str + '. '
                 else:
-                    # TODO: get actual piece
-                    row_str = row_str + 'p '
+                    piece_char = type(square.piece).__name__[0]
+                    if isinstance(square.piece, Pawn):
+                        piece_char = piece_char.lower()
+                    if isinstance(square.piece, Piece):
+                        piece_char = '?'
+
+                    row_str = row_str + piece_char + ' '
             # adding from bottom up
             board_str = row_str + '\n' + board_str
         return board_str
@@ -78,6 +86,17 @@ class Board:
         captured_square = self.squares[row_idx][col_idx]
         captured_square.clear()
 
+    def _handle_pawn_promotion_side_effect(self, move):
+        """Method in charge of promoting pawns."""
+        # TODO: test
+        # TODO: this should actually ask the player what they want to promote the piece to.
+        # For now, I'm just going to make it a queen
+        row_idx, col_idx = move.end_coords
+        end_square = self.squares[row_idx][col_idx]
+        color = end_square.piece.color
+        end_square.clear()
+        end_square.add_piece(Queen(color))
+
     def _handle_move_side_effect(self, move):
         # TODO: test
         side_effect = move.side_effect
@@ -85,6 +104,8 @@ class Board:
             self._handle_castle_side_effect(move)
         elif side_effect is MoveSideEffect.EN_PASSANT:
             self._handle_en_passant_side_effect(move)
+        elif side_effect is MoveSideEffect.PAWN_PROMOTION:
+            self._handle_pawn_promotion_side_effect(move)
         else:
             # TODO: pawn promotion
             raise NotImplementedError
@@ -123,13 +144,15 @@ class Board:
         except InvalidMoveException as err:
             raise err
 
-        if move.side_effect:
-            self._handle_move_side_effect(move)
-
         # actually move piece
         end_square.add_piece(moving_piece)
         start_square.clear()
         moving_piece.has_moved = True
+
+        # NOTE: this is expected to be called after the piece is moved to the end square.
+        # Things such as pawn promotion will break if this is done before moving the piece.
+        if move.side_effect:
+            self._handle_move_side_effect(move)
 
         self.last_move = move
         return move

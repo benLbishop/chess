@@ -135,14 +135,18 @@ class Pawn(Piece):
         # NOTE: A move is not returned because importing the Move class would cause a circular import.
         # TODO: test
         default_res = super().get_move_params(start_coords, end_coords, board)
-        start_row, _ = start_coords
+        start_row, start_col = start_coords
         end_row, end_col = end_coords
-        row_offset = abs(end_row - start_row)
-        if row_offset != 0 and default_res[2] is None:
+        col_offset = abs(end_col - start_col)
+        if col_offset != 0 and default_res[2] is None:
             # moved diagonally without capturing on that square. Performed en passant
             captured_coords = (start_row, end_col)
             captured_square = board.squares[captured_coords[0]][captured_coords[1]]
             captured_piece = captured_square.piece
             return (default_res[0], default_res[1], captured_piece, captured_coords, MoveSideEffect.EN_PASSANT)
-        # TODO: pawn promotion
+        # TODO: this is omega clunky
+        if self.color is ChessColor.WHITE and end_row == board.NUM_ROWS - 1:
+            return (default_res[0], default_res[1], default_res[2], default_res[3], MoveSideEffect.PAWN_PROMOTION)
+        if self.color is ChessColor.BLACK and end_row == 0:
+            return (default_res[0], default_res[1], default_res[2], default_res[3], MoveSideEffect.PAWN_PROMOTION)
         return default_res
