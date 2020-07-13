@@ -20,7 +20,7 @@ class GameTest(unittest.TestCase):
         black_config = {'name': 'Allie'}
 
         # test behavior when board_config is none
-        test_game = Game(None, white_config, black_config, [])
+        test_game = Game(white_config, black_config)
         self.assertIsInstance(test_game.board, StandardBoard)
         self.assertIsInstance(test_game.white_player, Player)
         self.assertIsInstance(test_game.black_player, Player)
@@ -34,27 +34,27 @@ class GameTest(unittest.TestCase):
     @patch.object(Board, 'populate')
     @patch.object(conv, 'parse_std_notation_string')
     def test_set_up_pieces(self, parse_mock, populate_mock):
+        """Tests the private _set_up_pieces method."""
         # if piece_strings is empty, use std piece list
         white_config = {'name': 'Bob'}
         black_config = {'name': 'Allie'}
         parse_mock.return_value = ('dummy', 'vals')
-        test_game = Game(None, white_config, black_config)
+        test_game = Game(white_config, black_config)
 
-        # TODO test conversion failure, populate failure, player piece assignment, sorting player pieces
-    
+        # TODO test conversion failure, populate failure
+
     @patch.object(Game, 'check_for_end_of_game')
-    @patch.object(game_state, 'get_checking_pieces')
-    @patch.object(Board, 'undo_move')
     @patch.object(Board, 'move_piece')
-    def test_make_move(self, move_mock, undo_move_mock, check_mock, end_mock):
+    def test_make_move(self, move_mock, end_mock):
         """tests function that processes an attempted move of a piece."""
-        # TODO: should be in Board class?
         white_config = {'name': 'Bob'}
         black_config = {'name': 'Allie'}
-        test_game = Game(None, white_config, black_config, [])
+        test_game = Game(white_config, black_config)
         start_coords, end_coords = ((1, 1), (2, 1))
 
-        move_mock.return_value = Move((0, 0), (1, 0)) # TODO: test adding captured piece to player
+        move_mock.return_value = Move((0, 0), (1, 0))
+
+        # TODO: test adding captured piece to player
 
         # should use the proper players as cur_player/opponent
         test_game.make_move(start_coords, end_coords)
@@ -69,28 +69,22 @@ class GameTest(unittest.TestCase):
         move_mock.side_effect = InvalidMoveException('dummy exception')
         with self.assertRaises(InvalidMoveException):
             test_game.make_move(start_coords, end_coords)
-
         move_mock.side_effect = None
 
-        # should raise if player puts themselves in check
-        check_mock.return_value = ['something']
-        with self.assertRaises(InvalidMoveException):
-            test_game.make_move(start_coords, end_coords)
-            undo_move_mock.assert_called_once()
-            self.assertEqual(test_game.is_white_turn, False)
-
-        check_mock.return_value = []
-
-        # should call end of game method
-        # TODO
+        # should call end of game method and switch turns
+        end_mock.reset_mock()
+        test_game.make_move(start_coords, end_coords)
+        end_mock.assert_called_once()
+        test_game.is_white_turn = False
 
     @patch.object(game_state, 'player_is_stalemated')
     @patch.object(game_state, 'player_is_checkmated')
     @patch.object(game_state, 'get_checking_pieces')
     def test_check_for_end_of_game(self, check_mock, checkmate_mock, stalemate_mock):
+        """Tests for the check_for_end_of_game method."""
         white_config = {'name': 'Bob'}
         black_config = {'name': 'Allie'}
-        test_game = Game(None, white_config, black_config, [])
+        test_game = Game(white_config, black_config)
 
         check_mock.return_value = ['something']
         checkmate_mock.return_value = False

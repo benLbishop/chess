@@ -7,6 +7,7 @@ from chessGame import constants, conversion as conv
 from chessGame.enums import ChessColor
 from chessGame.custom_exceptions import PiecePlacementException, InvalidMoveException
 from chessGame.move import Move
+from chessGame.move_logic import game_state
 
 psns = conv.parse_std_notation_string
 class BoardTest(unittest.TestCase):
@@ -50,17 +51,24 @@ class BoardTest(unittest.TestCase):
         num_rows = constants.STD_BOARD_WIDTH
         num_cols = constants.STD_BOARD_HEIGHT
         test_board = Board({'num_rows': num_rows, 'num_cols': num_cols})
-
-        # TODO: decouple testing for this from Square logic
-        # TODO: actually populate board first
+        squares = test_board.squares
         # test clearing when board is already empty
         test_board.clear()
-        for row in test_board.squares:
+        for row in squares:
             for square in row:
                 self.assertFalse(square.is_occupied())
 
         # test clearing when board has pieces
-        # TODO
+        squares[0][0].add_piece(Piece(ChessColor.WHITE))
+        squares[2][2].add_piece(Piece(ChessColor.BLACK))
+        squares[5][1].add_piece(Piece(ChessColor.WHITE))
+        squares[4][3].add_piece(Piece(ChessColor.BLACK))
+        squares[1][6].add_piece(Piece(ChessColor.WHITE))
+        squares[7][7].add_piece(Piece(ChessColor.BLACK))
+        test_board.clear()
+        for row in squares:
+            for square in row:
+                self.assertFalse(square.is_occupied())
 
     def test_populate(self):
         """test the initial placing of pieces on the board."""
@@ -100,9 +108,30 @@ class BoardTest(unittest.TestCase):
             col_idx = coordinates[1]
             self.assertEqual(test_board.squares[row_idx][col_idx].piece, test_piece)
 
+    def test_handle_castle_side_effect(self):
+        """Tests for the private _handle_castle_side_effect method."""
+        # TODO
+
+    def test_handle_en_passant_side_effect(self):
+        """Tests for the private _handle_en_passant_side_effect method."""
+        # TODO
+
+    def test_handle_pawn_promotion_side_effect(self):
+        """Tests for the private _handle_pawn_promotion_side_effect method."""
+        # TODO
+
+    @patch.object(Board, '_handle_pawn_promotion_side_effect')
+    @patch.object(Board, '_handle_en_passant_side_effect')
+    @patch.object(Board, '_handle_castle_side_effect')
+    def test_handle_move_side_effect(self, castle_mock, passant_mock, promotion_mock):
+        """Tests for the private _handle_move_side_effect method."""
+        # TODO
+
+    @patch.object(Board, 'undo_move')
     @patch.object(Board, '_handle_move_side_effect')
+    @patch.object(game_state, 'get_checking_pieces')
     @patch.object(Piece, 'get_move_params')
-    def test_move_piece(self, move_mock, side_effect_mock):
+    def test_move_piece(self, move_mock, check_mock, side_effect_mock, undo_mock):
         """tests function that actually moves pieces in the game."""
         num_rows = constants.STD_BOARD_WIDTH
         num_cols = constants.STD_BOARD_HEIGHT
@@ -144,9 +173,9 @@ class BoardTest(unittest.TestCase):
         move_mock.side_effect = InvalidMoveException('mock exception')
         with self.assertRaises(InvalidMoveException):
             test_board.move_piece(start_coords, end_coords, ChessColor.WHITE)
+        move_mock.side_effect = None
 
         # should successfully move the piece otherwise
-        move_mock.side_effect = None
         basic_move_params = ((0, 0), (0, 0))
         basic_move = Move(*basic_move_params)
         move_mock.return_value = basic_move_params
@@ -159,10 +188,10 @@ class BoardTest(unittest.TestCase):
         self.assertTrue(test_piece.has_moved)
 
         test_piece.has_moved = False
-
-        # should call the side effect function if appropriate
         end_square.clear()
         start_square.add_piece(test_piece)
+
+        # should call the side effect function if appropriate
         side_effect_move_params = ((0, 0), (0, 0), None, None, 'some effect')
         side_effect_move = Move(*side_effect_move_params)
         move_mock.return_value = side_effect_move_params
@@ -171,10 +200,22 @@ class BoardTest(unittest.TestCase):
         self.assertEqual(res, side_effect_move)
         side_effect_mock.assert_called_with(side_effect_move)
 
+        test_piece.has_moved = False
+        end_square.clear()
+        start_square.add_piece(test_piece)
+
+        # should raise if player puts themselves in check and call undo_move
+        check_mock.return_value = ['something']
+        with self.assertRaises(InvalidMoveException):
+            test_board.move_piece(start_coords, end_coords, ChessColor.WHITE)
+            undo_mock.assert_called_once()
+        check_mock.return_value = []
+
         # TODO: test this with same piece type but different locations, i.e. two pawns.
         # want to make sure the correct pawn is removed from player list
 
     def test_undo_move(self):
+        """Tests the undo_move method."""
         num_rows = constants.STD_BOARD_WIDTH
         num_cols = constants.STD_BOARD_HEIGHT
         test_board = Board({'num_rows': num_rows, 'num_cols': num_cols})
@@ -204,8 +245,9 @@ class BoardTest(unittest.TestCase):
         test_board.undo_move()
         self.assertEqual(last_start.piece, test_piece)
         self.assertEqual(last_end.piece, test_piece2)
-    
+
     def test_get_active_pieces(self):
+        """Tests the get_active_pieces method."""
         num_rows = constants.STD_BOARD_WIDTH
         num_cols = constants.STD_BOARD_HEIGHT
         test_board = Board({'num_rows': num_rows, 'num_cols': num_cols})

@@ -1,12 +1,11 @@
 """module containing the Board class."""
 from chessGame.pieces.queen import Queen
-from chessGame.pieces.pawn import Pawn
-from chessGame.pieces.piece import Piece
 from .square import Square
 from . import constants
 from .custom_exceptions import PiecePlacementException, InvalidMoveException
 from .enums import ChessColor, MoveSideEffect
 from .move import Move
+from .move_logic import game_state
 
 class Board:
     """class representing a chess board of any size."""
@@ -37,7 +36,7 @@ class Board:
         min_rows = constants.MIN_BOARD_ROWS
         min_cols = constants.MIN_BOARD_COLS
         if self.NUM_ROWS < min_rows or self.NUM_COLS < min_cols:
-            raise ValueError('Board dimensions too small, must be {0}x{1} or larger'.format(min_rows, min_cols))
+            raise ValueError('Board dimensions must be {}x{} or larger'.format(min_rows, min_cols))
 
         self.squares = [[Square(row_idx, col_idx) for col_idx in range(self.NUM_COLS)] for row_idx in range(self.NUM_ROWS)]
 
@@ -61,7 +60,6 @@ class Board:
 
     def _handle_castle_side_effect(self, move):
         """Method in charge of moving the rook that's part of a castle move."""
-        # TODO: test
         row_idx, start_col_idx = move.start_coords
         _, end_col_idx = move.end_coords
 
@@ -75,14 +73,12 @@ class Board:
 
     def _handle_en_passant_side_effect(self, move):
         """Method in charge of removing the piece captured via en passant."""
-        # TODO: test
         row_idx, col_idx = move.captured_piece_coords
         captured_square = self.squares[row_idx][col_idx]
         captured_square.clear()
 
     def _handle_pawn_promotion_side_effect(self, move):
         """Method in charge of promoting pawns."""
-        # TODO: test
         # TODO: this should actually ask the player what they want to promote the piece to.
         # For now, I'm just going to make it a queen
         row_idx, col_idx = move.end_coords
@@ -92,7 +88,6 @@ class Board:
         end_square.add_piece(Queen(color))
 
     def _handle_move_side_effect(self, move):
-        # TODO: test
         side_effect = move.side_effect
         if side_effect is MoveSideEffect.CASTLE:
             self._handle_castle_side_effect(move)
@@ -101,12 +96,11 @@ class Board:
         elif side_effect is MoveSideEffect.PAWN_PROMOTION:
             self._handle_pawn_promotion_side_effect(move)
         else:
-            # TODO: pawn promotion
             raise NotImplementedError
 
     def move_piece(self, start_coords, end_coords, active_color):
         """Attempts to move a piece (if it exists) from the start to the end."""
-        # TODO: split apart a bit
+        # TODO: split apart
         start_row, start_col = start_coords
         end_row, end_col = end_coords
 
@@ -149,6 +143,13 @@ class Board:
             self._handle_move_side_effect(move)
 
         self.last_move = move
+
+        checking_pieces = game_state.get_checking_pieces(self, active_color)
+        if len(checking_pieces) > 0:
+            # cur_player put themselves in check, not allowed. Reset move
+            self.undo_move()
+            raise InvalidMoveException('player tried to put themselves in check')
+
         return move
 
     def undo_move(self):

@@ -2,13 +2,16 @@
 import unittest
 from chessGame.enums import ChessColor
 from chessGame.square import Square
-from chessGame.pieces.pawn import Pawn
+from chessGame.pieces.piece import Piece
 
 class TestSquare(unittest.TestCase):
     """tests for the Square class."""
 
     def setUp(self):
         self.test_square = Square(0, 0)
+
+    def tearDown(self):
+        self.test_square.piece = None
 
     def test_init(self):
         """Test the constructor."""
@@ -28,7 +31,7 @@ class TestSquare(unittest.TestCase):
         """tests the is_occupied method."""
         self.assertFalse(self.test_square.is_occupied())
 
-        self.test_square.piece = Pawn(ChessColor.BLACK)
+        self.test_square.piece = Piece(ChessColor.BLACK)
         self.assertTrue(self.test_square.is_occupied())
 
     def test_clear(self):
@@ -39,10 +42,15 @@ class TestSquare(unittest.TestCase):
         self.test_square.clear()
         self.assertIsNone(self.test_square.piece)
 
-        self.test_square.piece = Pawn(ChessColor.BLACK)
+        self.test_square.piece = Piece(ChessColor.BLACK)
         self.test_square.clear()
         self.assertIsNone(self.test_square.piece)
 
+    def test_add_piece(self):
+        """tests the add_piece method."""
+        p = Piece(ChessColor.BLACK)
+        self.test_square.add_piece(p)
+        self.assertEqual(self.test_square.piece, p)
 
 if __name__ == '__main__':
     unittest.main()

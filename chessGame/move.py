@@ -1,6 +1,7 @@
 """Module for the Move class."""
 from dataclasses import dataclass
 from chessGame.pieces.piece import Piece
+from chessGame.enums import MoveSideEffect
 
 @dataclass
 class Move:
@@ -9,4 +10,4 @@ class Move:
     end_coords: tuple
     captured_piece: Piece = None
     captured_piece_coords: tuple = None
-    side_effect: str = None # TODO
+    side_effect: MoveSideEffect = None
