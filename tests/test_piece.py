@@ -2,7 +2,8 @@
 import unittest
 from unittest.mock import patch
 
-from chessGame import constants, custom_exceptions
+from chessGame import constants
+from chessGame.custom_exceptions import InvalidMoveException
 from chessGame.enums import ChessColor
 from chessGame.move_logic import pathing
 from chessGame.board import Board
@@ -28,7 +29,12 @@ class PieceTest(unittest.TestCase):
         self.assertEqual(white_p._value, -1)
         self.assertEqual(white_p.has_moved, False)
 
+    def test_has_valid_move(self):
+        """Tests for the has_valid_move method."""
+        # TODO
+
     def test_can_reach_square(self):
+        """Makes sure can_reach_square is not implemented."""
         p = Piece(ChessColor.BLACK)
         with self.assertRaises(NotImplementedError):
             p.can_reach_square(None, None)
@@ -36,6 +42,7 @@ class PieceTest(unittest.TestCase):
     @patch.object(pathing, 'get_necessary_offset')
     @patch.object(Piece, 'can_reach_square')
     def test_get_path_to_square(self, reach_mock, offset_mock):
+        """Tests for the get_path_to_square method."""
         offset_mock.return_value = (0, 1)
 
         squares = self.board.squares
@@ -52,17 +59,17 @@ class PieceTest(unittest.TestCase):
 
         reach_mock.return_value = False
         # should raise if piece cannot reach end square
-        with self.assertRaises(custom_exceptions.InvalidMoveException):
+        with self.assertRaises(InvalidMoveException):
             moving_white_piece.get_path_to_square(start, end3, self.board)
         reach_mock.return_value = True
 
         # should raise if we come across a piece on square that's not destination
         end2.add_piece(white_piece)
-        with self.assertRaises(custom_exceptions.InvalidMoveException):
+        with self.assertRaises(InvalidMoveException):
             moving_white_piece.get_path_to_square(start, end3, self.board)
 
         # should raise if piece on destination is same color
-        with self.assertRaises(custom_exceptions.InvalidMoveException):
+        with self.assertRaises(InvalidMoveException):
             moving_white_piece.get_path_to_square(start, end2, self.board)
         end2.clear()
         # should return safely if piece on destination is opponent's
@@ -76,6 +83,33 @@ class PieceTest(unittest.TestCase):
         self.assertEqual(res, long_path)
 
         # TODO: many more tests
+
+    @patch.object(Piece, 'get_path_to_square')
+    def test_get_move_params(self, path_mock):
+        """Tests for the get_move_params method."""
+        start_coords = (0, 0)
+        end_coords = (1, 0)
+        moving_piece = Piece(ChessColor.WHITE)
+
+        # should raise if path cannot be found
+        path_mock.side_effect = InvalidMoveException('dummy exception')
+        with self.assertRaises(InvalidMoveException):
+            moving_piece.get_move_params(start_coords, end_coords, self.board)
+        path_mock.side_effect = None
+
+        # should return captured piece/coords if it occurs
+        other_piece = Piece(ChessColor.BLACK)
+        end_square = self.board.squares[end_coords[0]][end_coords[1]]
+        end_square.add_piece(other_piece)
+        res = moving_piece.get_move_params(start_coords, end_coords, self.board)
+        expected_res = (start_coords, end_coords, other_piece, end_coords)
+        self.assertEqual(res, expected_res)
+        end_square.clear()
+
+        # should return just the coordinates otherwise
+        res = moving_piece.get_move_params(start_coords, end_coords, self.board)
+        expected_res = (start_coords, end_coords, None, None)
+        self.assertEqual(res, expected_res)
 
 if __name__ == '__main__':
     unittest.main()

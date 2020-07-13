@@ -4,7 +4,6 @@ from chessGame.move_logic import game_state
 from chessGame.enums import MoveSideEffect
 from .piece import Piece
 
-# TODO: override get_move to return castling side effect
 class King(Piece):
     """class for the king Piece."""
     def can_reach_square(self, start, end):
@@ -13,12 +12,14 @@ class King(Piece):
 
             Returns a boolean.
         """
-        # TODO: castling
         row_dist = abs(start.row_idx - end.row_idx)
         col_dist = abs(start.col_idx - end.col_idx)
         return row_dist < 2 and col_dist < 2
 
-    def attempt_castle(self, start, end, board):
+    def get_castle_params(self, start, end, board):
+        """Attempts to get move parameters for castling.
+            Should only be called if the king is moving horizontally 2 squares.
+        """
         # 1) king has not moved
         if self.has_moved:
             raise InvalidMoveException('cannot castle if king has moved.')
@@ -60,6 +61,7 @@ class King(Piece):
         return (start_coords, end_coords, None, None, MoveSideEffect.CASTLE)
 
     def get_move_params(self, start_coords, end_coords, board):
+        # Overwritten to handle castling
         start_row, start_col = start_coords
         end_row, end_col = end_coords
         start = board.squares[start_row][start_col]
@@ -68,5 +70,6 @@ class King(Piece):
         row_offset = abs(start_row - end_row)
         col_offset = abs(start_col - end_col)
         if row_offset == 0 and col_offset == 2:
-            return self.attempt_castle(start, end, board)
+            return self.get_castle_params(start, end, board)
+        # king moves in a standard way otherwise
         return super().get_move_params(start_coords, end_coords, board)

@@ -1,3 +1,4 @@
+"""Module for testing the Knight class."""
 import unittest
 from unittest.mock import patch
 from chessGame.square import Square
@@ -18,6 +19,7 @@ class KnightTest(unittest.TestCase):
         self.board.clear()
 
     def test_can_reach_square(self):
+        """Tests the overwritten can_reach_square method."""
         start_row = 3
         start_col = 3
         start = Square(start_row, start_col)
@@ -46,6 +48,7 @@ class KnightTest(unittest.TestCase):
 
     @patch.object(Knight, 'can_reach_square')
     def test_get_path_to_square(self, reach_mock):
+        """Tests the overwritten get_path_to_square method."""
         squares = self.board.squares
         start = squares[0][0]
         end = squares[2][1]

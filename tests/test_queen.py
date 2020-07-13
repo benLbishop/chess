@@ -1,3 +1,4 @@
+"""Module for testing the Queen class."""
 import unittest
 
 from chessGame.square import Square
@@ -11,8 +12,9 @@ class QueenTest(unittest.TestCase):
         cls.queen = Queen(ChessColor.BLACK)
 
     def test_can_reach_square(self):
+        """Tests the overwritten can_reach_square method."""
         start = Square(2, 2)
-        
+
         good_ends = [
             Square(2, 1),
             Square(0, 2),

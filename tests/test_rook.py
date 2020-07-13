@@ -1,3 +1,4 @@
+"""Module for testing the Rook class."""
 import unittest
 
 from chessGame.square import Square
@@ -12,6 +13,7 @@ class RookTest(unittest.TestCase):
         cls.rook = Rook(ChessColor.BLACK)
 
     def test_can_reach_square(self):
+        """Tests the overwritten can_reach_square method."""
         start_row = 5
         start_col = 5
         start = Square(start_row, start_col)

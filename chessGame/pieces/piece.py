@@ -6,7 +6,10 @@ class Piece:
     """Abstract class representing a chess piece."""
     def __init__(self, color):
         self.color = color
-        self.has_moved = False # TODO: works for initial game state, but what about endgames?
+        # TODO: keep a move_count variable instead and have has_moved
+        # be a property that returns move_count > 0
+        # TODO: works for initial game state, but what about endgames?
+        self.has_moved = False
         # TODO: test this way of setting data for subclasses
         class_name = type(self).__name__
         self.char = constants.PIECE_CHARS.get(class_name, '?')
@@ -28,8 +31,6 @@ class Piece:
 
     def has_valid_move(self, cur_square, board):
         """Checks to see if the piece has any valid moves to neighboring squares."""
-        # TODO: test
-        # TODO: what about castling?
         cur_coords = (cur_square.row_idx, cur_square.col_idx)
         has_move = False
         for offset in self._offsets:
@@ -84,7 +85,8 @@ class Piece:
         return path
 
     def get_move_params(self, start_coords, end_coords, board):
-        # NOTE: A move is not returned because importing the Move class would cause a circular import.
+        """Attempts to get the move parameters using the piece for the provided coordinates."""
+        # NOTE: Move not returned because importing the Move class would cause a circular import.
         start_row, start_col = start_coords
         end_row, end_col = end_coords
         start = board.squares[start_row][start_col]

@@ -7,14 +7,14 @@ from .piece import Piece
 class Pawn(Piece):
     """class for the pawn Piece."""
     def has_valid_move(self, cur_square, board):
-        # TODO: test
         cur_coords = (cur_square.row_idx, cur_square.col_idx)
         offsets = []
         if self.color == ChessColor.WHITE:
             offsets = [(1, 0), (1, 1), (1, -1)]
         else:
             offsets = [(-1, 0), (-1, 1), (-1, -1)]
-        # TODO: this logic is duplicated in the Piece class. just need different way to get move options
+        # TODO: this logic is duplicated in the Piece class.
+        # need to find different way to get move options
         has_move = False
         for offset in offsets:
             neighbor_coords = tuple(map(sum, zip(cur_coords, offset)))
@@ -63,6 +63,8 @@ class Pawn(Piece):
         return abs(col_offset) < 2
 
     def attempt_en_passant_capture(self, start, end, board):
+        """Checks if an en passant capture is possible."""
+        # TODO: rename/change return type
         # 1) The move must be diagonal. Should be true based on when this is called.
         # 2) There must be a pawn on the side of the diagonal move, but on the same row.
         passant_row_idx = start.row_idx
@@ -89,6 +91,9 @@ class Pawn(Piece):
         return passant_piece
 
     def get_two_move_path(self, start, end, board):
+        """Attempts to get a path for a pawn moving two squares.
+            Should be called after the destination is valid.
+        """
         if self.has_moved:
             raise InvalidMoveException('Tried to move pawn two pieces after it had already moved.')
         start_row_idx = start.row_idx
@@ -99,6 +104,7 @@ class Pawn(Piece):
         return [start, mid, end]
 
     def get_one_move_path(self, start, end, board):
+        """Attempts to get a path for a pawn moving one square."""
         path = [start, end]
         col_offset = end.col_idx - start.col_idx
         if col_offset == 0:
@@ -124,7 +130,7 @@ class Pawn(Piece):
         """
         if not self.can_reach_square(start, end):
             raise InvalidMoveException('destination not reachable with piece')
-        
+
         row_offset = end.row_idx - start.row_idx
         if row_offset == 2:
             return self.get_two_move_path(start, end, board)
@@ -132,18 +138,18 @@ class Pawn(Piece):
         return self.get_one_move_path(start, end, board)
 
     def get_move_params(self, start_coords, end_coords, board):
-        # NOTE: A move is not returned because importing the Move class would cause a circular import.
-        # TODO: test
         default_res = super().get_move_params(start_coords, end_coords, board)
         start_row, start_col = start_coords
         end_row, end_col = end_coords
         col_offset = abs(end_col - start_col)
         if col_offset != 0 and default_res[2] is None:
             # moved diagonally without capturing on that square. Performed en passant
+            # TODO: this is clunky, call the en_passant function to get params?
             captured_coords = (start_row, end_col)
             captured_square = board.squares[captured_coords[0]][captured_coords[1]]
             captured_piece = captured_square.piece
             return (default_res[0], default_res[1], captured_piece, captured_coords, MoveSideEffect.EN_PASSANT)
+        # check for pawn promotion
         # TODO: this is omega clunky
         if self.color is ChessColor.WHITE and end_row == board.NUM_ROWS - 1:
             return (default_res[0], default_res[1], default_res[2], default_res[3], MoveSideEffect.PAWN_PROMOTION)
