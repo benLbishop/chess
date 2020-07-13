@@ -6,6 +6,8 @@ def get_necessary_offset(start_square, end_square):
 
         Returns a boolean.
     """
+    # TODO: move somewhere else? Only used by Piece class currently,
+    # but doesn't feel like it fits there
     row_diff = end_square.row_idx - start_square.row_idx
     col_diff = end_square.col_idx - start_square.col_idx
     if col_diff == 0:

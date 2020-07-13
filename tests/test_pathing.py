@@ -1,16 +1,12 @@
 """module for testing the move logic."""
 import unittest
-from unittest.mock import patch
 from chessGame.square import Square
 from chessGame.player import Player
 from chessGame.enums import ChessColor
 from chessGame.board import Board
-from chessGame import constants, conversion
+from chessGame import constants
 from chessGame.move_logic import pathing
-from chessGame.custom_exceptions import InvalidMoveException
-from chessGame.pieces.piece import Piece
 
-pps = conversion.parse_piece_string
 class TestMoveLogic(unittest.TestCase):
     """tests for the move logic."""
 
@@ -24,6 +20,7 @@ class TestMoveLogic(unittest.TestCase):
         self.board.clear()
 
     def test_get_necessary_offset(self):
+        """Tests the get_necessary_offset method."""
         start_row, start_col = 4, 4
         start = Square(start_row, start_col)
 

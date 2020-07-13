@@ -3,13 +3,17 @@ from chessGame.custom_exceptions import InvalidMoveException
 from chessGame.enums import ChessColor
 
 def can_block_checking_piece(checking_piece_data, board, player_piece_mapping):
+    """Checks if any of the pieces provided in player_piece_mapping
+        can capture or block the given checking piece.
+    """
+    # TODO: this method feels janky
     _, checking_path = checking_piece_data
     can_block = False
     for path_square in checking_path:
         path_coords = (path_square.row_idx, path_square.col_idx)
         for player_piece, player_piece_coords in player_piece_mapping:
-            # TODO: duplicate logic with piece.has_valid_move. Might be able to
-            # move this logic into the piece classes
+            # TODO: sort of duplicate logic with piece.has_valid_move.
+            # Might be able to move this logic into the piece classes
             try:
                 board.move_piece(player_piece_coords, path_coords, player_piece.color)
                 checking_pieces = get_checking_pieces(board, player_piece.color)
@@ -25,13 +29,12 @@ def can_block_checking_piece(checking_piece_data, board, player_piece_mapping):
 
 def player_is_checkmated(board, active_player_color, checking_pieces):
     """Does what it sounds like, a.k.a. returns whether or not the player is checkmated.
-
-    This should only after it's confirmed that the player is in check.
+        This should only after it's confirmed that the player is in check.
     """
     white_mapping, black_mapping = board.get_active_pieces()
-    player_piece_mapping = white_mapping if active_player_color is ChessColor.WHITE else black_mapping
+    player_mapping = white_mapping if active_player_color is ChessColor.WHITE else black_mapping
 
-    king, (king_row_idx, king_col_idx) = player_piece_mapping[0]
+    king, (king_row_idx, king_col_idx) = player_mapping[0]
     king_square = board.squares[king_row_idx][king_col_idx]
     if king.has_valid_move(king_square, board):
         return False
@@ -39,18 +42,17 @@ def player_is_checkmated(board, active_player_color, checking_pieces):
         # more than one checking piece, and king can't move to get out of check. Checkmate
         return True
     # only 1 checking piece. Might be able to block/capture it
-    return not can_block_checking_piece(checking_pieces[0], board, player_piece_mapping)
+    return not can_block_checking_piece(checking_pieces[0], board, player_mapping)
 
 def player_is_stalemated(board, active_player_color):
     """Does what it sounds like, a.k.a. returns whether or not the game has reached a stalemate.
-
-    This should only after it's confirmed that the player is not in check.
+        This should only after it's confirmed that the player is not in check.
     """
     white_mapping, black_mapping = board.get_active_pieces()
-    player_piece_mapping = white_mapping if active_player_color is ChessColor.WHITE else black_mapping
+    player_mapping = white_mapping if active_player_color is ChessColor.WHITE else black_mapping
 
     player_has_move = False
-    for piece, (row_idx, col_idx) in player_piece_mapping:
+    for piece, (row_idx, col_idx) in player_mapping:
         cur_square = board.squares[row_idx][col_idx]
         if piece.has_valid_move(cur_square, board):
             player_has_move = True
