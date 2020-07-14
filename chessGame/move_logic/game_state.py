@@ -2,11 +2,11 @@
 from chessGame.custom_exceptions import InvalidMoveException
 from chessGame.enums import ChessColor
 
-def can_block_checking_piece(checking_piece_data, board, player_piece_mapping):
+def can_block_checking_piece(checking_path, board, player_piece_mapping):
     """Checks if any of the pieces provided in player_piece_mapping
         can capture or block the given checking piece.
     """
-    _, checking_path = checking_piece_data
+    # probably don't need to check the last square in path because it's king square
     path_coords = [(path_square.row_idx, path_square.col_idx) for path_square in checking_path]
     can_block = False
     for player_piece, player_piece_coords in player_piece_mapping:
@@ -17,9 +17,9 @@ def can_block_checking_piece(checking_piece_data, board, player_piece_mapping):
 
 def player_is_checkmated(board, active_player_color, checking_pieces):
     """Does what it sounds like, a.k.a. returns whether or not the player is checkmated.
-        This should only after it's confirmed that the player is in check.
     """
-    # TODO: probably should have len(checking_pieces) == 0 check
+    if len(checking_pieces) == 0:
+        return False
     white_mapping, black_mapping = board.get_active_pieces()
     player_mapping = white_mapping if active_player_color is ChessColor.WHITE else black_mapping
 
@@ -31,7 +31,9 @@ def player_is_checkmated(board, active_player_color, checking_pieces):
         # more than one checking piece, and king can't move to get out of check. Checkmate
         return True
     # only 1 checking piece. Might be able to block/capture it
-    return not can_block_checking_piece(checking_pieces[0], board, player_mapping)
+    # TODO: shouldn't call this with player's king in piece_mapping, unecessary
+    checking_path = checking_pieces[0][1]
+    return not can_block_checking_piece(checking_path, board, player_mapping)
 
 def player_is_stalemated(board, active_player_color):
     """Does what it sounds like, a.k.a. returns whether or not the game has reached a stalemate.

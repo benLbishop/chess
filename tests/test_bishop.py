@@ -1,3 +1,4 @@
+"""Module for testing the Bishop class."""
 import unittest
 
 from chessGame.square import Square
@@ -11,6 +12,7 @@ class BishopTest(unittest.TestCase):
         cls.bishop = Bishop(ChessColor.BLACK)
 
     def test_can_reach_square(self):
+        """Tests the can_reach_square method."""
         start_row = 5
         start_col = 5
         start = Square(start_row, start_col)

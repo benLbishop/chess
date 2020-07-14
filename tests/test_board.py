@@ -211,9 +211,6 @@ class BoardTest(unittest.TestCase):
             undo_mock.assert_called_once()
         check_mock.return_value = []
 
-        # TODO: test this with same piece type but different locations, i.e. two pawns.
-        # want to make sure the correct pawn is removed from player list
-
     def test_undo_move(self):
         """Tests the undo_move method."""
         num_rows = constants.STD_BOARD_WIDTH
