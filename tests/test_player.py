@@ -64,7 +64,8 @@ class TestPlayer(unittest.TestCase):
     @patch.object(Player, 'can_block_checking_piece')
     @patch.object(Piece, 'has_valid_move')
     @patch.object(Board, 'get_active_pieces')
-    def test_is_checkmated(self, active_pieces_mock, valid_move_mock, block_mock):
+    @patch.object(Board, 'get_checking_pieces')
+    def test_is_checkmated(self, check_mock, active_pieces_mock, valid_move_mock, block_mock):
         """Tests for the player_is_checkmated method."""
         white_config = {'color': ChessColor.WHITE, 'name': 'Griffin'}
         white_player = Player(white_config)
@@ -86,12 +87,15 @@ class TestPlayer(unittest.TestCase):
         active_pieces_mock.return_value = (white_mapping, black_mapping)
 
         # return false if no checking pieces
-        res = white_player.is_checkmated(self.board, [])
+        check_mock.return_value = []
+        res = white_player.is_checkmated(self.board)
         self.assertFalse(res)
+
+        check_mock.return_value = ['something']
 
         # should return false if king can move
         valid_move_mock.return_value = True
-        res = white_player.is_checkmated(self.board, checking_pieces)
+        res = white_player.is_checkmated(self.board)
         self.assertFalse(res)
         valid_move_mock.return_value = False
 
@@ -99,20 +103,22 @@ class TestPlayer(unittest.TestCase):
         # TODO
 
         # should handle case with > 2 checking pieces
-        multi_check_pieces = ['more', 'than', 'one']
-        res = white_player.is_checkmated(self.board, multi_check_pieces)
+        check_mock.return_value = ['more', 'than', 'one']
+        res = white_player.is_checkmated(self.board)
         self.assertTrue(res)
         block_mock.assert_not_called()
+
+        check_mock.return_value = ['something']
 
         # if king cannot move and 1 checking piece, should call can_block
         block_mock.reset_mock()
         block_mock.return_value = False
-        res = white_player.is_checkmated(self.board, checking_pieces)
+        res = white_player.is_checkmated(self.board)
         self.assertTrue(res)
         block_mock.assert_called_once()
 
         block_mock.return_value = True
-        res = white_player.is_checkmated(self.board, checking_pieces)
+        res = white_player.is_checkmated(self.board)
         self.assertFalse(res)
 
     @patch.object(Piece, 'has_valid_move')

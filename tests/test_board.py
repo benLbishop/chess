@@ -69,7 +69,14 @@ class BoardTest(unittest.TestCase):
             for square in row:
                 self.assertFalse(square.is_occupied())
 
-    def test_populate(self):
+        # should reset move history
+        move = Move(squares[0][0], squares[1][0])
+        test_board.last_move = move
+        test_board.clear()
+        self.assertIsNone(test_board.last_move)
+
+    @patch.object(Board, 'clear')
+    def test_populate(self, clear_mock):
         """test the initial placing of pieces on the board."""
         num_rows = constants.STD_BOARD_WIDTH
         num_cols = constants.STD_BOARD_HEIGHT
@@ -83,6 +90,9 @@ class BoardTest(unittest.TestCase):
         for pair in test_pieces_with_oob:
             with self.assertRaises(PiecePlacementException):
                 test_board.populate([pair])
+        clear_mock.assert_called()
+
+        clear_mock.reset_mock()
         # raise if two pieces are populated to same square
         dup_piece_strings = [
             'w Kb2',
@@ -91,9 +101,8 @@ class BoardTest(unittest.TestCase):
         dup_piece_list = [psns(s) for s in dup_piece_strings]
         with self.assertRaises(PiecePlacementException):
             test_board.populate(dup_piece_list)
-
-        # board not cleared if populate fails.
-        test_board.clear()
+        clear_mock.assert_called()
+        
         good_test_strings = [
             'w Kd2',
             'w Qb4',

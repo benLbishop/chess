@@ -72,20 +72,19 @@ class Game:
         # check to see if end state was reached
         self.check_for_end_of_game()
 
-
     def check_for_end_of_game(self):
         """checks to see if the game has been completed (i.e. reached a checkmate or stalemate)"""
         cur_player = self.white_player if self.is_white_turn else self.black_player
         checking_pieces = self.board.get_checking_pieces(cur_player.color)
-        # TODO: I don't like having to pass in checking_pieces to player.
-        # maybe just call one function in Player for checkmate and stalemate
         if len(checking_pieces) > 0:
             # check for checkmate
-            if cur_player.is_checkmated(self.board, cur_player.color, checking_pieces):
-                self.is_complete = True
-                # TODO: end game somehow
-        elif cur_player.is_stalemated(self.board, cur_player.color):
-            # check for stalemate.
-            # TODO: do I need to do this every time?
-            self.is_complete = True
-            # TODO: end game somehow
+            if cur_player.is_checkmated(self.board):
+                self.end_game()
+        # check for stalemate
+        elif cur_player.is_stalemated(self.board):
+            self.end_game()
+
+    def end_game(self):
+        """Ends the game."""
+        # TODO
+        self.is_complete = True

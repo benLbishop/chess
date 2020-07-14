@@ -36,10 +36,10 @@ class Player:
                 break
         return can_block
 
-    def is_checkmated(self, board, checking_pieces):
+    def is_checkmated(self, board):
         """Does what it sounds like, a.k.a. returns whether or not the player is checkmated.
         """
-        # TODO: I don't like passing checking_pieces in here.
+        checking_pieces = board.get_checking_pieces(self.color)
         if len(checking_pieces) == 0:
             return False
         white_mapping, black_mapping = board.get_active_pieces()

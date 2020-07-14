@@ -46,9 +46,8 @@ class Pawn(Piece):
         # valid only if we move 0 or 1 columns
         return abs(col_offset) < 2
 
-    def attempt_en_passant_capture(self, start, end, board):
+    def can_capture_en_passant(self, start, end, board):
         """Checks if an en passant capture is possible."""
-        # TODO: rename/change return type
         # 1) The move must be diagonal. Should be true based on when this is called.
         # 2) There must be a pawn on the side of the diagonal move, but on the same row.
         passant_row_idx = start.row_idx
@@ -56,21 +55,21 @@ class Pawn(Piece):
         passant_square = board.squares[passant_row_idx][passant_col_idx]
         passant_piece = passant_square.piece
         if not passant_piece:
-            return None
+            return False
         # 3) The piece must be an opposing player's pawn.
         if not isinstance(passant_piece, Pawn) or passant_piece.color is self.color:
-            return None
+            return False
         # 4) The pawn must have moved as the game's last move, and moved two squares.
         last_start = board.last_move.start
         last_end = board.last_move.end
         if last_end is not passant_square:
-            return None
+            return False
         last_row_offset = abs(last_start.row_idx - last_end.row_idx)
         # since it's an opponent's pawn moving, don't need to check col_offset,
         # since the row offset will only be 2 if we move straight ahead
         if last_row_offset != 2:
-            return None
-        return passant_piece
+            return False
+        return True
 
     def get_two_move_path(self, start, end, board):
         """Attempts to get a path for a pawn moving two squares.
@@ -100,8 +99,7 @@ class Pawn(Piece):
                 raise InvalidMoveException('Pawn cannot capture piece of same color.')
             return path
         # no piece in diagonal move. only possible with en passant
-        captured_piece = self.attempt_en_passant_capture(start, end, board)
-        if not captured_piece:
+        if not self.can_capture_en_passant(start, end, board):
             raise InvalidMoveException('Pawn cannot move diagonally without capturing.')
         return path
 

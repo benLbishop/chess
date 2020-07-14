@@ -5,7 +5,7 @@ class Piece:
     """Abstract class representing a chess piece."""
     def __init__(self, color):
         self.color = color
-        # TODO: works for initial game state, but what about endgames?
+        # TODO: initial 0 works for game from scratch, but what about endgames?
         self.move_count = 0
         # TODO: test this way of setting data for subclasses
         class_name = type(self).__name__
@@ -14,8 +14,7 @@ class Piece:
         self._offsets = constants.PIECE_OFFSETS.get(class_name, [])
 
     def __str__(self):
-        # TODO: format color to be readable
-        return "{} {}".format(self.color, type(self).__name__)
+        return "{} {}".format(self.color.name.capitalize(), type(self).__name__)
 
     def __eq__(self, other):
         return (self._value, self.color) == (other._value, other.color)
@@ -68,8 +67,7 @@ class Piece:
 
             Returns a boolean.
         """
-        # TODO: move somewhere else? doesn't use any part of Piece,
-        # but only used in get_path_to_square
+        # TODO: move somewhere else? doesn't use any part of Piece, but called in get_path_to_square
         row_diff = end_square.row_idx - start_square.row_idx
         col_diff = end_square.col_idx - start_square.col_idx
         if col_diff == 0:

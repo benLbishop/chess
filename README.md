@@ -18,3 +18,8 @@ TODO:
     Test all of the new things
     Validate initial game state
     Actually make game playable
+
+Possible Improvements:
+    I have a lot of cases where I'll move a piece and then undo the move in my stalemate/checkmate functions. These actions use the actual game board; I might want to use a copy of the board and check on that, but I'm not sure about the efficiency of doing so.
+    My end of game check gets the list of checking pieces, and then in my player.is_in_checkmate function, I get the checking pieces again. I could pass the checking pieces to the checkmate function, but that feels clunky.
+    I check for checkmate and stalemate every turn. There are probably some cases where I can avoid doing so, but it feels risky to start trying to cut corners like that.

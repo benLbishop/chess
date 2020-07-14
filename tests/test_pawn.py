@@ -95,8 +95,8 @@ class PawnTest(unittest.TestCase):
             self.assertFalse(self.white_pawn.can_reach_square(start, dest))
             self.assertFalse(self.black_pawn.can_reach_square(start, dest))
 
-    def test_attempt_en_passant_capture(self):
-        """Tests for the attempt_en_passant_capture method."""
+    def test_can_capture_en_passant(self):
+        """Tests for the can_capture_en_passant method."""
         b = self.board
         wp = self.white_pawn
         bp = self.black_pawn
@@ -104,11 +104,11 @@ class PawnTest(unittest.TestCase):
         white_start = b.squares[4][4]
         black_start = b.squares[3][4]
 
-        self.assertIsNone(wp.attempt_en_passant_capture(b.squares[4][4], b.squares[5][5], b))
+        self.assertFalse(wp.can_capture_en_passant(b.squares[4][4], b.squares[5][5], b))
 
         # TODO
 
-    @patch.object(Pawn, 'attempt_en_passant_capture')
+    @patch.object(Pawn, 'can_capture_en_passant')
     def test_get_one_move_path(self, passant_mock):
         """Tests for the get_one_move_path method."""
         passant_mock.return_value = None

@@ -41,20 +41,22 @@ class Board:
         ])
 
     def clear(self):
-        """empties all squares on the board."""
+        """resets the board."""
         for row in self.squares:
             for square in row:
                 square.clear()
+        self.last_move = None
 
     def populate(self, piece_list):
         """places the given pieces on the board."""
-        # TODO: clear board on failure?
         for piece, coordinate in piece_list:
             row_idx, col_idx = coordinate
             if row_idx >= self.NUM_ROWS or col_idx >= self.NUM_COLS:
+                self.clear()
                 raise PiecePlacementException('piece out of bounds')
             square = self.squares[row_idx][col_idx]
             if square.is_occupied():
+                self.clear()
                 raise PiecePlacementException('tried to place piece on occupied square')
             square.add_piece(piece)
 
