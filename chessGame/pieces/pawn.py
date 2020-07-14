@@ -120,21 +120,28 @@ class Pawn(Piece):
         return self.get_one_move_path(start, end, board)
 
     def get_move_params(self, start, end, board):
-        default_res = super().get_move_params(start, end, board)
+        try:
+            self.get_path_to_square(start, end, board)
+        except InvalidMoveException as err:
+            raise err
+
+        captured_piece, captured_square, side_effect = (None, None, None)
         start_row, start_col = start.coords
         end_row, end_col = end.coords
         col_offset = abs(end_col - start_col)
-        if col_offset != 0 and default_res[2] is None:
-            # moved diagonally without capturing on that square. Performed en passant
-            # TODO: this is clunky, call the en_passant function to get params?
-            captured_coords = (start_row, end_col)
-            captured_square = board.squares[captured_coords[0]][captured_coords[1]]
-            captured_piece = captured_square.piece
-            return (default_res[0], default_res[1], captured_piece, captured_square, MoveSideEffect.EN_PASSANT)
-        # check for pawn promotion
-        # TODO: this is omega clunky
-        if self.color is ChessColor.WHITE and end_row == board.NUM_ROWS - 1:
-            return (default_res[0], default_res[1], default_res[2], default_res[3], MoveSideEffect.PAWN_PROMOTION)
-        if self.color is ChessColor.BLACK and end_row == 0:
-            return (default_res[0], default_res[1], default_res[2], default_res[3], MoveSideEffect.PAWN_PROMOTION)
-        return default_res
+        if end.is_occupied():
+            # moved diagonally and captured.
+            captured_piece = end.piece
+            captured_square = end
+        else:
+            if col_offset != 0:
+                # moved diagonally without capturing on that square. Performed en passant
+                captured_square = board.squares[start_row][end_col]
+                captured_piece = captured_square.piece
+                side_effect = MoveSideEffect.EN_PASSANT
+            # moved straight. check for pawn promotion
+            if self.color is ChessColor.WHITE and end_row == board.NUM_ROWS - 1:
+                side_effect = MoveSideEffect.PAWN_PROMOTION
+            if self.color is ChessColor.BLACK and end_row == 0:
+                side_effect = MoveSideEffect.PAWN_PROMOTION
+        return (start, end, captured_piece, captured_square, side_effect)
