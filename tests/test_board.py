@@ -187,7 +187,7 @@ class BoardTest(unittest.TestCase):
         self.assertEqual(test_board.last_move, basic_move)
         self.assertTrue(test_piece.has_moved)
 
-        test_piece.has_moved = False
+        test_piece.move_count = 0
         end_square.clear()
         start_square.add_piece(test_piece)
 
@@ -200,7 +200,7 @@ class BoardTest(unittest.TestCase):
         self.assertEqual(res, side_effect_move)
         side_effect_mock.assert_called_with(side_effect_move)
 
-        test_piece.has_moved = False
+        test_piece.move_count = 0
         end_square.clear()
         start_square.add_piece(test_piece)
 
@@ -231,6 +231,9 @@ class BoardTest(unittest.TestCase):
         test_board.undo_move()
         self.assertEqual(last_start.piece, test_piece)
         self.assertIsNone(last_end.piece)
+
+        # should decrement piece's move count
+        self.assertEqual(test_piece.move_count, -1)
 
         last_start.clear()
         last_end.clear()

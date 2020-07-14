@@ -19,8 +19,8 @@ class PawnTest(unittest.TestCase):
 
     def tearDown(self):
         self.board.clear()
-        self.white_pawn.has_moved = False
-        self.black_pawn.has_moved = False
+        self.white_pawn.move_count = 0
+        self.black_pawn.move_count = 0
 
     @patch.object(Piece, 'can_reach_squares')
     def test_has_valid_move(self, reach_mock):
@@ -167,11 +167,11 @@ class PawnTest(unittest.TestCase):
 
         black_piece = Piece(ChessColor.BLACK)
         # should raise if moving 2 squares and pawn has moved
-        self.white_pawn.has_moved = True
+        self.white_pawn.move_count = 1
         with self.assertRaises(InvalidMoveException):
             self.white_pawn.get_two_move_path(start, end, self.board)
 
-        self.white_pawn.has_moved = False
+        self.white_pawn.move_count = 0
 
         # should raise if moving 2 is squares is valid, but blocking piece
         mid.add_piece(black_piece)

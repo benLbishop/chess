@@ -19,7 +19,7 @@ class KingTest(unittest.TestCase):
 
     def tearDown(self):
         self.board.clear()
-        self.king.has_moved = False
+        self.king.move_count = 0
 
     def test_can_reach_square(self):
         """Tests the can_reach_square method."""
@@ -68,10 +68,10 @@ class KingTest(unittest.TestCase):
 
         # TODO: queenside castle tests, black king tests
         # should raise if king has moved
-        king.has_moved = True
+        king.move_count = 1
         with self.assertRaises(InvalidMoveException):
             king.get_castle_params(king_square, right_target, board)
-        king.has_moved = False
+        king.move_count = 0
 
         # should raise if no rook on end
         with self.assertRaises(InvalidMoveException):

@@ -6,10 +6,8 @@ class Piece:
     """Abstract class representing a chess piece."""
     def __init__(self, color):
         self.color = color
-        # TODO: keep a move_count variable instead and have has_moved
-        # be a property that returns move_count > 0
         # TODO: works for initial game state, but what about endgames?
-        self.has_moved = False
+        self.move_count = 0
         # TODO: test this way of setting data for subclasses
         class_name = type(self).__name__
         self.char = constants.PIECE_CHARS.get(class_name, '?')
@@ -28,6 +26,11 @@ class Piece:
 
     def __le__(self, other):
         return (self._value, self.color) <= (other._value, other.color)
+
+    @property
+    def has_moved(self):
+        """Property determining whether or not a piece has moved."""
+        return self.move_count > 0
 
     def can_reach_squares(self, cur_coords, target_list, board):
         """Checks to see if the piece can reach any of the squares in target_list

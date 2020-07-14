@@ -13,12 +13,10 @@ class Board:
         self.NUM_ROWS = board_config['num_rows']
         self.NUM_COLS = board_config['num_cols']
         # TODO: have move_history. Should this be in Game class?
-        # TODO: make this a namedtuple
         self.last_move = None
         self._create_squares()
 
     def __str__(self):
-        # TODO: test
         board_str = ''
         for row in self.squares:
             row_str = ''
@@ -38,7 +36,10 @@ class Board:
         if self.NUM_ROWS < min_rows or self.NUM_COLS < min_cols:
             raise ValueError('Board dimensions must be {}x{} or larger'.format(min_rows, min_cols))
 
-        self.squares = [[Square(row_idx, col_idx) for col_idx in range(self.NUM_COLS)] for row_idx in range(self.NUM_ROWS)]
+        self.squares = ([
+            [Square(row_idx, col_idx) for col_idx in range(self.NUM_COLS)]
+            for row_idx in range(self.NUM_ROWS)
+        ])
 
     def clear(self):
         """empties all squares on the board."""
@@ -135,7 +136,7 @@ class Board:
         # actually move piece
         end_square.add_piece(moving_piece)
         start_square.clear()
-        moving_piece.has_moved = True
+        moving_piece.move_count += 1
 
         # NOTE: this is expected to be called after the piece is moved to the end square.
         # Things such as pawn promotion will break if this is done before moving the piece.
@@ -154,8 +155,7 @@ class Board:
 
     def undo_move(self):
         """Reverts the last move made on the board."""
-        # TODO: Undoing castle, En-passant, pawn promotion
-        # TODO: if a piece moved for the first time, it's has_moved needs to be undone
+        # TODO: Undo MoveSideEffects
         if not self.last_move:
             raise InvalidMoveException('no move to undo.')
 
@@ -164,8 +164,12 @@ class Board:
         end_row, end_col = self.last_move.end_coords
         last_start = self.squares[start_row][start_col]
         last_end = self.squares[end_row][end_col]
-        last_start.add_piece(last_end.piece)
+        moved_piece = last_end.piece
+
+        moved_piece.move_count -= 1
+        last_start.add_piece(moved_piece)
         last_end.clear()
+
         if self.last_move.captured_piece:
             captured_row, captured_col = self.last_move.captured_piece_coords
             captured_square = self.squares[captured_row][captured_col]

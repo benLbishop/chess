@@ -24,10 +24,10 @@ class PieceTest(unittest.TestCase):
         white_p = Piece(ChessColor.WHITE)
         self.assertEqual(black_p.color, ChessColor.BLACK)
         self.assertEqual(black_p._value, -1)
-        self.assertEqual(black_p.has_moved, False)
+        self.assertEqual(black_p.move_count, 0)
         self.assertEqual(white_p.color, ChessColor.WHITE)
         self.assertEqual(white_p._value, -1)
-        self.assertEqual(white_p.has_moved, False)
+        self.assertEqual(white_p.move_count, 0)
 
     @patch.object(game_state, 'get_checking_pieces')
     @patch.object(Board, 'undo_move')
