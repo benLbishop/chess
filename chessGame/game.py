@@ -67,10 +67,12 @@ class Game:
 
         # TODO: log move w/ notation
 
-        self.check_for_end_of_game()
-
         # switch turns
         self.is_white_turn = not self.is_white_turn
+
+        # check to see if end state was reached
+        self.check_for_end_of_game()
+
 
     def check_for_end_of_game(self):
         """checks to see if the game has been completed (i.e. reached a checkmate or stalemate)"""
@@ -78,10 +80,10 @@ class Game:
         checking_pieces = game_state.get_checking_pieces(self.board, cur_player.color)
         if len(checking_pieces) > 0:
             # check for checkmate
-            if game_state.player_is_checkmated(self.board, cur_player.color, checking_pieces):
+            if cur_player.is_checkmated(self.board, cur_player.color, checking_pieces):
                 self.is_complete = True
                 # TODO: end game somehow
-        elif game_state.player_is_stalemated(self.board, cur_player.color):
+        elif cur_player.is_stalemated(self.board, cur_player.color):
             # check for stalemate.
             # TODO: do I need to do this every time?
             self.is_complete = True

@@ -77,8 +77,8 @@ class GameTest(unittest.TestCase):
         end_mock.assert_called_once()
         test_game.is_white_turn = False
 
-    @patch.object(game_state, 'player_is_stalemated')
-    @patch.object(game_state, 'player_is_checkmated')
+    @patch.object(Player, 'is_stalemated')
+    @patch.object(Player, 'is_checkmated')
     @patch.object(game_state, 'get_checking_pieces')
     def test_check_for_end_of_game(self, check_mock, checkmate_mock, stalemate_mock):
         """Tests for the check_for_end_of_game method."""
