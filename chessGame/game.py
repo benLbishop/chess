@@ -77,6 +77,8 @@ class Game:
         """checks to see if the game has been completed (i.e. reached a checkmate or stalemate)"""
         cur_player = self.white_player if self.is_white_turn else self.black_player
         checking_pieces = self.board.get_checking_pieces(cur_player.color)
+        # TODO: I don't like having to pass in checking_pieces to player.
+        # maybe just call one function in Player for checkmate and stalemate
         if len(checking_pieces) > 0:
             # check for checkmate
             if cur_player.is_checkmated(self.board, cur_player.color, checking_pieces):

@@ -41,10 +41,10 @@ class King(Piece):
             cur_col_idx += i
         # 4) make sure king isn't in check or moves through check
         # (don't need to check if moves into check since that happens for every piece)
+        # TODO: pretty jank (aka very very jank). Find better way to do this
         start_checking_pieces = board.get_checking_pieces(self.color)
         if len(start_checking_pieces) > 0:
             raise InvalidMoveException('cannot castle while in check.')
-        # TODO: pretty jank (aka very very jank)
         mid = board.squares[row_idx][start.col_idx + i]
         mid.add_piece(self)
         start.clear()

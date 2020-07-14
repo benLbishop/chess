@@ -1,6 +1,5 @@
 """module for the Piece class."""
 from chessGame.custom_exceptions import InvalidMoveException
-from chessGame.move_logic import pathing
 from chessGame import constants
 class Piece:
     """Abstract class representing a chess piece."""
@@ -63,6 +62,26 @@ class Piece:
         """
         raise NotImplementedError
 
+    def get_necessary_offset(self, start_square, end_square):
+        """Returns the offset required to properly get to end_square from start_square.
+            Assumes that movement from start_square to end_square is possible in a legal chess move.
+
+            Returns a boolean.
+        """
+        # TODO: move somewhere else? doesn't use any part of Piece,
+        # but only used in get_path_to_square
+        row_diff = end_square.row_idx - start_square.row_idx
+        col_diff = end_square.col_idx - start_square.col_idx
+        if col_diff == 0:
+            return (1, 0) if row_diff > 0 else (-1, 0)
+        if row_diff == 0:
+            return (0, 1) if col_diff > 0 else (0, -1)
+        if row_diff > 0:
+            # moved up and diagonal
+            return (1, 1) if col_diff > 0 else (1, -1)
+        # moved down and diagonal
+        return (-1, 1) if col_diff > 0 else (-1, -1)
+
     def get_path_to_square(self, start, end, board):
         """Attempts to get the path for standard pieces (bishops, rooks, and queens).
         Raises an InvalidMoveException if the move is illegal for some reason.
@@ -71,7 +90,7 @@ class Piece:
         if not self.can_reach_square(start, end):
             raise InvalidMoveException('destination not reachable with piece')
         # get the movement necessary to reach destination
-        offset = pathing.get_necessary_offset(start, end)
+        offset = self.get_necessary_offset(start, end)
 
         cur_square = start
         path = [start]

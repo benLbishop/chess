@@ -5,7 +5,7 @@ from unittest.mock import patch
 from chessGame import constants
 from chessGame.custom_exceptions import InvalidMoveException
 from chessGame.enums import ChessColor
-from chessGame.move_logic import pathing
+from chessGame.square import Square
 from chessGame.board import Board
 from chessGame.pieces.piece import Piece
 
@@ -83,7 +83,34 @@ class PieceTest(unittest.TestCase):
         with self.assertRaises(NotImplementedError):
             p.can_reach_square(None, None)
 
-    @patch.object(pathing, 'get_necessary_offset')
+    def test_get_necessary_offset(self):
+        """Tests the get_necessary_offset method."""
+        start_row, start_col = 4, 4
+        start = Square(start_row, start_col)
+        p = Piece(ChessColor.BLACK)
+
+        test_cases = [
+            (Square(start_row + 1, start_col), (1, 0)),
+            (Square(start_row + 4, start_col), (1, 0)),
+            (Square(start_row - 1, start_col), (-1, 0)),
+            (Square(start_row - 2, start_col), (-1, 0)),
+            (Square(start_row, start_col + 1), (0, 1)),
+            (Square(start_row, start_col + 5), (0, 1)),
+            (Square(start_row, start_col - 1), (0, -1)),
+            (Square(start_row, start_col - 3), (0, -1)),
+            (Square(start_row + 1, start_col + 1), (1, 1)),
+            (Square(start_row + 6, start_col + 6), (1, 1)),
+            (Square(start_row + 1, start_col - 1), (1, -1)),
+            (Square(start_row + 3, start_col - 3), (1, -1)),
+            (Square(start_row - 1, start_col + 1), (-1, 1)),
+            (Square(start_row - 2, start_col + 2), (-1, 1)),
+            (Square(start_row - 1, start_col - 1), (-1, -1)),
+            (Square(start_row - 4, start_col - 4), (-1, -1)),
+        ]
+        for dest, result in test_cases:
+            self.assertEqual(p.get_necessary_offset(start, dest), result)
+
+    @patch.object(Piece, 'get_necessary_offset')
     @patch.object(Piece, 'can_reach_square')
     def test_get_path_to_square(self, reach_mock, offset_mock):
         """Tests for the get_path_to_square method."""
