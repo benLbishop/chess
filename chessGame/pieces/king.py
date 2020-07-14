@@ -1,6 +1,5 @@
 """Module containing the King class."""
 from chessGame.custom_exceptions import InvalidMoveException
-from chessGame.move_logic import game_state
 from chessGame.enums import MoveSideEffect
 from .piece import Piece
 
@@ -42,14 +41,14 @@ class King(Piece):
             cur_col_idx += i
         # 4) make sure king isn't in check or moves through check
         # (don't need to check if moves into check since that happens for every piece)
-        start_checking_pieces = game_state.get_checking_pieces(board, self.color)
+        start_checking_pieces = board.get_checking_pieces(self.color)
         if len(start_checking_pieces) > 0:
             raise InvalidMoveException('cannot castle while in check.')
         # TODO: pretty jank (aka very very jank)
         mid = board.squares[row_idx][start.col_idx + i]
         mid.add_piece(self)
         start.clear()
-        mid_checking_pieces = game_state.get_checking_pieces(board, self.color)
+        mid_checking_pieces = board.get_checking_pieces(self.color)
         if len(mid_checking_pieces) > 0:
             raise InvalidMoveException('cannot castle while in check.')
         start.add_piece(self)

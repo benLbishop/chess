@@ -42,7 +42,8 @@ def parse_rank_char(rank_char):
     rank_val = ord(rank_char)
     val_diff = rank_val - min_rank_val
     if val_diff >= 8: #TODO: don't hardcode
-        raise ValueError('invalid rank provided for piece, not in range')
+        err_str = "invalid rank char {} provided for piece".format(rank_char)
+        raise ValueError(err_str)
     return val_diff
 
 

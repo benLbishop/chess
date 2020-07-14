@@ -6,9 +6,8 @@ from chessGame.enums import ChessColor
 from chessGame.pieces.king import King
 from chessGame.pieces.rook import Rook
 from chessGame.pieces.piece import Piece
-from chessGame.board import StandardBoard
+from chessGame.board import Board, StandardBoard
 from chessGame.custom_exceptions import InvalidMoveException
-from chessGame.move_logic import game_state
 
 class KingTest(unittest.TestCase):
     """class for testing the King class."""
@@ -49,7 +48,7 @@ class KingTest(unittest.TestCase):
         for dest in invalid_dests:
             self.assertFalse(self.king.can_reach_square(start, dest))
 
-    @patch.object(game_state, 'get_checking_pieces')
+    @patch.object(Board, 'get_checking_pieces')
     def test_get_castle_params(self, check_mock):
         """tests the get_castle_params method."""
         check_mock.return_value = []

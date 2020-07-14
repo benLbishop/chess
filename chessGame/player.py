@@ -1,6 +1,5 @@
 """module containing the Player class."""
 from .enums import ChessColor
-from .move_logic import game_state
 
 class Player:
     """Class representing a user."""
@@ -24,6 +23,19 @@ class Player:
                 break
         return not player_has_move
 
+    def can_block_checking_piece(self, checking_path, board, player_piece_mapping):
+        """Checks if any of the pieces provided in player_piece_mapping
+            can capture or block the given checking piece.
+        """
+        # probably don't need to check the last square in path because it's king square
+        path_coords = [square.coords for square in checking_path]
+        can_block = False
+        for player_piece, player_piece_coords in player_piece_mapping:
+            if player_piece.can_reach_squares(player_piece_coords, path_coords, board):
+                can_block = True
+                break
+        return can_block
+
     def is_checkmated(self, board, checking_pieces):
         """Does what it sounds like, a.k.a. returns whether or not the player is checkmated.
         """
@@ -42,4 +54,4 @@ class Player:
         # only 1 checking piece. Might be able to block/capture it
         # TODO: shouldn't call this with player's king in piece_mapping, unecessary
         checking_path = checking_pieces[0][1]
-        return not game_state.can_block_checking_piece(checking_path, board, player_mapping)
+        return not self.can_block_checking_piece(checking_path, board, player_mapping)

@@ -4,7 +4,6 @@ from .player import Player
 from .enums import ChessColor
 from .custom_exceptions import PiecePlacementException, InvalidMoveException
 from . import constants, conversion
-from .move_logic import game_state
 
 class Game:
     """class representing an instance of a game of chess."""
@@ -77,7 +76,7 @@ class Game:
     def check_for_end_of_game(self):
         """checks to see if the game has been completed (i.e. reached a checkmate or stalemate)"""
         cur_player = self.white_player if self.is_white_turn else self.black_player
-        checking_pieces = game_state.get_checking_pieces(self.board, cur_player.color)
+        checking_pieces = self.board.get_checking_pieces(cur_player.color)
         if len(checking_pieces) > 0:
             # check for checkmate
             if cur_player.is_checkmated(self.board, cur_player.color, checking_pieces):

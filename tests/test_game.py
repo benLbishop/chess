@@ -5,7 +5,6 @@ from chessGame.game import Game
 from chessGame.board import Board, StandardBoard
 from chessGame.player import Player
 from chessGame import conversion as conv
-from chessGame.move_logic import game_state
 from chessGame.custom_exceptions import InvalidMoveException
 from chessGame.enums import ChessColor
 from chessGame.move import Move
@@ -79,7 +78,7 @@ class GameTest(unittest.TestCase):
 
     @patch.object(Player, 'is_stalemated')
     @patch.object(Player, 'is_checkmated')
-    @patch.object(game_state, 'get_checking_pieces')
+    @patch.object(Board, 'get_checking_pieces')
     def test_check_for_end_of_game(self, check_mock, checkmate_mock, stalemate_mock):
         """Tests for the check_for_end_of_game method."""
         white_config = {'name': 'Bob'}

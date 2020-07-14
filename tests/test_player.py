@@ -7,7 +7,6 @@ from chessGame.enums import ChessColor
 from chessGame.pieces.piece import Piece
 from chessGame.pieces.king import King
 from chessGame.board import Board, StandardBoard
-from chessGame.move_logic import game_state
 
 class TestPlayer(unittest.TestCase):
     """tests for the Player class."""
@@ -34,7 +33,35 @@ class TestPlayer(unittest.TestCase):
 
         # TODO: test which names are allowed? Is empty string ok?
 
-    @patch.object(game_state, 'can_block_checking_piece')
+    @patch.object(Piece, 'can_reach_squares')
+    def test_can_block_checking_piece(self, reach_mock):
+        """Tests for the can_block_checking_piece method."""
+        white_config = {'color': ChessColor.WHITE, 'name': 'Griffin'}
+        white_player = Player(white_config)
+
+        board = self.board
+        checking_path_coords = [(0, 0), (1, 0), (2, 0)]
+        checking_path = [board.squares[row][col] for row, col in checking_path_coords]
+        p1 = Piece(ChessColor.BLACK)
+        p2 = Piece(ChessColor.BLACK)
+        p3 = Piece(ChessColor.BLACK)
+        piece_mapping = [
+            (p1, (1, 1)),
+            (p2, (1, 2)),
+            (p3, (1, 3))
+        ]
+
+        # should return false if no square on path can be reached
+        reach_mock.return_value = False
+        res = white_player.can_block_checking_piece(checking_path, board, piece_mapping)
+        self.assertFalse(res)
+
+        # should return true if any piece can reach any square on the path
+        reach_mock.side_effect = [False, False, True]
+        res = white_player.can_block_checking_piece(checking_path, board, piece_mapping)
+        self.assertTrue(res)
+
+    @patch.object(Player, 'can_block_checking_piece')
     @patch.object(Piece, 'has_valid_move')
     @patch.object(Board, 'get_active_pieces')
     def test_is_checkmated(self, active_pieces_mock, valid_move_mock, block_mock):

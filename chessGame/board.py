@@ -5,7 +5,6 @@ from . import constants
 from .custom_exceptions import PiecePlacementException, InvalidMoveException
 from .enums import ChessColor, MoveSideEffect
 from .move import Move
-from .move_logic import game_state
 
 class Board:
     """class representing a chess board of any size."""
@@ -145,7 +144,7 @@ class Board:
 
         self.last_move = move
 
-        checking_pieces = game_state.get_checking_pieces(self, active_color)
+        checking_pieces = self.get_checking_pieces(active_color)
         if len(checking_pieces) > 0:
             # cur_player put themselves in check, not allowed. Reset move
             self.undo_move()
@@ -171,6 +170,31 @@ class Board:
         if move.captured_piece:
             captured_square = move.captured_square
             captured_square.add_piece(move.captured_piece)
+
+    def get_checking_pieces(self, active_color):
+        """Finds any pieces that have the player's king in check.
+            If none found, returns an empty list.
+        """
+        white_mapping, black_mapping = self.get_active_pieces()
+        player_piece_mapping = white_mapping
+        opponent_piece_mapping = black_mapping
+        if active_color is not ChessColor.WHITE:
+            player_piece_mapping = black_mapping
+            opponent_piece_mapping = white_mapping
+        # king should always be first piece in array
+        _, (king_row_idx, king_col_idx) = player_piece_mapping[0]
+        king_square = self.squares[king_row_idx][king_col_idx]
+
+        checking_pieces = []
+        for piece, (row_idx, col_idx) in opponent_piece_mapping:
+            piece_square = self.squares[row_idx][col_idx]
+            try:
+                check_path = piece.get_path_to_square(piece_square, king_square, self)
+                # move from piece to king is valid, so it is checking king
+                checking_pieces.append((piece, check_path)) # TODO: maybe make this a namedtuple
+            except InvalidMoveException:
+                continue
+        return checking_pieces
 
     def get_active_pieces(self):
         """gets the list of white and black pieces on the board."""

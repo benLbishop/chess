@@ -1,6 +1,6 @@
 """module for the Piece class."""
 from chessGame.custom_exceptions import InvalidMoveException
-from chessGame.move_logic import pathing, game_state
+from chessGame.move_logic import pathing
 from chessGame import constants
 class Piece:
     """Abstract class representing a chess piece."""
@@ -40,11 +40,9 @@ class Piece:
         for target_coords in target_list:
             try:
                 board.move_piece(cur_coords, target_coords, self.color)
-                checking_pieces = game_state.get_checking_pieces(board, self.color)
                 board.undo_move()
-                if len(checking_pieces) == 0:
-                    has_move = True
-                    break
+                has_move = True
+                break
             except InvalidMoveException:
                 continue
             except ValueError:

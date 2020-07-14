@@ -7,7 +7,6 @@ from chessGame import constants, conversion as conv
 from chessGame.enums import ChessColor
 from chessGame.custom_exceptions import PiecePlacementException, InvalidMoveException
 from chessGame.move import Move
-from chessGame.move_logic import game_state
 
 psns = conv.parse_std_notation_string
 class BoardTest(unittest.TestCase):
@@ -129,7 +128,7 @@ class BoardTest(unittest.TestCase):
 
     @patch.object(Board, 'undo_move')
     @patch.object(Board, '_handle_move_side_effect')
-    @patch.object(game_state, 'get_checking_pieces')
+    @patch.object(Board, 'get_checking_pieces')
     @patch.object(Piece, 'get_move_params')
     def test_move_piece(self, move_mock, check_mock, side_effect_mock, undo_mock):
         """tests function that actually moves pieces in the game."""
@@ -245,6 +244,38 @@ class BoardTest(unittest.TestCase):
         test_board.undo_move()
         self.assertEqual(last_start.piece, test_piece)
         self.assertEqual(last_end.piece, test_piece2)
+
+    @patch.object(Piece, 'get_path_to_square')
+    @patch.object(Board, 'get_active_pieces')
+    def test_get_checking_pieces(self, active_pieces_mock, path_mock):
+        """Tests for the get_checking_pieces method."""
+        num_rows = constants.STD_BOARD_WIDTH
+        num_cols = constants.STD_BOARD_HEIGHT
+        test_board = Board({'num_rows': num_rows, 'num_cols': num_cols})
+
+        white_dummy_king = Piece(ChessColor.WHITE)
+        white_mapping = [
+            (white_dummy_king, (1, 1)),
+            (Piece(ChessColor.WHITE), (1, 2)),
+            (Piece(ChessColor.WHITE), (1, 3))
+        ]
+        black_dummy_king = Piece(ChessColor.BLACK)
+        black_mapping = [
+            (black_dummy_king, (7, 1)),
+            (Piece(ChessColor.BLACK), (7, 2)),
+            (Piece(ChessColor.BLACK), (7, 3))
+        ]
+        active_pieces_mock.return_value = (white_mapping, black_mapping)
+        # should use the correct piece mapping
+        # TODO
+
+        # should return any pieces checking king
+        path_mock.side_effect = ['path1', InvalidMoveException('path exception'), 'path2']
+        expected_res = [(black_mapping[0][0], 'path1'), (black_mapping[2][0], 'path2')]
+        res = test_board.get_checking_pieces(ChessColor.WHITE)
+        self.assertEqual(res, expected_res)
+
+        # TODO: more tests
 
     def test_get_active_pieces(self):
         """Tests the get_active_pieces method."""

@@ -5,7 +5,7 @@ from unittest.mock import patch
 from chessGame import constants
 from chessGame.custom_exceptions import InvalidMoveException
 from chessGame.enums import ChessColor
-from chessGame.move_logic import pathing, game_state
+from chessGame.move_logic import pathing
 from chessGame.board import Board
 from chessGame.pieces.piece import Piece
 
@@ -29,12 +29,10 @@ class PieceTest(unittest.TestCase):
         self.assertEqual(white_p._value, -1)
         self.assertEqual(white_p.move_count, 0)
 
-    @patch.object(game_state, 'get_checking_pieces')
     @patch.object(Board, 'undo_move')
     @patch.object(Board, 'move_piece')
-    def test_can_reach_squares(self, move_mock, undo_mock, check_mock):
+    def test_can_reach_squares(self, move_mock, undo_mock):
         """Tests for the can_reach_squares method."""
-        check_mock.return_value = []
         moving_piece = Piece(ChessColor.WHITE)
         coords = (0, 0)
         target_list = [(1, 0), (2, 0)]
@@ -49,18 +47,12 @@ class PieceTest(unittest.TestCase):
         self.assertFalse(res)
         move_mock.side_effect = None
 
-        # should return false if all moves put player in check
-        check_mock.return_value = ['something']
-        res = moving_piece.can_reach_squares(coords, target_list, self.board)
-        self.assertFalse(res)
-        check_mock.side_effect = None
-
         # should return true if any move is valid
-        check_mock.side_effect = [[], ['something']]
+        move_mock.side_effect = [[], ['something']]
         res = moving_piece.can_reach_squares(coords, target_list, self.board)
         self.assertTrue(res)
 
-        check_mock.side_effect = [['something'], []]
+        move_mock.side_effect = [['something'], []]
         res = moving_piece.can_reach_squares(coords, target_list, self.board)
         self.assertTrue(res)
 
