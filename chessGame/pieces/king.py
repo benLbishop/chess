@@ -56,20 +56,16 @@ class King(Piece):
         mid.clear()
 
         # can successfully castle
-        start_coords = (start.row_idx, start.col_idx)
-        end_coords = (end.row_idx, end.col_idx)
-        return (start_coords, end_coords, None, None, MoveSideEffect.CASTLE)
+        return (start, end, None, None, MoveSideEffect.CASTLE)
 
-    def get_move_params(self, start_coords, end_coords, board):
+    def get_move_params(self, start, end, board):
         # Overwritten to handle castling
-        start_row, start_col = start_coords
-        end_row, end_col = end_coords
-        start = board.squares[start_row][start_col]
-        end = board.squares[end_row][end_col]
+        start_row, start_col = start.coords
+        end_row, end_col = end.coords
 
         row_offset = abs(start_row - end_row)
         col_offset = abs(start_col - end_col)
         if row_offset == 0 and col_offset == 2:
             return self.get_castle_params(start, end, board)
         # king moves in a standard way otherwise
-        return super().get_move_params(start_coords, end_coords, board)
+        return super().get_move_params(start, end, board)

@@ -7,14 +7,13 @@ from .piece import Piece
 class Pawn(Piece):
     """class for the pawn Piece."""
     def has_valid_move(self, cur_square, board):
-        cur_coords = (cur_square.row_idx, cur_square.col_idx)
         offsets = []
         if self.color == ChessColor.WHITE:
             offsets = constants.WHITE_PAWN_OFFSETS
         else:
             offsets = constants.BLACK_PAWN_OFFSETS
-        neighbor_list = [tuple(map(sum, zip(cur_coords, offset))) for offset in offsets]
-        return self.can_reach_squares(cur_coords, neighbor_list, board)
+        neighbor_list = [tuple(map(sum, zip(cur_square.coords, offset))) for offset in offsets]
+        return self.can_reach_squares(cur_square.coords, neighbor_list, board)
 
     def can_reach_square(self, start, end):
         """checks to see if movement from start to end is possible
@@ -62,10 +61,8 @@ class Pawn(Piece):
         if not isinstance(passant_piece, Pawn) or passant_piece.color is self.color:
             return None
         # 4) The pawn must have moved as the game's last move, and moved two squares.
-        last_start_row, last_start_col = board.last_move.start_coords
-        last_end_row, last_end_col = board.last_move.end_coords
-        last_start = board.squares[last_start_row][last_start_col]
-        last_end = board.squares[last_end_row][last_end_col]
+        last_start = board.last_move.start
+        last_end = board.last_move.end
         if last_end is not passant_square:
             return None
         last_row_offset = abs(last_start.row_idx - last_end.row_idx)
@@ -122,10 +119,10 @@ class Pawn(Piece):
         # row_offset of 1
         return self.get_one_move_path(start, end, board)
 
-    def get_move_params(self, start_coords, end_coords, board):
-        default_res = super().get_move_params(start_coords, end_coords, board)
-        start_row, start_col = start_coords
-        end_row, end_col = end_coords
+    def get_move_params(self, start, end, board):
+        default_res = super().get_move_params(start, end, board)
+        start_row, start_col = start.coords
+        end_row, end_col = end.coords
         col_offset = abs(end_col - start_col)
         if col_offset != 0 and default_res[2] is None:
             # moved diagonally without capturing on that square. Performed en passant
@@ -133,7 +130,7 @@ class Pawn(Piece):
             captured_coords = (start_row, end_col)
             captured_square = board.squares[captured_coords[0]][captured_coords[1]]
             captured_piece = captured_square.piece
-            return (default_res[0], default_res[1], captured_piece, captured_coords, MoveSideEffect.EN_PASSANT)
+            return (default_res[0], default_res[1], captured_piece, captured_square, MoveSideEffect.EN_PASSANT)
         # check for pawn promotion
         # TODO: this is omega clunky
         if self.color is ChessColor.WHITE and end_row == board.NUM_ROWS - 1:

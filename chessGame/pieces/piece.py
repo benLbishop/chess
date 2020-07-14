@@ -54,9 +54,9 @@ class Piece:
 
     def has_valid_move(self, cur_square, board):
         """Checks to see if the piece has any valid moves to neighboring squares."""
-        cur_coords = (cur_square.row_idx, cur_square.col_idx)
-        neighbor_list = [tuple(map(sum, zip(cur_coords, offset))) for offset in self._offsets]
-        return self.can_reach_squares(cur_coords, neighbor_list, board)
+        coords = cur_square.coords
+        neighbor_list = [tuple(map(sum, zip(coords, offset))) for offset in self._offsets]
+        return self.can_reach_squares(coords, neighbor_list, board)
 
     # TODO: rename
     def can_reach_square(self, start, end):
@@ -78,8 +78,7 @@ class Piece:
         cur_square = start
         path = [start]
         while cur_square is not end:
-            cur_coords = (cur_square.row_idx, cur_square.col_idx)
-            next_row_idx, next_col_idx = tuple(map(sum, zip(cur_coords, offset)))
+            next_row_idx, next_col_idx = tuple(map(sum, zip(cur_square.coords, offset)))
             cur_square = board.squares[next_row_idx][next_col_idx]
             path.append(cur_square)
             if cur_square.is_occupied():
@@ -95,19 +94,15 @@ class Piece:
         # found a valid path
         return path
 
-    def get_move_params(self, start_coords, end_coords, board):
+    def get_move_params(self, start, end, board):
         """Attempts to get the move parameters using the piece for the provided coordinates."""
         # NOTE: Move not returned because importing the Move class would cause a circular import.
-        start_row, start_col = start_coords
-        end_row, end_col = end_coords
-        start = board.squares[start_row][start_col]
-        end = board.squares[end_row][end_col]
         try:
             self.get_path_to_square(start, end, board)
         except InvalidMoveException as err:
             raise err
-        captured_piece, captured_piece_coords = (None, None)
+        captured_piece, captured_square = (None, None)
         if end.is_occupied():
             captured_piece = end.piece
-            captured_piece_coords = (end.row_idx, end.col_idx)
-        return (start_coords, end_coords, captured_piece, captured_piece_coords)
+            captured_square = end
+        return (start, end, captured_piece, captured_square)

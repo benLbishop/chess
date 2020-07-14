@@ -8,7 +8,7 @@ def can_block_checking_piece(checking_path, board, player_piece_mapping):
         can capture or block the given checking piece.
     """
     # probably don't need to check the last square in path because it's king square
-    path_coords = [(path_square.row_idx, path_square.col_idx) for path_square in checking_path]
+    path_coords = [square.coords for square in checking_path]
     can_block = False
     for player_piece, player_piece_coords in player_piece_mapping:
         if player_piece.can_reach_squares(player_piece_coords, path_coords, board):

@@ -139,28 +139,27 @@ class PieceTest(unittest.TestCase):
     @patch.object(Piece, 'get_path_to_square')
     def test_get_move_params(self, path_mock):
         """Tests for the get_move_params method."""
-        start_coords = (0, 0)
-        end_coords = (1, 0)
+        start = self.board.squares[0][0]
+        end = self.board.squares[1][0]
         moving_piece = Piece(ChessColor.WHITE)
 
         # should raise if path cannot be found
         path_mock.side_effect = InvalidMoveException('dummy exception')
         with self.assertRaises(InvalidMoveException):
-            moving_piece.get_move_params(start_coords, end_coords, self.board)
+            moving_piece.get_move_params(start, end, self.board)
         path_mock.side_effect = None
 
         # should return captured piece/coords if it occurs
         other_piece = Piece(ChessColor.BLACK)
-        end_square = self.board.squares[end_coords[0]][end_coords[1]]
-        end_square.add_piece(other_piece)
-        res = moving_piece.get_move_params(start_coords, end_coords, self.board)
-        expected_res = (start_coords, end_coords, other_piece, end_coords)
+        end.add_piece(other_piece)
+        res = moving_piece.get_move_params(start, end, self.board)
+        expected_res = (start, end, other_piece, end)
         self.assertEqual(res, expected_res)
-        end_square.clear()
+        end.clear()
 
         # should return just the coordinates otherwise
-        res = moving_piece.get_move_params(start_coords, end_coords, self.board)
-        expected_res = (start_coords, end_coords, None, None)
+        res = moving_piece.get_move_params(start, end, self.board)
+        expected_res = (start, end, None, None)
         self.assertEqual(res, expected_res)
 
 if __name__ == '__main__':

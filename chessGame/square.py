@@ -15,6 +15,11 @@ class Square:
         self.col_idx = col_idx
         self.piece = None
 
+    @property
+    def coords(self):
+        """Get the coordinates for the square."""
+        return (self.row_idx, self.col_idx)
+
     def is_occupied(self):
         """ returns a boolean indicating whether or not a piece is on this square. """
         return self.piece is not None

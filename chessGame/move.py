@@ -1,13 +1,15 @@
 """Module for the Move class."""
 from dataclasses import dataclass
-from chessGame.pieces.piece import Piece
-from chessGame.enums import MoveSideEffect
+
+from .pieces.piece import Piece
+from .square import Square
+from .enums import MoveSideEffect
 
 @dataclass
 class Move:
     """Dataclass defining a chess move."""
-    start_coords: tuple
-    end_coords: tuple
+    start: Square
+    end: Square
     captured_piece: Piece = None
-    captured_piece_coords: tuple = None
+    captured_square: Square = None
     side_effect: MoveSideEffect = None

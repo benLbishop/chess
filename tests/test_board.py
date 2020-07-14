@@ -176,7 +176,7 @@ class BoardTest(unittest.TestCase):
         move_mock.side_effect = None
 
         # should successfully move the piece otherwise
-        basic_move_params = ((0, 0), (0, 0))
+        basic_move_params = (start_square, end_square)
         basic_move = Move(*basic_move_params)
         move_mock.return_value = basic_move_params
 
@@ -192,7 +192,7 @@ class BoardTest(unittest.TestCase):
         start_square.add_piece(test_piece)
 
         # should call the side effect function if appropriate
-        side_effect_move_params = ((0, 0), (0, 0), None, None, 'some effect')
+        side_effect_move_params = (start_square, end_square, None, None, 'some effect')
         side_effect_move = Move(*side_effect_move_params)
         move_mock.return_value = side_effect_move_params
 
@@ -225,7 +225,7 @@ class BoardTest(unittest.TestCase):
             test_board.undo_move()
 
         # should move piece from last end to last start
-        test_board.last_move = Move((0, 0), (2, 2))
+        test_board.last_move = Move(last_start, last_end)
         last_end.add_piece(test_piece)
         self.assertIsNone(last_start.piece)
         test_board.undo_move()
@@ -239,7 +239,7 @@ class BoardTest(unittest.TestCase):
         last_end.clear()
         # should replace piece if it was captured
         test_piece2 = Piece(ChessColor.WHITE)
-        test_board.last_move = Move((0, 0), (2, 2), test_piece2, (2, 2))
+        test_board.last_move = Move(last_start, last_end, test_piece2, last_end)
         last_end.add_piece(test_piece)
         self.assertIsNone(last_start.piece)
         test_board.undo_move()

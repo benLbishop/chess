@@ -61,8 +61,8 @@ class Board:
 
     def _handle_castle_side_effect(self, move):
         """Method in charge of moving the rook that's part of a castle move."""
-        row_idx, start_col_idx = move.start_coords
-        _, end_col_idx = move.end_coords
+        row_idx, start_col_idx = move.start.coords
+        _, end_col_idx = move.end.coords
 
         is_right_castle = end_col_idx > start_col_idx
         rook_start_col_idx = self.NUM_COLS - 1 if is_right_castle else 0
@@ -74,7 +74,7 @@ class Board:
 
     def _handle_en_passant_side_effect(self, move):
         """Method in charge of removing the piece captured via en passant."""
-        row_idx, col_idx = move.captured_piece_coords
+        row_idx, col_idx = move.captured_square.coords
         captured_square = self.squares[row_idx][col_idx]
         captured_square.clear()
 
@@ -82,7 +82,7 @@ class Board:
         """Method in charge of promoting pawns."""
         # TODO: this should actually ask the player what they want to promote the piece to.
         # For now, I'm just going to make it a queen
-        row_idx, col_idx = move.end_coords
+        row_idx, col_idx = move.end.coords
         end_square = self.squares[row_idx][col_idx]
         color = end_square.piece.color
         end_square.clear()
@@ -128,7 +128,7 @@ class Board:
 
         move = None
         try:
-            move_params = moving_piece.get_move_params(start_coords, end_coords, self)
+            move_params = moving_piece.get_move_params(start_square, end_square, self)
             move = Move(*move_params)
         except InvalidMoveException as err:
             raise err
@@ -156,24 +156,21 @@ class Board:
     def undo_move(self):
         """Reverts the last move made on the board."""
         # TODO: Undo MoveSideEffects
-        if not self.last_move:
+        move = self.last_move
+        if not move:
             raise InvalidMoveException('no move to undo.')
 
-        # TODO: maybe make Move have squares instead of coords
-        start_row, start_col = self.last_move.start_coords
-        end_row, end_col = self.last_move.end_coords
-        last_start = self.squares[start_row][start_col]
-        last_end = self.squares[end_row][end_col]
+        last_start = move.start
+        last_end = move.end
         moved_piece = last_end.piece
 
         moved_piece.move_count -= 1
         last_start.add_piece(moved_piece)
         last_end.clear()
 
-        if self.last_move.captured_piece:
-            captured_row, captured_col = self.last_move.captured_piece_coords
-            captured_square = self.squares[captured_row][captured_col]
-            captured_square.add_piece(self.last_move.captured_piece)
+        if move.captured_piece:
+            captured_square = move.captured_square
+            captured_square.add_piece(move.captured_piece)
 
     def get_active_pieces(self):
         """gets the list of white and black pieces on the board."""
@@ -181,13 +178,12 @@ class Board:
         black_pieces = []
         for row_idx, row in enumerate(self.squares):
             for col_idx, square in enumerate(row):
-                coordinate = (row_idx, col_idx)
                 if square.is_occupied():
                     piece = square.piece
                     if piece.color == ChessColor.WHITE:
-                        white_pieces.append((piece, coordinate))
+                        white_pieces.append((piece, square.coords))
                     else:
-                        black_pieces.append((piece, coordinate))
+                        black_pieces.append((piece, square.coords))
         # return the pieces from highest value (should be king) to lowest
         return sorted(white_pieces, reverse=True), sorted(black_pieces, reverse=True)
 

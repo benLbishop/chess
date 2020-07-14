@@ -117,7 +117,9 @@ class KingTest(unittest.TestCase):
             ((0, 0), (0, 2))
         ]
         for start_coords, end_coords in castle_calls:
-            res = self.king.get_move_params(start_coords, end_coords, self.board)
+            start = self.board.squares[start_coords[0]][start_coords[1]]
+            end = self.board.squares[end_coords[0]][end_coords[1]]
+            res = self.king.get_move_params(start, end, self.board)
             self.assertEqual(res, castle_return)
 
         std_calls = [
@@ -127,5 +129,7 @@ class KingTest(unittest.TestCase):
             ((7, 4), (6, 5))
         ]
         for start_coords, end_coords in std_calls:
-            res = self.king.get_move_params(start_coords, end_coords, self.board)
+            start = self.board.squares[start_coords[0]][start_coords[1]]
+            end = self.board.squares[end_coords[0]][end_coords[1]]
+            res = self.king.get_move_params(start, end, self.board)
             self.assertEqual(res, std_return)
