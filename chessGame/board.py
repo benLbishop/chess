@@ -176,8 +176,8 @@ class Board:
         """gets the list of white and black pieces on the board."""
         white_pieces = []
         black_pieces = []
-        for row_idx, row in enumerate(self.squares):
-            for col_idx, square in enumerate(row):
+        for row in self.squares:
+            for square in row:
                 if square.is_occupied():
                     piece = square.piece
                     if piece.color == ChessColor.WHITE:
