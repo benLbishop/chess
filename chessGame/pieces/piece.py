@@ -30,9 +30,9 @@ class Piece:
         """Property determining whether or not a piece has moved."""
         return self.move_count > 0
 
-    def can_reach_squares(self, cur_coords, target_list, board):
+    def has_valid_move_in_list(self, cur_coords, target_list, board):
         """Checks to see if the piece can reach any of the squares in target_list
-            (target_list is actually a list of coordinates for squares.)
+            (target_list is a list of coordinates for squares.)
         """
         has_move = False
         for target_coords in target_list:
@@ -52,9 +52,8 @@ class Piece:
         """Checks to see if the piece has any valid moves to neighboring squares."""
         coords = cur_square.coords
         neighbor_list = [tuple(map(sum, zip(coords, offset))) for offset in self._offsets]
-        return self.can_reach_squares(coords, neighbor_list, board)
+        return self.has_valid_move_in_list(coords, neighbor_list, board)
 
-    # TODO: rename
     def can_reach_square(self, start, end):
         """Abstract method for validating if a piece can move from one square to another.
             Must be implemented by subclasses.

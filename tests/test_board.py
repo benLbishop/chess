@@ -264,15 +264,15 @@ class BoardTest(unittest.TestCase):
 
         white_dummy_king = Piece(ChessColor.WHITE)
         white_mapping = [
-            (white_dummy_king, (1, 1)),
-            (Piece(ChessColor.WHITE), (1, 2)),
-            (Piece(ChessColor.WHITE), (1, 3))
+            (white_dummy_king, test_board.squares[1][1]),
+            (Piece(ChessColor.WHITE), test_board.squares[1][2]),
+            (Piece(ChessColor.WHITE), test_board.squares[1][3])
         ]
         black_dummy_king = Piece(ChessColor.BLACK)
         black_mapping = [
-            (black_dummy_king, (7, 1)),
-            (Piece(ChessColor.BLACK), (7, 2)),
-            (Piece(ChessColor.BLACK), (7, 3))
+            (black_dummy_king, test_board.squares[7][1]),
+            (Piece(ChessColor.BLACK), test_board.squares[7][2]),
+            (Piece(ChessColor.BLACK), test_board.squares[7][3])
         ]
         active_pieces_mock.return_value = (white_mapping, black_mapping)
         # should use the correct piece mapping
@@ -296,17 +296,20 @@ class BoardTest(unittest.TestCase):
         res = test_board.get_active_pieces()
         self.assertTupleEqual(res, ([], []))
 
-        test1 = [
+        white_strings = [
             'w Kd2',
-            'w Qb4',
+            'w Qb4'
+        ]
+        black_strings = [
             'b h8',
             'b h5'
         ]
-        test1_mapping = [psns(s) for s in test1]
-        test_board.populate(test1_mapping)
+        white_coord_map = [psns(s) for s in white_strings]
+        black_coord_map = [psns(s) for s in black_strings]
+        test_board.populate(white_coord_map + black_coord_map)
 
-        white_mapping = test1_mapping[0:2]
-        black_mapping = test1_mapping[2:]
+        white_mapping = [(p, test_board.squares[row][col]) for p, (row, col) in white_coord_map]
+        black_mapping = [(p, test_board.squares[row][col]) for p, (row, col) in black_coord_map]
 
         res = test_board.get_active_pieces()
         self.assertTupleEqual(res, (white_mapping, black_mapping))

@@ -16,8 +16,7 @@ class Player:
         player_mapping = white_mapping if self.color is ChessColor.WHITE else black_mapping
 
         player_has_move = False
-        for piece, (row_idx, col_idx) in player_mapping:
-            cur_square = board.squares[row_idx][col_idx]
+        for piece, cur_square in player_mapping:
             if piece.has_valid_move(cur_square, board):
                 player_has_move = True
                 break
@@ -30,8 +29,8 @@ class Player:
         # probably don't need to check the last square in path because it's king square
         path_coords = [square.coords for square in checking_path]
         can_block = False
-        for player_piece, player_piece_coords in player_piece_mapping:
-            if player_piece.can_reach_squares(player_piece_coords, path_coords, board):
+        for piece, square in player_piece_mapping:
+            if piece.has_valid_move_in_list(square.coords, path_coords, board):
                 can_block = True
                 break
         return can_block
@@ -45,8 +44,7 @@ class Player:
         white_mapping, black_mapping = board.get_active_pieces()
         player_mapping = white_mapping if self.color is ChessColor.WHITE else black_mapping
 
-        king, (king_row_idx, king_col_idx) = player_mapping[0]
-        king_square = board.squares[king_row_idx][king_col_idx]
+        king, king_square = player_mapping[0]
         if king.has_valid_move(king_square, board):
             return False
         if len(checking_pieces) > 1:

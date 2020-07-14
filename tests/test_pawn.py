@@ -22,30 +22,30 @@ class PawnTest(unittest.TestCase):
         self.white_pawn.move_count = 0
         self.black_pawn.move_count = 0
 
-    @patch.object(Piece, 'can_reach_squares')
-    def test_has_valid_move(self, reach_mock):
+    @patch.object(Piece, 'has_valid_move_in_list')
+    def test_has_valid_move(self, valid_move_mock):
         """Tests the overwritten has_valid_move method."""
         white_pawn = Pawn(ChessColor.WHITE)
         black_pawn = Pawn(ChessColor.BLACK)
         cur_square = self.board.squares[0][0]
 
-        # should call can_reach_squares with the proper coordinates
+        # should call has_valid_move_in_list with the proper coordinates
         white_pawn.has_valid_move(cur_square, self.board)
-        reach_mock.assert_called_with((0, 0), constants.WHITE_PAWN_OFFSETS, self.board)
-        reach_mock.reset_mock()
+        valid_move_mock.assert_called_with((0, 0), constants.WHITE_PAWN_OFFSETS, self.board)
+        valid_move_mock.reset_mock()
 
         black_pawn.has_valid_move(cur_square, self.board)
-        reach_mock.assert_called_with((0, 0), constants.BLACK_PAWN_OFFSETS, self.board)
-        reach_mock.reset_mock()
+        valid_move_mock.assert_called_with((0, 0), constants.BLACK_PAWN_OFFSETS, self.board)
+        valid_move_mock.reset_mock()
 
-        # should return what can_reach_squares returns
-        reach_mock.return_value = False
+        # should return what has_valid_move_in_list returns
+        valid_move_mock.return_value = False
         res = white_pawn.has_valid_move(cur_square, self.board)
         self.assertFalse(res)
         res = black_pawn.has_valid_move(cur_square, self.board)
         self.assertFalse(res)
 
-        reach_mock.return_value = True
+        valid_move_mock.return_value = True
         res = white_pawn.has_valid_move(cur_square, self.board)
         self.assertTrue(res)
         res = black_pawn.has_valid_move(cur_square, self.board)
@@ -191,11 +191,11 @@ class PawnTest(unittest.TestCase):
     @patch.object(Pawn, 'get_two_move_path')
     @patch.object(Pawn, 'get_one_move_path')
     @patch.object(Pawn, 'can_reach_square')
-    def test_get_path_to_square(self, reach_mock, one_move_mock, two_move_mock):
+    def test_get_path_to_square(self, valid_move_mock, one_move_mock, two_move_mock):
         """Tests the overwritten get_path_to_square method."""
         one_move_return = 'one move return'
         two_move_return = 'two move return'
-        reach_mock.return_value = True
+        valid_move_mock.return_value = True
         one_move_mock.return_value = one_move_return
         two_move_mock.return_value = two_move_return
 
@@ -207,11 +207,11 @@ class PawnTest(unittest.TestCase):
         right_diag = squares[row + 1][col + 1]
         left_diag = squares[row + 1][col - 1]
 
-        reach_mock.return_value = False
+        valid_move_mock.return_value = False
         # should raise if piece cannot reach end square
         with self.assertRaises(InvalidMoveException):
             self.white_pawn.get_path_to_square(start, straight1, self.board)
-        reach_mock.return_value = True
+        valid_move_mock.return_value = True
 
         # should properly call two move and one move functions
         one_ends = [straight1, left_diag, right_diag]

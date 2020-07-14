@@ -184,12 +184,10 @@ class Board:
             player_piece_mapping = black_mapping
             opponent_piece_mapping = white_mapping
         # king should always be first piece in array
-        _, (king_row_idx, king_col_idx) = player_piece_mapping[0]
-        king_square = self.squares[king_row_idx][king_col_idx]
+        _, king_square = player_piece_mapping[0]
 
         checking_pieces = []
-        for piece, (row_idx, col_idx) in opponent_piece_mapping:
-            piece_square = self.squares[row_idx][col_idx]
+        for piece, piece_square in opponent_piece_mapping:
             try:
                 check_path = piece.get_path_to_square(piece_square, king_square, self)
                 # move from piece to king is valid, so it is checking king
@@ -207,9 +205,9 @@ class Board:
                 if square.is_occupied():
                     piece = square.piece
                     if piece.color == ChessColor.WHITE:
-                        white_pieces.append((piece, square.coords))
+                        white_pieces.append((piece, square))
                     else:
-                        black_pieces.append((piece, square.coords))
+                        black_pieces.append((piece, square))
         # return the pieces from highest value (should be king) to lowest
         return sorted(white_pieces, reverse=True), sorted(black_pieces, reverse=True)
 

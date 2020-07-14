@@ -15,6 +15,15 @@ class Square:
         self.col_idx = col_idx
         self.piece = None
 
+    def __eq__(self, other):
+        return (self.row_idx, self.col_idx) == (other.row_idx, other.col_idx)
+
+    def __lt__(self, other):
+        return (self.row_idx, self.col_idx) < (other.row_idx, other.col_idx)
+
+    def __le__(self, other):
+        return (self.row_idx, self.col_idx) <= (other.row_idx, other.col_idx)
+
     @property
     def coords(self):
         """Get the coordinates for the square."""

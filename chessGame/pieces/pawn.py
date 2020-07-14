@@ -13,7 +13,7 @@ class Pawn(Piece):
         else:
             offsets = constants.BLACK_PAWN_OFFSETS
         neighbor_list = [tuple(map(sum, zip(cur_square.coords, offset))) for offset in offsets]
-        return self.can_reach_squares(cur_square.coords, neighbor_list, board)
+        return self.has_valid_move_in_list(cur_square.coords, neighbor_list, board)
 
     def can_reach_square(self, start, end):
         """checks to see if movement from start to end is possible

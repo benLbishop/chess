@@ -33,8 +33,8 @@ class TestPlayer(unittest.TestCase):
 
         # TODO: test which names are allowed? Is empty string ok?
 
-    @patch.object(Piece, 'can_reach_squares')
-    def test_can_block_checking_piece(self, reach_mock):
+    @patch.object(Piece, 'has_valid_move_in_list')
+    def test_can_block_checking_piece(self, valid_move_mock):
         """Tests for the can_block_checking_piece method."""
         white_config = {'color': ChessColor.WHITE, 'name': 'Griffin'}
         white_player = Player(white_config)
@@ -46,18 +46,18 @@ class TestPlayer(unittest.TestCase):
         p2 = Piece(ChessColor.BLACK)
         p3 = Piece(ChessColor.BLACK)
         piece_mapping = [
-            (p1, (1, 1)),
-            (p2, (1, 2)),
-            (p3, (1, 3))
+            (p1, self.board.squares[1][1]),
+            (p2, self.board.squares[1][2]),
+            (p3, self.board.squares[1][3])
         ]
 
         # should return false if no square on path can be reached
-        reach_mock.return_value = False
+        valid_move_mock.return_value = False
         res = white_player.can_block_checking_piece(checking_path, board, piece_mapping)
         self.assertFalse(res)
 
         # should return true if any piece can reach any square on the path
-        reach_mock.side_effect = [False, False, True]
+        valid_move_mock.side_effect = [False, False, True]
         res = white_player.can_block_checking_piece(checking_path, board, piece_mapping)
         self.assertTrue(res)
 
@@ -71,18 +71,17 @@ class TestPlayer(unittest.TestCase):
         white_player = Player(white_config)
 
         check_path = ['check path']
-        checking_pieces = [(Piece(ChessColor.BLACK), check_path)]
         white_king = King(ChessColor.WHITE)
         white_mapping = [
-            (white_king, (1, 1)),
-            (Piece(ChessColor.WHITE), (1, 2)),
-            (Piece(ChessColor.WHITE), (1, 3))
+            (white_king, self.board.squares[1][1]),
+            (Piece(ChessColor.WHITE), self.board.squares[1][2]),
+            (Piece(ChessColor.WHITE), self.board.squares[1][3])
         ]
         black_king = King(ChessColor.BLACK)
         black_mapping = [
-            (black_king, (7, 1)),
-            (Piece(ChessColor.BLACK), (7, 2)),
-            (Piece(ChessColor.BLACK), (7, 3))
+            (black_king, self.board.squares[7][1]),
+            (Piece(ChessColor.BLACK), self.board.squares[7][2]),
+            (Piece(ChessColor.BLACK), self.board.squares[7][3])
         ]
         active_pieces_mock.return_value = (white_mapping, black_mapping)
 
@@ -130,15 +129,15 @@ class TestPlayer(unittest.TestCase):
 
         white_king = King(ChessColor.WHITE)
         white_mapping = [
-            (white_king, (1, 1)),
-            (Piece(ChessColor.WHITE), (1, 2)),
-            (Piece(ChessColor.WHITE), (1, 3))
+            (white_king, self.board.squares[1][1]),
+            (Piece(ChessColor.WHITE), self.board.squares[1][2]),
+            (Piece(ChessColor.WHITE), self.board.squares[1][3])
         ]
         black_king = King(ChessColor.BLACK)
         black_mapping = [
-            (black_king, (7, 1)),
-            (Piece(ChessColor.BLACK), (7, 2)),
-            (Piece(ChessColor.BLACK), (7, 3))
+            (black_king, self.board.squares[7][1]),
+            (Piece(ChessColor.BLACK), self.board.squares[7][2]),
+            (Piece(ChessColor.BLACK), self.board.squares[7][3])
         ]
         active_pieces_mock.return_value = (white_mapping, black_mapping)
         # should use the correct piece mapping
