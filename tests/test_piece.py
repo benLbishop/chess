@@ -5,7 +5,7 @@ from unittest.mock import patch
 from chessGame import constants
 from chessGame.custom_exceptions import InvalidMoveException
 from chessGame.enums import ChessColor
-from chessGame.move_logic import pathing
+from chessGame.move_logic import pathing, game_state
 from chessGame.board import Board
 from chessGame.pieces.piece import Piece
 
@@ -29,9 +29,61 @@ class PieceTest(unittest.TestCase):
         self.assertEqual(white_p._value, -1)
         self.assertEqual(white_p.has_moved, False)
 
-    def test_has_valid_move(self):
+    @patch.object(game_state, 'get_checking_pieces')
+    @patch.object(Board, 'undo_move')
+    @patch.object(Board, 'move_piece')
+    def test_can_reach_squares(self, move_mock, undo_mock, check_mock):
+        """Tests for the can_reach_squares method."""
+        check_mock.return_value = []
+        moving_piece = Piece(ChessColor.WHITE)
+        coords = (0, 0)
+        target_list = [(1, 0), (2, 0)]
+
+        # should return false if target square list is empty
+        res = moving_piece.can_reach_squares(coords, [], self.board)
+        self.assertFalse(res)
+
+        # should return false if piece cannot move to any square
+        move_mock.side_effect = InvalidMoveException('move exception')
+        res = moving_piece.can_reach_squares(coords, target_list, self.board)
+        self.assertFalse(res)
+        move_mock.side_effect = None
+
+        # should return false if all moves put player in check
+        check_mock.return_value = ['something']
+        res = moving_piece.can_reach_squares(coords, target_list, self.board)
+        self.assertFalse(res)
+        check_mock.side_effect = None
+
+        # should return true if any move is valid
+        check_mock.side_effect = [[], ['something']]
+        res = moving_piece.can_reach_squares(coords, target_list, self.board)
+        self.assertTrue(res)
+
+        check_mock.side_effect = [['something'], []]
+        res = moving_piece.can_reach_squares(coords, target_list, self.board)
+        self.assertTrue(res)
+
+    @patch.object(Piece, 'can_reach_squares')
+    def test_has_valid_move(self, reach_mock):
         """Tests for the has_valid_move method."""
-        # TODO
+        p = Piece(ChessColor.WHITE)
+        test_offsets = [(3, 4), (-98, 1), (400, -3)]
+        p._offsets = test_offsets
+        cur_square = self.board.squares[0][0]
+
+        # should call can_reach_squares with the proper coordinates
+        p.has_valid_move(cur_square, self.board)
+        reach_mock.assert_called_with((0, 0), test_offsets, self.board)
+
+        # should return what can_reach_squares returns
+        reach_mock.return_value = False
+        res = p.has_valid_move(cur_square, self.board)
+        self.assertFalse(res)
+
+        reach_mock.return_value = True
+        res = p.has_valid_move(cur_square, self.board)
+        self.assertTrue(res)
 
     def test_can_reach_square(self):
         """Makes sure can_reach_square is not implemented."""

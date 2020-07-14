@@ -1,7 +1,7 @@
 """Module containing the Pawn class."""
 from chessGame.custom_exceptions import InvalidMoveException
 from chessGame.enums import ChessColor, MoveSideEffect
-from chessGame.move_logic import game_state
+from chessGame import constants
 from .piece import Piece
 
 class Pawn(Piece):
@@ -10,26 +10,11 @@ class Pawn(Piece):
         cur_coords = (cur_square.row_idx, cur_square.col_idx)
         offsets = []
         if self.color == ChessColor.WHITE:
-            offsets = [(1, 0), (1, 1), (1, -1)]
+            offsets = constants.WHITE_PAWN_OFFSETS
         else:
-            offsets = [(-1, 0), (-1, 1), (-1, -1)]
-        # TODO: this logic is duplicated in the Piece class.
-        # need to find different way to get move options
-        has_move = False
-        for offset in offsets:
-            neighbor_coords = tuple(map(sum, zip(cur_coords, offset)))
-            try:
-                board.move_piece(cur_coords, neighbor_coords, self.color)
-                checking_pieces = game_state.get_checking_pieces(board, self.color)
-                board.undo_move()
-                if len(checking_pieces) == 0:
-                    has_move = True
-                    break
-            except InvalidMoveException:
-                continue
-            except ValueError:
-                continue
-        return has_move
+            offsets = constants.BLACK_PAWN_OFFSETS
+        neighbor_list = [tuple(map(sum, zip(cur_coords, offset))) for offset in offsets]
+        return self.can_reach_squares(cur_coords, neighbor_list, board)
 
     def can_reach_square(self, start, end):
         """checks to see if movement from start to end is possible

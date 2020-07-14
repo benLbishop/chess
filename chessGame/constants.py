@@ -29,6 +29,11 @@ KNIGHT_OFFSETS = [
     (-1, 2),
     (-1, -2)
 ]
+
+WHITE_PAWN_OFFSETS = [(1, 0), (1, 1), (1, -1)]
+
+BLACK_PAWN_OFFSETS = [(-1, 0), (-1, 1), (-1, -1)]
+
 PIECE_OFFSETS = {
     'King': STRAIGHT_OFFSETS + DIAGONAL_OFFSETS,
     'Queen': STRAIGHT_OFFSETS + DIAGONAL_OFFSETS,

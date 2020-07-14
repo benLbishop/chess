@@ -22,9 +22,34 @@ class PawnTest(unittest.TestCase):
         self.white_pawn.has_moved = False
         self.black_pawn.has_moved = False
 
-    def test_has_valid_move(self):
+    @patch.object(Piece, 'can_reach_squares')
+    def test_has_valid_move(self, reach_mock):
         """Tests the overwritten has_valid_move method."""
-        # TODO
+        white_pawn = Pawn(ChessColor.WHITE)
+        black_pawn = Pawn(ChessColor.BLACK)
+        cur_square = self.board.squares[0][0]
+
+        # should call can_reach_squares with the proper coordinates
+        white_pawn.has_valid_move(cur_square, self.board)
+        reach_mock.assert_called_with((0, 0), constants.WHITE_PAWN_OFFSETS, self.board)
+        reach_mock.reset_mock()
+
+        black_pawn.has_valid_move(cur_square, self.board)
+        reach_mock.assert_called_with((0, 0), constants.BLACK_PAWN_OFFSETS, self.board)
+        reach_mock.reset_mock()
+
+        # should return what can_reach_squares returns
+        reach_mock.return_value = False
+        res = white_pawn.has_valid_move(cur_square, self.board)
+        self.assertFalse(res)
+        res = black_pawn.has_valid_move(cur_square, self.board)
+        self.assertFalse(res)
+
+        reach_mock.return_value = True
+        res = white_pawn.has_valid_move(cur_square, self.board)
+        self.assertTrue(res)
+        res = black_pawn.has_valid_move(cur_square, self.board)
+        self.assertTrue(res)
 
     def test_can_reach_square(self):
         """Tests the overwritten can_reach_square method."""

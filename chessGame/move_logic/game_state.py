@@ -6,24 +6,12 @@ def can_block_checking_piece(checking_piece_data, board, player_piece_mapping):
     """Checks if any of the pieces provided in player_piece_mapping
         can capture or block the given checking piece.
     """
-    # TODO: this method feels janky
     _, checking_path = checking_piece_data
+    path_coords = [(path_square.row_idx, path_square.col_idx) for path_square in checking_path]
     can_block = False
-    for path_square in checking_path:
-        path_coords = (path_square.row_idx, path_square.col_idx)
-        for player_piece, player_piece_coords in player_piece_mapping:
-            # TODO: sort of duplicate logic with piece.has_valid_move.
-            # Might be able to move this logic into the piece classes
-            try:
-                board.move_piece(player_piece_coords, path_coords, player_piece.color)
-                checking_pieces = get_checking_pieces(board, player_piece.color)
-                board.undo_move()
-                if len(checking_pieces) == 0:
-                    can_block = True
-                    break
-            except InvalidMoveException:
-                continue
-        if can_block:
+    for player_piece, player_piece_coords in player_piece_mapping:
+        if player_piece.can_reach_squares(player_piece_coords, path_coords, board):
+            can_block = True
             break
     return can_block
 
@@ -31,6 +19,7 @@ def player_is_checkmated(board, active_player_color, checking_pieces):
     """Does what it sounds like, a.k.a. returns whether or not the player is checkmated.
         This should only after it's confirmed that the player is in check.
     """
+    # TODO: probably should have len(checking_pieces) == 0 check
     white_mapping, black_mapping = board.get_active_pieces()
     player_mapping = white_mapping if active_player_color is ChessColor.WHITE else black_mapping
 

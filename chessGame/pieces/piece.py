@@ -29,14 +29,14 @@ class Piece:
     def __le__(self, other):
         return (self._value, self.color) <= (other._value, other.color)
 
-    def has_valid_move(self, cur_square, board):
-        """Checks to see if the piece has any valid moves to neighboring squares."""
-        cur_coords = (cur_square.row_idx, cur_square.col_idx)
+    def can_reach_squares(self, cur_coords, target_list, board):
+        """Checks to see if the piece can reach any of the squares in target_list
+            (target_list is actually a list of coordinates for squares.)
+        """
         has_move = False
-        for offset in self._offsets:
-            neighbor_coords = tuple(map(sum, zip(cur_coords, offset)))
+        for target_coords in target_list:
             try:
-                board.move_piece(cur_coords, neighbor_coords, self.color)
+                board.move_piece(cur_coords, target_coords, self.color)
                 checking_pieces = game_state.get_checking_pieces(board, self.color)
                 board.undo_move()
                 if len(checking_pieces) == 0:
@@ -48,6 +48,14 @@ class Piece:
                 continue
         return has_move
 
+
+    def has_valid_move(self, cur_square, board):
+        """Checks to see if the piece has any valid moves to neighboring squares."""
+        cur_coords = (cur_square.row_idx, cur_square.col_idx)
+        neighbor_list = [tuple(map(sum, zip(cur_coords, offset))) for offset in self._offsets]
+        return self.can_reach_squares(cur_coords, neighbor_list, board)
+
+    # TODO: rename
     def can_reach_square(self, start, end):
         """Abstract method for validating if a piece can move from one square to another.
             Must be implemented by subclasses.
