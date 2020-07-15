@@ -11,8 +11,8 @@ class Game:
             self,
             white_player,
             black_player,
-            board_config=None,
-            piece_strings=None
+            piece_strings=None,
+            board_config=None
         ):
         self.white_player = white_player
         self.black_player = black_player

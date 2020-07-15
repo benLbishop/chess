@@ -37,9 +37,13 @@ class GameTest(unittest.TestCase):
         set_up_pieces_mock.assert_called_once()
         validate_mock.assert_called_once()
 
+        # TODO: make sure optional init params work
+
     @patch.object(Board, 'get_active_pieces')
     def test_validate_initial_game_state(self, active_pieces_mock):
         """Tests for the private _validate_initial_game_state method."""
+        # TODO: find a better way to test this. it's goofing up things like test_make_move
+        # since it calls other functions that might be mocked
         active_pieces_mock.return_value = ([], [])
 
         # should raise if board was not populated
@@ -56,15 +60,12 @@ class GameTest(unittest.TestCase):
     @patch.object(conv, 'parse_std_notation_string')
     def test_set_up_pieces(self, parse_mock, populate_mock):
         """Tests the private _set_up_pieces method."""
-        # if piece_strings is empty, use std piece list
-        test_game = Game(self.white_player, self.black_player)
-        parse_mock.return_value = ('dummy', 'vals')
+        # TODO: test conversion failure, populate failure, if piece_strings is empty, use std piece list
 
-        # TODO test conversion failure, populate failure
-
+    @patch.object(Game, '_validate_initial_game_state')
     @patch.object(Game, '_check_for_end_of_game')
     @patch.object(Board, 'move_piece')
-    def test_make_move(self, move_mock, end_mock):
+    def test_make_move(self, move_mock, end_mock, validate_mock):
         """tests function that processes an attempted move of a piece."""
         test_game = Game(self.white_player, self.black_player)
         start_coords, end_coords = ((1, 1), (2, 1))
@@ -100,11 +101,11 @@ class GameTest(unittest.TestCase):
     def test_check_for_end_of_game(self, check_mock, checkmate_mock, stalemate_mock):
         """Tests for the private _check_for_end_of_game method."""
         # TODO: move this to setUpClass (same with most other tests.)
+        checkmate_mock.return_value = False
+        stalemate_mock.return_value = False
         test_game = Game(self.white_player, self.black_player)
 
         check_mock.return_value = ['something']
-        checkmate_mock.return_value = False
-        stalemate_mock.return_value = False
 
         # make sure game doesn't end if not in checkmate
         test_game._check_for_end_of_game()
