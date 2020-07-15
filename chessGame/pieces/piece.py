@@ -5,7 +5,6 @@ class Piece:
     """Abstract class representing a chess piece."""
     def __init__(self, color):
         self.color = color
-        # TODO: initial 0 works for game from scratch, but what about endgames?
         self.move_count = 0
         # TODO: test this way of setting data for subclasses
         class_name = type(self).__name__
@@ -60,13 +59,13 @@ class Piece:
         """
         raise NotImplementedError
 
-    def get_necessary_offset(self, start_square, end_square):
+    @staticmethod
+    def _get_necessary_offset(start_square, end_square):
         """Returns the offset required to properly get to end_square from start_square.
             Assumes that movement from start_square to end_square is possible in a legal chess move.
 
             Returns a boolean.
         """
-        # TODO: move somewhere else? doesn't use any part of Piece, but called in get_path_to_square
         row_diff = end_square.row_idx - start_square.row_idx
         col_diff = end_square.col_idx - start_square.col_idx
         if col_diff == 0:
@@ -87,7 +86,7 @@ class Piece:
         if not self.can_reach_square(start, end):
             raise InvalidMoveException('destination not reachable with piece')
         # get the movement necessary to reach destination
-        offset = self.get_necessary_offset(start, end)
+        offset = self._get_necessary_offset(start, end)
 
         cur_square = start
         path = [start]

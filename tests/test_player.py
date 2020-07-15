@@ -107,14 +107,15 @@ class TestPlayer(unittest.TestCase):
         self.assertTrue(res)
         block_mock.assert_not_called()
 
-        check_mock.return_value = [CheckingReturnType('piece', 'path')]
+        check_path = 'path'
+        check_mock.return_value = [CheckingReturnType('piece', check_path)]
 
         # if king cannot move and 1 checking piece, should call can_block
         block_mock.reset_mock()
         block_mock.return_value = False
         res = white_player.is_checkmated(self.board)
         self.assertTrue(res)
-        block_mock.assert_called_once()
+        block_mock.assert_called_with(check_path, self.board, white_mapping[1:])
 
         block_mock.return_value = True
         res = white_player.is_checkmated(self.board)

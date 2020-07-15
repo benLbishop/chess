@@ -22,7 +22,8 @@ class Player:
                 break
         return not player_has_move
 
-    def can_block_checking_piece(self, checking_path, board, player_piece_mapping):
+    @staticmethod
+    def can_block_checking_piece(checking_path, board, player_piece_mapping):
         """Checks if any of the pieces provided in player_piece_mapping
             can capture or block the given checking piece.
         """
@@ -52,5 +53,6 @@ class Player:
             return True
         # only 1 checking piece. Might be able to block/capture it
         checking_path = checking_pieces[0].path
-        # TODO: shouldn't call this with player's king in piece_mapping, unecessary
-        return not self.can_block_checking_piece(checking_path, board, player_mapping)
+        # Already check player's king, so just check remaining pieces
+        other_player_pieces = player_mapping[1:]
+        return not self.can_block_checking_piece(checking_path, board, other_player_pieces)

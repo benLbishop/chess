@@ -84,7 +84,7 @@ class PieceTest(unittest.TestCase):
             p.can_reach_square(None, None)
 
     def test_get_necessary_offset(self):
-        """Tests the get_necessary_offset method."""
+        """Tests the private _get_necessary_offset method."""
         start_row, start_col = 4, 4
         start = Square(start_row, start_col)
         p = Piece(ChessColor.BLACK)
@@ -108,9 +108,9 @@ class PieceTest(unittest.TestCase):
             (Square(start_row - 4, start_col - 4), (-1, -1)),
         ]
         for dest, result in test_cases:
-            self.assertEqual(p.get_necessary_offset(start, dest), result)
+            self.assertEqual(p._get_necessary_offset(start, dest), result)
 
-    @patch.object(Piece, 'get_necessary_offset')
+    @patch.object(Piece, '_get_necessary_offset')
     @patch.object(Piece, 'can_reach_square')
     def test_get_path_to_square(self, reach_mock, offset_mock):
         """Tests for the get_path_to_square method."""

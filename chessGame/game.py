@@ -25,7 +25,7 @@ class Game:
         self._set_up_pieces(piece_strings)
 
         self.is_complete = False
-        self.is_white_turn = True # TODO: If loading end game, this should be constructor param
+        self.is_white_turn = True
 
     def _set_up_pieces(self, piece_strings):
         """takes a list of strings, attempts to convert them to pieces,
