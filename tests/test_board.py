@@ -129,10 +129,9 @@ class BoardTest(unittest.TestCase):
         """Tests for the private _handle_en_passant_side_effect method."""
         # TODO
 
-    @patch.object(Board, '_handle_pawn_promotion_side_effect')
     @patch.object(Board, '_handle_en_passant_side_effect')
     @patch.object(Board, '_handle_castle_side_effect')
-    def test_handle_move_side_effect(self, castle_mock, passant_mock, promotion_mock):
+    def test_handle_move_side_effect(self, castle_mock, passant_mock):
         """Tests for the private _handle_move_side_effect method."""
         # TODO
 

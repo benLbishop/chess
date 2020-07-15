@@ -2,7 +2,7 @@
 import unittest
 from unittest.mock import patch
 from chessGame.square import Square
-from chessGame.enums import ChessColor
+from chessGame.enums import ChessColor, MoveSideEffect
 from chessGame.pieces.king import King
 from chessGame.pieces.rook import Rook
 from chessGame.pieces.piece import Piece
@@ -56,8 +56,10 @@ class KingTest(unittest.TestCase):
         for dest in invalid_dests:
             self.assertFalse(self.king.can_reach_square(start, dest))
 
+    @patch.object(Board, 'undo_move')
+    @patch.object(Board, 'move_piece')
     @patch.object(Board, 'get_checking_pieces')
-    def test_get_castle_params(self, check_mock):
+    def test_get_castle_params(self, check_mock, move_mock, undo_mock):
         """tests the get_castle_params method."""
         check_mock.return_value = []
 
@@ -102,10 +104,17 @@ class KingTest(unittest.TestCase):
         with self.assertRaises(InvalidMoveException):
             king.get_castle_params(king_square, right_target, board)
         check_mock.return_value = []
+
         # should raise if king attempts to move through check
-        check_mock.side_effect = [[], ['something']]
+        move_mock.side_effect = InvalidMoveException('move exception')
         with self.assertRaises(InvalidMoveException):
             king.get_castle_params(king_square, right_target, board)
+        move_mock.side_effect = None
+
+        # should return the value otherwise
+        expected_res = (king_square, right_target, None, None, MoveSideEffect.CASTLE)
+        res = king.get_castle_params(king_square, right_target, board)
+        self.assertEqual(res, expected_res)
 
     @patch.object(Piece, 'get_move_params')
     @patch.object(King, 'get_castle_params')

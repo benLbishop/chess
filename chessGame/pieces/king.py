@@ -40,19 +40,17 @@ class King(Piece):
                 raise InvalidMoveException('cannot castle with piece in between rook and king')
             cur_col_idx += i
         # 4) make sure king isn't in check or moves through check
-        # (don't need to check if moves into check since that happens for every piece)
-        # TODO: pretty jank (aka very very jank). Find better way to do this
+        # see if king starts in check
         start_checking_pieces = board.get_checking_pieces(self.color)
-        if len(start_checking_pieces) > 0:
+        if start_checking_pieces:
             raise InvalidMoveException('cannot castle while in check.')
-        mid = board.squares[row_idx][start.col_idx + i]
-        mid.piece = self
-        start.piece = None
-        mid_checking_pieces = board.get_checking_pieces(self.color)
-        if len(mid_checking_pieces) > 0:
-            raise InvalidMoveException('cannot castle while in check.')
-        start.piece = self
-        mid.piece = None
+        # see if king moves through check
+        try:
+            mid_coords = (row_idx, start.col_idx + i)
+            board.move_piece(start.coords, mid_coords, self.color)
+            board.undo_move()
+        except (InvalidMoveException, ValueError):
+            raise InvalidMoveException('cannot castle through check.')
 
         # can successfully castle
         return (start, end, None, None, MoveSideEffect.CASTLE)
