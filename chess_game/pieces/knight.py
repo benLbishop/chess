@@ -1,5 +1,5 @@
 """Module containing the Knight class."""
-from chessGame.custom_exceptions import InvalidMoveException
+from chess_game.custom_exceptions import InvalidMoveException
 from .piece import Piece
 
 class Knight(Piece):

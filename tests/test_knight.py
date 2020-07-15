@@ -1,12 +1,13 @@
 """Module for testing the Knight class."""
 import unittest
 from unittest.mock import patch
-from chessGame.square import Square
-from chessGame.enums import ChessColor
-from chessGame.pieces.knight import Knight
-from chessGame.pieces.piece import Piece
-from chessGame.board import Board
-from chessGame import constants, custom_exceptions
+
+from chess_game.square import Square
+from chess_game.enums import ChessColor
+from chess_game.pieces.knight import Knight
+from chess_game.pieces.piece import Piece
+from chess_game.board import Board
+from chess_game import constants, custom_exceptions
 
 class KnightTest(unittest.TestCase):
     """class for testing the Knight class."""

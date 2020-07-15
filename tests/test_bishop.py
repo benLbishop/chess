@@ -1,10 +1,10 @@
 """Module for testing the Bishop class."""
 import unittest
 
-from chessGame.square import Square
-from chessGame.enums import ChessColor
-from chessGame.pieces.bishop import Bishop
-from chessGame import constants
+from chess_game.square import Square
+from chess_game.enums import ChessColor
+from chess_game.pieces.bishop import Bishop
+from chess_game import constants
 
 class BishopTest(unittest.TestCase):
     """class for testing the Bishop class."""

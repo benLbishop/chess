@@ -1,10 +1,10 @@
 """Module for testing the Queen class."""
 import unittest
 
-from chessGame.square import Square
-from chessGame.enums import ChessColor
-from chessGame.pieces.queen import Queen
-from chessGame import constants
+from chess_game.square import Square
+from chess_game.enums import ChessColor
+from chess_game.pieces.queen import Queen
+from chess_game import constants
 
 class QueenTest(unittest.TestCase):
     """class for testing the Queen class."""

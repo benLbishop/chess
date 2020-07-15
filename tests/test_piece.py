@@ -2,12 +2,12 @@
 import unittest
 from unittest.mock import patch
 
-from chessGame import constants
-from chessGame.custom_exceptions import InvalidMoveException
-from chessGame.enums import ChessColor
-from chessGame.square import Square
-from chessGame.board import Board
-from chessGame.pieces.piece import Piece
+from chess_game import constants
+from chess_game.custom_exceptions import InvalidMoveException
+from chess_game.enums import ChessColor
+from chess_game.square import Square
+from chess_game.board import Board
+from chess_game.pieces.piece import Piece
 
 class PieceTest(unittest.TestCase):
     """Testing for the Piece class."""

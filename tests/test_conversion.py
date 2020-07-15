@@ -1,9 +1,10 @@
 """module for testing the methods in conversion.py."""
 import unittest
 from unittest.mock import patch
-from chessGame.enums import ChessColor
-from chessGame import constants, conversion as conv
-from chessGame.pieces import (
+
+from chess_game.enums import ChessColor
+from chess_game import constants, conversion as conv
+from chess_game.pieces import (
     king,
     queen,
     rook,

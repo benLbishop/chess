@@ -1,14 +1,15 @@
 """Module for testing the King class."""
 import unittest
 from unittest.mock import patch
-from chessGame.square import Square
-from chessGame.enums import ChessColor, MoveSideEffect
-from chessGame.pieces.king import King
-from chessGame.pieces.rook import Rook
-from chessGame.pieces.piece import Piece
-from chessGame.board import Board, StandardBoard
-from chessGame.custom_exceptions import InvalidMoveException
-from chessGame import constants
+
+from chess_game.square import Square
+from chess_game.enums import ChessColor, MoveSideEffect
+from chess_game.pieces.king import King
+from chess_game.pieces.rook import Rook
+from chess_game.pieces.piece import Piece
+from chess_game.board import Board, StandardBoard
+from chess_game.custom_exceptions import InvalidMoveException
+from chess_game import constants
 
 class KingTest(unittest.TestCase):
     """class for testing the King class."""

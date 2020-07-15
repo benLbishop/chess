@@ -1,13 +1,14 @@
 """Module for testing the Pawn class."""
 import unittest
 from unittest.mock import patch
-from chessGame.square import Square
-from chessGame.pieces.pawn import Pawn
-from chessGame.pieces.piece import Piece
-from chessGame.enums import ChessColor
-from chessGame.board import Board
-from chessGame import constants
-from chessGame.custom_exceptions import InvalidMoveException
+
+from chess_game.square import Square
+from chess_game.pieces.pawn import Pawn
+from chess_game.pieces.piece import Piece
+from chess_game.enums import ChessColor
+from chess_game.board import Board
+from chess_game import constants
+from chess_game.custom_exceptions import InvalidMoveException
 
 class PawnTest(unittest.TestCase):
     """class for testing the Pawn class."""

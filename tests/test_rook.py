@@ -1,10 +1,10 @@
 """Module for testing the Rook class."""
 import unittest
 
-from chessGame.square import Square
-from chessGame.pieces.rook import Rook
-from chessGame.enums import ChessColor
-from chessGame import constants
+from chess_game.square import Square
+from chess_game.pieces.rook import Rook
+from chess_game.enums import ChessColor
+from chess_game import constants
 
 class RookTest(unittest.TestCase):
     """class for testing the Rook class."""

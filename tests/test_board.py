@@ -2,12 +2,12 @@
 import unittest
 from unittest.mock import patch
 
-from chessGame.board import Board, StandardBoard, CheckingReturnType
-from chessGame.pieces.piece import Piece
-from chessGame import constants, conversion as conv
-from chessGame.enums import ChessColor, MoveSideEffect
-from chessGame.custom_exceptions import PiecePlacementException, InvalidMoveException
-from chessGame.move import Move
+from chess_game.board import Board, StandardBoard, CheckingReturnType
+from chess_game.pieces.piece import Piece
+from chess_game import constants, conversion as conv
+from chess_game.enums import ChessColor, MoveSideEffect
+from chess_game.custom_exceptions import PiecePlacementException, InvalidMoveException
+from chess_game.move import Move
 
 psns = conv.parse_std_notation_string
 class BoardTest(unittest.TestCase):

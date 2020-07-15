@@ -1,5 +1,6 @@
 """module containing board configurations for tests."""
-from chessGame.enums import ChessColor
+from chess_game.enums import ChessColor
+
 b = ChessColor.BLACK
 w = ChessColor.WHITE
 

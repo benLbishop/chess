@@ -1,7 +1,7 @@
 """Module containing the Pawn class."""
-from chessGame.custom_exceptions import InvalidMoveException
-from chessGame.enums import ChessColor, MoveSideEffect
-from chessGame import constants
+from chess_game.custom_exceptions import InvalidMoveException
+from chess_game.enums import ChessColor, MoveSideEffect
+from chess_game import constants
 from .piece import Piece
 
 class Pawn(Piece):

@@ -1,13 +1,14 @@
 """module for testing the Game class."""
 import unittest
 from unittest.mock import patch
-from chessGame.game import Game
-from chessGame.board import Board, StandardBoard
-from chessGame.player import Player
-from chessGame import conversion as conv
-from chessGame.custom_exceptions import InvalidMoveException, PiecePlacementException
-from chessGame.enums import ChessColor
-from chessGame.move import Move
+
+from chess_game.game import Game
+from chess_game.board import Board, StandardBoard
+from chess_game.player import Player
+from chess_game import conversion as conv
+from chess_game.custom_exceptions import InvalidMoveException, PiecePlacementException
+from chess_game.enums import ChessColor
+from chess_game.move import Move
 
 class GameTest(unittest.TestCase):
     """tests for the Game class."""

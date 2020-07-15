@@ -1,8 +1,9 @@
 """module for testing the Square class."""
 import unittest
-from chessGame.enums import ChessColor
-from chessGame.square import Square
-from chessGame.pieces.piece import Piece
+
+from chess_game.enums import ChessColor
+from chess_game.square import Square
+from chess_game.pieces.piece import Piece
 
 class TestSquare(unittest.TestCase):
     """tests for the Square class."""

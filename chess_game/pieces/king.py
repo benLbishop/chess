@@ -1,6 +1,6 @@
 """Module containing the King class."""
-from chessGame.custom_exceptions import InvalidMoveException
-from chessGame.enums import MoveSideEffect
+from chess_game.custom_exceptions import InvalidMoveException
+from chess_game.enums import MoveSideEffect
 from .piece import Piece
 
 class King(Piece):

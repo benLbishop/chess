@@ -2,11 +2,11 @@
 import unittest
 from unittest.mock import patch
 
-from chessGame.player import Player
-from chessGame.enums import ChessColor
-from chessGame.pieces.piece import Piece
-from chessGame.pieces.king import King
-from chessGame.board import Board, StandardBoard, CheckingReturnType
+from chess_game.player import Player
+from chess_game.enums import ChessColor
+from chess_game.pieces.piece import Piece
+from chess_game.pieces.king import King
+from chess_game.board import Board, StandardBoard, CheckingReturnType
 
 class TestPlayer(unittest.TestCase):
     """tests for the Player class."""

@@ -1,6 +1,6 @@
 """module for the Piece class."""
-from chessGame.custom_exceptions import InvalidMoveException
-from chessGame import constants
+from chess_game.custom_exceptions import InvalidMoveException
+from chess_game import constants
 class Piece:
     """Abstract class representing a chess piece."""
     def __init__(self, color):
