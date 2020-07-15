@@ -8,6 +8,7 @@ from chessGame.pieces.rook import Rook
 from chessGame.pieces.piece import Piece
 from chessGame.board import Board, StandardBoard
 from chessGame.custom_exceptions import InvalidMoveException
+from chessGame import constants
 
 class KingTest(unittest.TestCase):
     """class for testing the King class."""
@@ -19,6 +20,13 @@ class KingTest(unittest.TestCase):
     def tearDown(self):
         self.board.clear()
         self.king.move_count = 0
+
+    def test_init(self):
+        """Tests for the class constructor."""
+        king = self.king
+        self.assertEqual(king.char, constants.PIECE_CHARS['King'])
+        self.assertEqual(king._value, constants.PIECE_VALUES['King'])
+        self.assertEqual(king._offsets, constants.PIECE_OFFSETS['King'])
 
     def test_can_reach_square(self):
         """Tests the can_reach_square method."""

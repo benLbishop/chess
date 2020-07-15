@@ -4,6 +4,7 @@ import unittest
 from chessGame.square import Square
 from chessGame.pieces.rook import Rook
 from chessGame.enums import ChessColor
+from chessGame import constants
 
 class RookTest(unittest.TestCase):
     """class for testing the Rook class."""
@@ -11,6 +12,13 @@ class RookTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.rook = Rook(ChessColor.BLACK)
+
+    def test_init(self):
+        """Tests for the class constructor."""
+        rook = self.rook
+        self.assertEqual(rook.char, constants.PIECE_CHARS['Rook'])
+        self.assertEqual(rook._value, constants.PIECE_VALUES['Rook'])
+        self.assertEqual(rook._offsets, constants.PIECE_OFFSETS['Rook'])
 
     def test_can_reach_square(self):
         """Tests the overwritten can_reach_square method."""

@@ -4,12 +4,20 @@ import unittest
 from chessGame.square import Square
 from chessGame.enums import ChessColor
 from chessGame.pieces.bishop import Bishop
+from chessGame import constants
 
 class BishopTest(unittest.TestCase):
     """class for testing the Bishop class."""
     @classmethod
     def setUpClass(cls):
         cls.bishop = Bishop(ChessColor.BLACK)
+
+    def test_init(self):
+        """Tests for the class constructor."""
+        bishop = self.bishop
+        self.assertEqual(bishop.char, constants.PIECE_CHARS['Bishop'])
+        self.assertEqual(bishop._value, constants.PIECE_VALUES['Bishop'])
+        self.assertEqual(bishop._offsets, constants.PIECE_OFFSETS['Bishop'])
 
     def test_can_reach_square(self):
         """Tests the can_reach_square method."""

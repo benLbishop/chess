@@ -22,6 +22,13 @@ class PawnTest(unittest.TestCase):
         self.white_pawn.move_count = 0
         self.black_pawn.move_count = 0
 
+    def test_init(self):
+        """Tests for the class constructor."""
+        white_pawn = self.white_pawn
+        self.assertEqual(white_pawn.char, constants.PIECE_CHARS['Pawn'])
+        self.assertEqual(white_pawn._value, constants.PIECE_VALUES['Pawn'])
+        self.assertEqual(white_pawn._offsets, [])
+
     @patch.object(Piece, 'has_valid_move_in_list')
     def test_has_valid_move(self, valid_move_mock):
         """Tests the overwritten has_valid_move method."""

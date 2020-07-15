@@ -6,7 +6,6 @@ class Piece:
     def __init__(self, color):
         self.color = color
         self.move_count = 0
-        # TODO: test this way of setting data for subclasses
         class_name = type(self).__name__
         self.char = constants.PIECE_CHARS.get(class_name, '?')
         self._value = constants.PIECE_VALUES.get(class_name, -1)

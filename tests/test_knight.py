@@ -18,6 +18,13 @@ class KnightTest(unittest.TestCase):
     def tearDown(self):
         self.board.clear()
 
+    def test_init(self):
+        """Tests for the class constructor."""
+        knight = self.knight
+        self.assertEqual(knight.char, constants.PIECE_CHARS['Knight'])
+        self.assertEqual(knight._value, constants.PIECE_VALUES['Knight'])
+        self.assertEqual(knight._offsets, constants.PIECE_OFFSETS['Knight'])
+
     def test_can_reach_square(self):
         """Tests the overwritten can_reach_square method."""
         start_row = 3
