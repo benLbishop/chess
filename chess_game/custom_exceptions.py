@@ -9,3 +9,8 @@ class PiecePlacementException(Exception):
     """Exception for when an attempt is made to place in an invalid location."""
     def __init__(self, *args):
         super().__init__(args)
+
+class PawnPromotionException(Exception):
+    """Exception for when a pawn promotion needs feedback from the user."""
+    def __init__(self, *args):
+        super().__init__(args)

@@ -1,10 +1,13 @@
 """module containing the Game class."""
 from .board import Board, StandardBoard
-from .custom_exceptions import PiecePlacementException, InvalidMoveException
 from . import constants, conversion
 from .pieces.king import King
-from .pieces.queen import Queen
 from .enums import MoveSideEffect
+from .custom_exceptions import (
+    PiecePlacementException,
+    InvalidMoveException,
+    PawnPromotionException
+)
 
 class Game:
     """class representing an instance of a game of chess."""
@@ -88,8 +91,7 @@ class Game:
 
         # handle pawn promotion, if it occured
         if move.side_effect and move.side_effect is MoveSideEffect.PAWN_PROMOTION:
-            # TODO: tell whatever parent class that's running game to ask user for new piece type
-            self.promote_pawn(move.end, Queen)
+            raise PawnPromotionException()
 
         # switch turns
         self.is_white_turn = not self.is_white_turn
@@ -98,8 +100,16 @@ class Game:
         self._check_for_end_of_game()
 
     def promote_pawn(self, pawn_square, new_piece):
-        """Method in charge of promoting pawns."""
+        """Method in charge of promoting pawns.
+            Should be called after make_move returns a PawnPromotionException
+        """
         self.board.promote_pawn(pawn_square, new_piece)
+
+        # switch turns
+        self.is_white_turn = not self.is_white_turn
+
+        # check to see if end state was reached
+        self._check_for_end_of_game()
 
     def _check_for_end_of_game(self):
         """checks to see if the game has been completed (i.e. reached a checkmate or stalemate)"""

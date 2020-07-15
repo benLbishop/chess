@@ -6,8 +6,12 @@ from chess_game.game import Game
 from chess_game.board import Board, StandardBoard
 from chess_game.player import Player
 from chess_game import conversion as conv
-from chess_game.custom_exceptions import InvalidMoveException, PiecePlacementException
-from chess_game.enums import ChessColor
+from chess_game.custom_exceptions import (
+    InvalidMoveException,
+    PiecePlacementException,
+    PawnPromotionException
+)
+from chess_game.enums import ChessColor, MoveSideEffect
 from chess_game.move import Move
 
 class GameTest(unittest.TestCase):
@@ -70,8 +74,9 @@ class GameTest(unittest.TestCase):
         """tests function that processes an attempted move of a piece."""
         test_game = Game(self.white_player, self.black_player)
         start_coords, end_coords = ((1, 1), (2, 1))
-
-        move_mock.return_value = Move((0, 0), (1, 0))
+        start_square = test_game.board.squares[1][1]
+        end_square = test_game.board.squares[2][1]
+        move_mock.return_value = Move(start_square, end_square)
 
         # TODO: test adding captured piece to player
 
@@ -90,13 +95,17 @@ class GameTest(unittest.TestCase):
             test_game.make_move(start_coords, end_coords)
         move_mock.side_effect = None
 
+        # should raise if a pawn promotion is occuring
+        move_mock.return_value = Move(start_square, end_square, None, None, MoveSideEffect.PAWN_PROMOTION)
+        with self.assertRaises(PawnPromotionException):
+            test_game.make_move(start_coords, end_coords)
+        move_mock.return_value = Move(start_square, end_square)
+
         # should call end of game method and switch turns
         end_mock.reset_mock()
         test_game.make_move(start_coords, end_coords)
         end_mock.assert_called_once()
         test_game.is_white_turn = False
-
-        # TODO: test pawn promotion handling
 
     @patch.object(Player, 'is_stalemated')
     @patch.object(Player, 'is_checkmated')

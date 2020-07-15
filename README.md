@@ -16,8 +16,11 @@ I've made a number of changes to the game, the primary one being that pieces no 
 
 TODO:
     Test all of the new things
-    Validate initial game state
+        Go through current TODOs
+        Make tester_script its own test suite
+        experiment with test suites and sub tests
     Actually make game playable
+        Implement ChessPlayer class
 
 Possible Improvements:
     I have a lot of cases where I'll move a piece and then undo the move in my stalemate/checkmate functions. These actions use the actual game board; I might want to use a copy of the board and check on that, but I'm not sure about the efficiency of doing so.
