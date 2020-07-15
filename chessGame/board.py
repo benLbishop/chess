@@ -1,7 +1,6 @@
 """module containing the Board class."""
 from collections import namedtuple
 
-from chessGame.pieces.queen import Queen
 from .square import Square
 from . import constants
 from .custom_exceptions import PiecePlacementException, InvalidMoveException
@@ -95,16 +94,6 @@ class Board:
         captured_square = self.squares[row_idx][col_idx]
         captured_square.piece = None
 
-    def _handle_pawn_promotion_side_effect(self, move):
-        """Method in charge of promoting pawns."""
-        # TODO: this should actually ask the player what they want to promote the piece to.
-        # For now, I'm just going to make it a queen
-        row_idx, col_idx = move.end.coords
-        end_square = self.squares[row_idx][col_idx]
-        color = end_square.piece.color
-        end_square.piece = None
-        end_square.piece = Queen(color)
-
     def _handle_move_side_effect(self, move):
         side_effect = move.side_effect
         if side_effect is MoveSideEffect.CASTLE:
@@ -112,7 +101,8 @@ class Board:
         elif side_effect is MoveSideEffect.EN_PASSANT:
             self._handle_en_passant_side_effect(move)
         elif side_effect is MoveSideEffect.PAWN_PROMOTION:
-            self._handle_pawn_promotion_side_effect(move)
+            # NOTE: pawn promotion requires more input from the user, so it's not handled here.
+            pass
         else:
             raise NotImplementedError
 
@@ -234,6 +224,12 @@ class Board:
                         black_pieces.append((piece, square))
         # return the pieces from highest value (should be king) to lowest
         return sorted(white_pieces, reverse=True), sorted(black_pieces, reverse=True)
+
+    @staticmethod
+    def promote_pawn(pawn_square, new_piece):
+        """Method in charge of promoting pawns."""
+        color = pawn_square.piece.color
+        pawn_square.piece = new_piece(color)
 
 class StandardBoard(Board):
     """class representing a chess board of the standard 8x8 size."""

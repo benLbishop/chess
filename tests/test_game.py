@@ -95,6 +95,8 @@ class GameTest(unittest.TestCase):
         end_mock.assert_called_once()
         test_game.is_white_turn = False
 
+        # TODO: test pawn promotion handling
+
     @patch.object(Player, 'is_stalemated')
     @patch.object(Player, 'is_checkmated')
     @patch.object(Board, 'get_checking_pieces')

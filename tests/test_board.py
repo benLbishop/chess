@@ -129,10 +129,6 @@ class BoardTest(unittest.TestCase):
         """Tests for the private _handle_en_passant_side_effect method."""
         # TODO
 
-    def test_handle_pawn_promotion_side_effect(self):
-        """Tests for the private _handle_pawn_promotion_side_effect method."""
-        # TODO
-
     @patch.object(Board, '_handle_pawn_promotion_side_effect')
     @patch.object(Board, '_handle_en_passant_side_effect')
     @patch.object(Board, '_handle_castle_side_effect')
@@ -334,6 +330,10 @@ class BoardTest(unittest.TestCase):
         self.assertTupleEqual(res, (white_mapping, black_mapping))
 
         # TODO: more tests
+
+    def test_promote_pawn(self):
+        """Tests for the promote_pawn method."""
+        # TODO
 
 class StandardBoardTest(unittest.TestCase):
     """tests for the derived Board class StandardBoard."""

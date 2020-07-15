@@ -9,7 +9,6 @@ class Queen(Piece):
 
             Returns a boolean.
         """
-        # TODO: maybe reuse logic from Bishop/Rook classes?
         row_dist = abs(start.row_idx - end.row_idx)
         col_dist = abs(start.col_idx - end.col_idx)
         is_valid_bishop_move = row_dist == col_dist
