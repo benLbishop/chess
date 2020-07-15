@@ -61,7 +61,7 @@ class KingTest(unittest.TestCase):
         right_square = board.squares[0][7]
 
         king_square = board.squares[0][4]
-        king_square.add_piece(self.king)
+        king_square.piece = self.king
         left_target = board.squares[0][2]
         right_target = board.squares[0][6]
 
@@ -75,7 +75,7 @@ class KingTest(unittest.TestCase):
         # should raise if no rook on end
         with self.assertRaises(InvalidMoveException):
             king.get_castle_params(king_square, right_target, board)
-        right_square.add_piece(right_rook)
+        right_square.piece = right_rook
         # should raise if targeted rook is opponent's
         right_rook.color = ChessColor.BLACK
         with self.assertRaises(InvalidMoveException):
@@ -84,10 +84,10 @@ class KingTest(unittest.TestCase):
 
         # should raise if piece in between rook and king
         other_piece = Piece(ChessColor.WHITE)
-        board.squares[0][5].add_piece(other_piece)
+        board.squares[0][5].piece = other_piece
         with self.assertRaises(InvalidMoveException):
             king.get_castle_params(king_square, right_target, board)
-        board.squares[0][5].clear()
+        board.squares[0][5].piece = None
 
         # should raise if king is in check when move starts
         check_mock.return_value = ['something']

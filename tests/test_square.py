@@ -34,23 +34,5 @@ class TestSquare(unittest.TestCase):
         self.test_square.piece = Piece(ChessColor.BLACK)
         self.assertTrue(self.test_square.is_occupied())
 
-    def test_clear(self):
-        """tests the clear method."""
-        self.assertIsNone(self.test_square.piece)
-
-        # test clear when no piece
-        self.test_square.clear()
-        self.assertIsNone(self.test_square.piece)
-
-        self.test_square.piece = Piece(ChessColor.BLACK)
-        self.test_square.clear()
-        self.assertIsNone(self.test_square.piece)
-
-    def test_add_piece(self):
-        """tests the add_piece method."""
-        p = Piece(ChessColor.BLACK)
-        self.test_square.add_piece(p)
-        self.assertEqual(self.test_square.piece, p)
-
 if __name__ == '__main__':
     unittest.main()

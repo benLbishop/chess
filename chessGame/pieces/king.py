@@ -46,13 +46,13 @@ class King(Piece):
         if len(start_checking_pieces) > 0:
             raise InvalidMoveException('cannot castle while in check.')
         mid = board.squares[row_idx][start.col_idx + i]
-        mid.add_piece(self)
-        start.clear()
+        mid.piece = self
+        start.piece = None
         mid_checking_pieces = board.get_checking_pieces(self.color)
         if len(mid_checking_pieces) > 0:
             raise InvalidMoveException('cannot castle while in check.')
-        start.add_piece(self)
-        mid.clear()
+        start.piece = self
+        mid.piece = None
 
         # can successfully castle
         return (start, end, None, None, MoveSideEffect.CASTLE)

@@ -126,7 +126,7 @@ class PieceTest(unittest.TestCase):
         moving_white_piece = Piece(ChessColor.WHITE)
         white_piece = Piece(ChessColor.WHITE)
         black_piece = Piece(ChessColor.BLACK)
-        start.add_piece(moving_white_piece)
+        start.piece = moving_white_piece
 
         reach_mock.return_value = False
         # should raise if piece cannot reach end square
@@ -135,16 +135,16 @@ class PieceTest(unittest.TestCase):
         reach_mock.return_value = True
 
         # should raise if we come across a piece on square that's not destination
-        end2.add_piece(white_piece)
+        end2.piece = white_piece
         with self.assertRaises(InvalidMoveException):
             moving_white_piece.get_path_to_square(start, end3, self.board)
 
         # should raise if piece on destination is same color
         with self.assertRaises(InvalidMoveException):
             moving_white_piece.get_path_to_square(start, end2, self.board)
-        end2.clear()
+        end2.piece = None
         # should return safely if piece on destination is opponent's
-        end2.add_piece(black_piece)
+        end2.piece = black_piece
         res = moving_white_piece.get_path_to_square(start, end2, self.board)
         self.assertEqual(res, short_path)
 
@@ -170,11 +170,11 @@ class PieceTest(unittest.TestCase):
 
         # should return captured piece/coords if it occurs
         other_piece = Piece(ChessColor.BLACK)
-        end.add_piece(other_piece)
+        end.piece = other_piece
         res = moving_piece.get_move_params(start, end, self.board)
         expected_res = (start, end, other_piece, end)
         self.assertEqual(res, expected_res)
-        end.clear()
+        end.piece = None
 
         # should return just the coordinates otherwise
         res = moving_piece.get_move_params(start, end, self.board)

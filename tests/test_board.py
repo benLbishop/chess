@@ -59,12 +59,12 @@ class BoardTest(unittest.TestCase):
                 self.assertFalse(square.is_occupied())
 
         # test clearing when board has pieces
-        squares[0][0].add_piece(Piece(ChessColor.WHITE))
-        squares[2][2].add_piece(Piece(ChessColor.BLACK))
-        squares[5][1].add_piece(Piece(ChessColor.WHITE))
-        squares[4][3].add_piece(Piece(ChessColor.BLACK))
-        squares[1][6].add_piece(Piece(ChessColor.WHITE))
-        squares[7][7].add_piece(Piece(ChessColor.BLACK))
+        squares[0][0].piece = Piece(ChessColor.WHITE)
+        squares[2][2].piece = Piece(ChessColor.BLACK)
+        squares[5][1].piece = Piece(ChessColor.WHITE)
+        squares[4][3].piece = Piece(ChessColor.BLACK)
+        squares[1][6].piece = Piece(ChessColor.WHITE)
+        squares[7][7].piece = Piece(ChessColor.BLACK)
         test_board.clear()
         for row in squares:
             for square in row:
@@ -177,7 +177,7 @@ class BoardTest(unittest.TestCase):
         with self.assertRaises(InvalidMoveException):
             test_board.move_piece(start_coords, end_coords, ChessColor.WHITE)
 
-        start_square.add_piece(test_piece)
+        start_square.piece = test_piece
         # should raise if active_color is not equal to the piece being moved
         with self.assertRaises(InvalidMoveException):
             test_board.move_piece(start_coords, end_coords, ChessColor.BLACK)
@@ -201,8 +201,8 @@ class BoardTest(unittest.TestCase):
         self.assertTrue(test_piece.has_moved)
 
         test_piece.move_count = 0
-        end_square.clear()
-        start_square.add_piece(test_piece)
+        end_square.piece = None
+        start_square.piece = test_piece
 
         # should call the side effect function if appropriate
         side_effect_move_params = (start_square, end_square, None, None, 'some effect')
@@ -214,8 +214,8 @@ class BoardTest(unittest.TestCase):
         side_effect_mock.assert_called_with(side_effect_move)
 
         test_piece.move_count = 0
-        end_square.clear()
-        start_square.add_piece(test_piece)
+        end_square.piece = None
+        start_square.piece = test_piece
 
         # should raise if player puts themselves in check and call undo_move
         check_mock.return_value = ['something']
@@ -240,7 +240,7 @@ class BoardTest(unittest.TestCase):
 
         # should move piece from last end to last start
         test_board.move_history = [Move(last_start, last_end)]
-        last_end.add_piece(test_piece)
+        last_end.piece = test_piece
         self.assertIsNone(last_start.piece)
         test_board.undo_move()
         self.assertEqual(last_start.piece, test_piece)
@@ -249,23 +249,23 @@ class BoardTest(unittest.TestCase):
         # should decrement piece's move count
         self.assertEqual(test_piece.move_count, -1)
 
-        last_start.clear()
-        last_end.clear()
+        last_start.piece = None
+        last_end.piece = None
         # should replace piece if it was captured
         test_piece2 = Piece(ChessColor.WHITE)
         test_board.move_history = [Move(last_start, last_end, test_piece2, last_end)]
-        last_end.add_piece(test_piece)
+        last_end.piece = test_piece
         self.assertIsNone(last_start.piece)
         test_board.undo_move()
         self.assertEqual(last_start.piece, test_piece)
         self.assertEqual(last_end.piece, test_piece2)
 
-        last_start.clear()
-        last_end.clear()
+        last_start.piece = None
+        last_end.piece = None
 
         # should undo the castling properly
         test_board.move_history = [Move(last_start, last_end, None, None, MoveSideEffect.CASTLE)]
-        last_end.add_piece(test_piece)
+        last_end.piece = test_piece
         test_board.undo_move()
         undo_castle_mock.assert_called_once()
 

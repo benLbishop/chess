@@ -1,7 +1,6 @@
 """module containing the Square class."""
 from .enums import ChessColor
 
-# TODO: are clear/add_piece necessary? Right now, they're useless.
 class Square:
     """Class representing a square on the board."""
 
@@ -32,11 +31,3 @@ class Square:
     def is_occupied(self):
         """ returns a boolean indicating whether or not a piece is on this square. """
         return self.piece is not None
-
-    def clear(self):
-        """ removes the piece (if there is one) from the square."""
-        self.piece = None
-
-    def add_piece(self, piece):
-        """adds a piece to the square."""
-        self.piece = piece

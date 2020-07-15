@@ -46,7 +46,7 @@ class Board:
         """resets the board."""
         for row in self.squares:
             for square in row:
-                square.clear()
+                square.piece = None
         self.move_history = []
 
     def populate(self, piece_list):
@@ -60,7 +60,7 @@ class Board:
             if square.is_occupied():
                 self.clear()
                 raise PiecePlacementException('tried to place piece on occupied square')
-            square.add_piece(piece)
+            square.piece = piece
 
     def _get_castling_rook_squares(self, move):
         row_idx, start_col_idx = move.start.coords
@@ -77,14 +77,14 @@ class Board:
     def _handle_castle_side_effect(self, move):
         """Method in charge of moving the rook that's part of a castle move."""
         rook_start, rook_end = self._get_castling_rook_squares(move)
-        rook_end.add_piece(rook_start.piece)
-        rook_start.clear()
+        rook_end.piece = rook_start.piece
+        rook_start.piece = None
 
     def _handle_en_passant_side_effect(self, move):
         """Method in charge of removing the piece captured via en passant."""
         row_idx, col_idx = move.captured_square.coords
         captured_square = self.squares[row_idx][col_idx]
-        captured_square.clear()
+        captured_square.piece = None
 
     def _handle_pawn_promotion_side_effect(self, move):
         """Method in charge of promoting pawns."""
@@ -93,8 +93,8 @@ class Board:
         row_idx, col_idx = move.end.coords
         end_square = self.squares[row_idx][col_idx]
         color = end_square.piece.color
-        end_square.clear()
-        end_square.add_piece(Queen(color))
+        end_square.piece = None
+        end_square.piece = Queen(color)
 
     def _handle_move_side_effect(self, move):
         side_effect = move.side_effect
@@ -141,8 +141,8 @@ class Board:
             raise err
 
         # actually move piece
-        end_square.add_piece(moving_piece)
-        start_square.clear()
+        end_square.piece = moving_piece
+        start_square.piece = None
         moving_piece.move_count += 1
 
         # NOTE: this is expected to be called after the piece is moved to the end square.
@@ -163,8 +163,8 @@ class Board:
     def _undo_castle_side_effect(self, move):
         """Undoes the side effect of castling, aka moving the rook."""
         rook_start, rook_end = self._get_castling_rook_squares(move)
-        rook_start.add_piece(rook_end.piece)
-        rook_end.clear()
+        rook_start.piece = rook_end.piece
+        rook_end.piece = None
 
     def undo_move(self):
         """Reverts the last move made on the board."""
@@ -177,12 +177,12 @@ class Board:
         moved_piece = last_end.piece
 
         moved_piece.move_count -= 1
-        last_start.add_piece(moved_piece)
-        last_end.clear()
+        last_start.piece = moved_piece
+        last_end.piece = None
 
         if move.captured_piece:
             captured_square = move.captured_square
-            captured_square.add_piece(move.captured_piece)
+            captured_square.piece = move.captured_piece
 
         # Pawn promotion and En Passant have been undone at this point. Castling has not
         if move.side_effect and move.side_effect is MoveSideEffect.CASTLE:

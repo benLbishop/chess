@@ -65,7 +65,7 @@ class KnightTest(unittest.TestCase):
 
         # should raise if player's piece is on end_square
         end_piece = Piece(ChessColor.WHITE)
-        end.add_piece(end_piece)
+        end.piece = end_piece
         with self.assertRaises(custom_exceptions.InvalidMoveException):
             self.knight.get_path_to_square(start, end, self.board)
 

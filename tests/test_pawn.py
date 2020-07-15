@@ -124,15 +124,15 @@ class PawnTest(unittest.TestCase):
         white_piece = Piece(ChessColor.WHITE)
         black_piece = Piece(ChessColor.BLACK)
         # should raise if straight move attempted and ANY piece in way
-        straight1.add_piece(white_piece)
+        straight1.piece = white_piece
         with self.assertRaises(InvalidMoveException):
             self.white_pawn.get_one_move_path(start, straight1, self.board)
-        straight1.clear()
+        straight1.piece = None
 
-        straight1.add_piece(black_piece)
+        straight1.piece = black_piece
         with self.assertRaises(InvalidMoveException):
             self.white_pawn.get_one_move_path(start, straight1, self.board)
-        straight1.clear()
+        straight1.piece = None
 
         # should raise if diagonal move attempted and no piece on end
         with self.assertRaises(InvalidMoveException):
@@ -141,15 +141,15 @@ class PawnTest(unittest.TestCase):
             self.white_pawn.get_one_move_path(start, left_diag, self.board)
 
         # should raise if diagonal move attempted and player piece on end
-        right_diag.add_piece(white_piece)
+        right_diag.piece = white_piece
         with self.assertRaises(InvalidMoveException):
             self.white_pawn.get_one_move_path(start, right_diag, self.board)
-        right_diag.clear()
+        right_diag.piece = None
 
-        left_diag.add_piece(white_piece)
+        left_diag.piece = white_piece
         with self.assertRaises(InvalidMoveException):
             self.white_pawn.get_one_move_path(start, left_diag, self.board)
-        left_diag.clear()
+        left_diag.piece = None
 
         # should not raise if en passant is possible
         passant_return = 'dummy passant'
@@ -176,15 +176,15 @@ class PawnTest(unittest.TestCase):
         self.white_pawn.move_count = 0
 
         # should raise if moving 2 is squares is valid, but blocking piece
-        mid.add_piece(black_piece)
+        mid.piece = black_piece
         with self.assertRaises(InvalidMoveException):
             self.white_pawn.get_two_move_path(start, end, self.board)
-        mid.clear()
+        mid.piece = None
 
-        end.add_piece(black_piece)
+        end.piece = black_piece
         with self.assertRaises(InvalidMoveException):
             self.white_pawn.get_two_move_path(start, end, self.board)
-        end.clear()
+        end.piece = None
 
         # should get the proper path for 2 otherwise
         res = self.white_pawn.get_two_move_path(start, end, self.board)
