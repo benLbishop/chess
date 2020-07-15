@@ -5,50 +5,68 @@ from chessGame.game import Game
 from chessGame.board import Board, StandardBoard
 from chessGame.player import Player
 from chessGame import conversion as conv
-from chessGame.custom_exceptions import InvalidMoveException
+from chessGame.custom_exceptions import InvalidMoveException, PiecePlacementException
 from chessGame.enums import ChessColor
 from chessGame.move import Move
 
 class GameTest(unittest.TestCase):
     """tests for the Game class."""
+    @classmethod
+    def setUpClass(cls):
+        white_config = {'name': 'Bob', 'color': ChessColor.WHITE}
+        black_config = {'name': 'Allie', 'color': ChessColor.BLACK}
+        cls.white_player = Player(white_config)
+        cls.black_player = Player(black_config)
 
+    @patch.object(Game, '_validate_initial_game_state')
     @patch.object(Game, '_set_up_pieces')
-    def test_init(self, _set_up_pieces_mock):
+    def test_init(self, set_up_pieces_mock, validate_mock):
         """tests for the constructor."""
-        white_config = {'name': 'Bob'}
-        black_config = {'name': 'Allie'}
+        
 
         # test behavior when board_config is none
-        test_game = Game(white_config, black_config)
+        test_game = Game(self.white_player, self.black_player)
         self.assertIsInstance(test_game.board, StandardBoard)
-        self.assertIsInstance(test_game.white_player, Player)
-        self.assertIsInstance(test_game.black_player, Player)
+        self.assertEqual(test_game.white_player, self.white_player)
+        self.assertEqual(test_game.black_player, self.black_player)
 
         self.assertEqual(test_game.is_complete, False)
         self.assertEqual(test_game.is_white_turn, True)
 
         # make sure populate board is called
-        _set_up_pieces_mock.assert_called_once()
+        set_up_pieces_mock.assert_called_once()
+        validate_mock.assert_called_once()
+
+    @patch.object(Board, 'get_active_pieces')
+    def test_validate_initial_game_state(self, active_pieces_mock):
+        """Tests for the private _validate_initial_game_state method."""
+        active_pieces_mock.return_value = ([], [])
+
+        # should raise if board was not populated
+        with self.assertRaises(PiecePlacementException):
+            test_game = Game(self.white_player, self.black_player)
+        
+        # TODO
+        # should raise if either player has 0 or 2+ kings
+
+        # should raise if either player is in checkmate or stalemate
+
 
     @patch.object(Board, 'populate')
     @patch.object(conv, 'parse_std_notation_string')
     def test_set_up_pieces(self, parse_mock, populate_mock):
         """Tests the private _set_up_pieces method."""
         # if piece_strings is empty, use std piece list
-        white_config = {'name': 'Bob'}
-        black_config = {'name': 'Allie'}
+        test_game = Game(self.white_player, self.black_player)
         parse_mock.return_value = ('dummy', 'vals')
-        test_game = Game(white_config, black_config)
 
         # TODO test conversion failure, populate failure
 
-    @patch.object(Game, 'check_for_end_of_game')
+    @patch.object(Game, '_check_for_end_of_game')
     @patch.object(Board, 'move_piece')
     def test_make_move(self, move_mock, end_mock):
         """tests function that processes an attempted move of a piece."""
-        white_config = {'name': 'Bob'}
-        black_config = {'name': 'Allie'}
-        test_game = Game(white_config, black_config)
+        test_game = Game(self.white_player, self.black_player)
         start_coords, end_coords = ((1, 1), (2, 1))
 
         move_mock.return_value = Move((0, 0), (1, 0))
@@ -80,33 +98,32 @@ class GameTest(unittest.TestCase):
     @patch.object(Player, 'is_checkmated')
     @patch.object(Board, 'get_checking_pieces')
     def test_check_for_end_of_game(self, check_mock, checkmate_mock, stalemate_mock):
-        """Tests for the check_for_end_of_game method."""
-        white_config = {'name': 'Bob'}
-        black_config = {'name': 'Allie'}
-        test_game = Game(white_config, black_config)
+        """Tests for the private _check_for_end_of_game method."""
+        # TODO: move this to setUpClass (same with most other tests.)
+        test_game = Game(self.white_player, self.black_player)
 
         check_mock.return_value = ['something']
         checkmate_mock.return_value = False
         stalemate_mock.return_value = False
 
         # make sure game doesn't end if not in checkmate
-        test_game.check_for_end_of_game()
+        test_game._check_for_end_of_game()
         self.assertEqual(test_game.is_complete, False)
 
         # make sure game ends if in checkmate
         checkmate_mock.return_value = True
-        test_game.check_for_end_of_game()
+        test_game._check_for_end_of_game()
         self.assertEqual(test_game.is_complete, True)
 
         test_game.is_complete = False
         check_mock.return_value = []
 
         # make sure game doesn't end if not in stalemate
-        test_game.check_for_end_of_game()
+        test_game._check_for_end_of_game()
         self.assertEqual(test_game.is_complete, False)
 
         # make sure game ends if in stalemate
         stalemate_mock.return_value = True
-        test_game.check_for_end_of_game()
+        test_game._check_for_end_of_game()
         self.assertEqual(test_game.is_complete, True)
  
