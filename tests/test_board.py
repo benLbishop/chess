@@ -1,10 +1,11 @@
 """module containing tests for the Board class."""
 import unittest
 from unittest.mock import patch
-from chessGame.board import Board, StandardBoard
+
+from chessGame.board import Board, StandardBoard, CheckingReturnType
 from chessGame.pieces.piece import Piece
 from chessGame import constants, conversion as conv
-from chessGame.enums import ChessColor
+from chessGame.enums import ChessColor, MoveSideEffect
 from chessGame.custom_exceptions import PiecePlacementException, InvalidMoveException
 from chessGame.move import Move
 
@@ -22,7 +23,7 @@ class BoardTest(unittest.TestCase):
         # if dimensions become customizable, make sure they're > 0
         self.assertEqual(test_board.NUM_ROWS, constants.STD_BOARD_WIDTH)
         self.assertEqual(test_board.NUM_COLS, constants.STD_BOARD_HEIGHT)
-        self.assertIsNone(test_board.last_move)
+        self.assertEqual(test_board.move_history, [])
         _create_squares_mock.assert_called_once()
 
     def test_create_squares(self):
@@ -71,9 +72,9 @@ class BoardTest(unittest.TestCase):
 
         # should reset move history
         move = Move(squares[0][0], squares[1][0])
-        test_board.last_move = move
+        test_board.move_history = [move]
         test_board.clear()
-        self.assertIsNone(test_board.last_move)
+        self.assertEqual(test_board.move_history, [])
 
     @patch.object(Board, 'clear')
     def test_populate(self, clear_mock):
@@ -115,6 +116,10 @@ class BoardTest(unittest.TestCase):
             row_idx = coordinates[0]
             col_idx = coordinates[1]
             self.assertEqual(test_board.squares[row_idx][col_idx].piece, test_piece)
+
+    def test_get_castling_rook_squares(self):
+        """Tests for the private _get_castling_rook_squares method."""
+        # TODO
 
     def test_handle_castle_side_effect(self):
         """Tests for the private _handle_castle_side_effect method."""
@@ -192,7 +197,7 @@ class BoardTest(unittest.TestCase):
         self.assertEqual(res, basic_move)
         self.assertFalse(start_square.is_occupied())
         self.assertEqual(test_piece, end_square.piece)
-        self.assertEqual(test_board.last_move, basic_move)
+        self.assertEqual(test_board.move_history, [basic_move])
         self.assertTrue(test_piece.has_moved)
 
         test_piece.move_count = 0
@@ -219,7 +224,8 @@ class BoardTest(unittest.TestCase):
             undo_mock.assert_called_once()
         check_mock.return_value = []
 
-    def test_undo_move(self):
+    @patch.object(Board, '_undo_castle_side_effect')
+    def test_undo_move(self, undo_castle_mock):
         """Tests the undo_move method."""
         num_rows = constants.STD_BOARD_WIDTH
         num_cols = constants.STD_BOARD_HEIGHT
@@ -233,7 +239,7 @@ class BoardTest(unittest.TestCase):
             test_board.undo_move()
 
         # should move piece from last end to last start
-        test_board.last_move = Move(last_start, last_end)
+        test_board.move_history = [Move(last_start, last_end)]
         last_end.add_piece(test_piece)
         self.assertIsNone(last_start.piece)
         test_board.undo_move()
@@ -247,12 +253,25 @@ class BoardTest(unittest.TestCase):
         last_end.clear()
         # should replace piece if it was captured
         test_piece2 = Piece(ChessColor.WHITE)
-        test_board.last_move = Move(last_start, last_end, test_piece2, last_end)
+        test_board.move_history = [Move(last_start, last_end, test_piece2, last_end)]
         last_end.add_piece(test_piece)
         self.assertIsNone(last_start.piece)
         test_board.undo_move()
         self.assertEqual(last_start.piece, test_piece)
         self.assertEqual(last_end.piece, test_piece2)
+
+        last_start.clear()
+        last_end.clear()
+
+        # should undo the castling properly
+        test_board.move_history = [Move(last_start, last_end, None, None, MoveSideEffect.CASTLE)]
+        last_end.add_piece(test_piece)
+        test_board.undo_move()
+        undo_castle_mock.assert_called_once()
+
+    def test_undo_castle_side_effect(self):
+        """Tests for the private _undo_castle_side_effect method."""
+        # TODO
 
     @patch.object(Piece, 'get_path_to_square')
     @patch.object(Board, 'get_active_pieces')
@@ -280,7 +299,7 @@ class BoardTest(unittest.TestCase):
 
         # should return any pieces checking king
         path_mock.side_effect = ['path1', InvalidMoveException('path exception'), 'path2']
-        expected_res = [(black_mapping[0][0], 'path1'), (black_mapping[2][0], 'path2')]
+        expected_res = [CheckingReturnType(black_mapping[0][0], 'path1'), CheckingReturnType(black_mapping[2][0], 'path2')]
         res = test_board.get_checking_pieces(ChessColor.WHITE)
         self.assertEqual(res, expected_res)
 

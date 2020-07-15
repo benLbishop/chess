@@ -1,4 +1,6 @@
 """module containing the Board class."""
+from collections import namedtuple
+
 from chessGame.pieces.queen import Queen
 from .square import Square
 from . import constants
@@ -6,13 +8,13 @@ from .custom_exceptions import PiecePlacementException, InvalidMoveException
 from .enums import ChessColor, MoveSideEffect
 from .move import Move
 
+CheckingReturnType = namedtuple('CheckingReturnType', ['piece', 'path'])
 class Board:
     """class representing a chess board of any size."""
     def __init__(self, board_config):
         self.NUM_ROWS = board_config['num_rows']
         self.NUM_COLS = board_config['num_cols']
-        # TODO: have move_history. Should this be in Game class?
-        self.last_move = None
+        self.move_history = []
         self._create_squares()
 
     def __str__(self):
@@ -45,7 +47,7 @@ class Board:
         for row in self.squares:
             for square in row:
                 square.clear()
-        self.last_move = None
+        self.move_history = []
 
     def populate(self, piece_list):
         """places the given pieces on the board."""
@@ -60,8 +62,7 @@ class Board:
                 raise PiecePlacementException('tried to place piece on occupied square')
             square.add_piece(piece)
 
-    def _handle_castle_side_effect(self, move):
-        """Method in charge of moving the rook that's part of a castle move."""
+    def _get_castling_rook_squares(self, move):
         row_idx, start_col_idx = move.start.coords
         _, end_col_idx = move.end.coords
 
@@ -70,6 +71,12 @@ class Board:
         rook_end_col_idx = start_col_idx + 1 if is_right_castle else start_col_idx - 1
         rook_start = self.squares[row_idx][rook_start_col_idx]
         rook_end = self.squares[row_idx][rook_end_col_idx]
+        return (rook_start, rook_end)
+
+
+    def _handle_castle_side_effect(self, move):
+        """Method in charge of moving the rook that's part of a castle move."""
+        rook_start, rook_end = self._get_castling_rook_squares(move)
         rook_end.add_piece(rook_start.piece)
         rook_start.clear()
 
@@ -102,7 +109,6 @@ class Board:
 
     def move_piece(self, start_coords, end_coords, active_color):
         """Attempts to move a piece (if it exists) from the start to the end."""
-        # TODO: split apart
         start_row, start_col = start_coords
         end_row, end_col = end_coords
 
@@ -144,7 +150,7 @@ class Board:
         if move.side_effect:
             self._handle_move_side_effect(move)
 
-        self.last_move = move
+        self.move_history.append(move)
 
         checking_pieces = self.get_checking_pieces(active_color)
         if len(checking_pieces) > 0:
@@ -154,12 +160,17 @@ class Board:
 
         return move
 
+    def _undo_castle_side_effect(self, move):
+        """Undoes the side effect of castling, aka moving the rook."""
+        rook_start, rook_end = self._get_castling_rook_squares(move)
+        rook_start.add_piece(rook_end.piece)
+        rook_end.clear()
+
     def undo_move(self):
         """Reverts the last move made on the board."""
-        # TODO: Undo MoveSideEffects
-        move = self.last_move
-        if not move:
+        if not self.move_history:
             raise InvalidMoveException('no move to undo.')
+        move = self.move_history.pop()
 
         last_start = move.start
         last_end = move.end
@@ -172,6 +183,10 @@ class Board:
         if move.captured_piece:
             captured_square = move.captured_square
             captured_square.add_piece(move.captured_piece)
+
+        # Pawn promotion and En Passant have been undone at this point. Castling has not
+        if move.side_effect and move.side_effect is MoveSideEffect.CASTLE:
+            self._undo_castle_side_effect(move)
 
     def get_checking_pieces(self, active_color):
         """Finds any pieces that have the player's king in check.
@@ -189,9 +204,9 @@ class Board:
         checking_pieces = []
         for piece, piece_square in opponent_piece_mapping:
             try:
-                check_path = piece.get_path_to_square(piece_square, king_square, self)
+                path = piece.get_path_to_square(piece_square, king_square, self)
                 # move from piece to king is valid, so it is checking king
-                checking_pieces.append((piece, check_path)) # TODO: maybe make this a namedtuple
+                checking_pieces.append(CheckingReturnType(piece, path))
             except InvalidMoveException:
                 continue
         return checking_pieces

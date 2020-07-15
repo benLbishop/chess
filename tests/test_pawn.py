@@ -106,6 +106,8 @@ class PawnTest(unittest.TestCase):
 
         self.assertFalse(wp.can_capture_en_passant(b.squares[4][4], b.squares[5][5], b))
 
+        # Should raise InvalidMoveException if board has no move_history
+
         # TODO
 
     @patch.object(Pawn, 'can_capture_en_passant')

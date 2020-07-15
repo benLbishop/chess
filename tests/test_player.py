@@ -6,7 +6,7 @@ from chessGame.player import Player
 from chessGame.enums import ChessColor
 from chessGame.pieces.piece import Piece
 from chessGame.pieces.king import King
-from chessGame.board import Board, StandardBoard
+from chessGame.board import Board, StandardBoard, CheckingReturnType
 
 class TestPlayer(unittest.TestCase):
     """tests for the Player class."""
@@ -90,7 +90,7 @@ class TestPlayer(unittest.TestCase):
         res = white_player.is_checkmated(self.board)
         self.assertFalse(res)
 
-        check_mock.return_value = ['something']
+        check_mock.return_value = [CheckingReturnType('piece', 'path')]
 
         # should return false if king can move
         valid_move_mock.return_value = True
@@ -107,7 +107,7 @@ class TestPlayer(unittest.TestCase):
         self.assertTrue(res)
         block_mock.assert_not_called()
 
-        check_mock.return_value = ['something']
+        check_mock.return_value = [CheckingReturnType('piece', 'path')]
 
         # if king cannot move and 1 checking piece, should call can_block
         block_mock.reset_mock()

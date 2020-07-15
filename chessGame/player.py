@@ -51,6 +51,6 @@ class Player:
             # more than one checking piece, and king can't move to get out of check. Checkmate
             return True
         # only 1 checking piece. Might be able to block/capture it
+        checking_path = checking_pieces[0].path
         # TODO: shouldn't call this with player's king in piece_mapping, unecessary
-        checking_path = checking_pieces[0][1]
         return not self.can_block_checking_piece(checking_path, board, player_mapping)

@@ -60,8 +60,9 @@ class Pawn(Piece):
         if not isinstance(passant_piece, Pawn) or passant_piece.color is self.color:
             return False
         # 4) The pawn must have moved as the game's last move, and moved two squares.
-        last_start = board.last_move.start
-        last_end = board.last_move.end
+        last_move = board.move_history[-1]
+        last_start = last_move.start
+        last_end = last_move.end
         if last_end is not passant_square:
             return False
         last_row_offset = abs(last_start.row_idx - last_end.row_idx)
