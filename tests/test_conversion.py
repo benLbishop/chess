@@ -2,7 +2,7 @@
 import unittest
 from unittest.mock import patch
 from chessGame.enums import ChessColor
-from chessGame import conversion as conv
+from chessGame import constants, conversion as conv
 from chessGame.pieces import (
     king,
     queen,
@@ -12,6 +12,8 @@ from chessGame.pieces import (
     pawn
 )
 
+NUM_ROWS = constants.STD_BOARD_WIDTH
+NUM_COLS = constants.STD_BOARD_HEIGHT
 class ConversionTest(unittest.TestCase):
     """tests for methods in conversion.py."""
 
@@ -64,9 +66,9 @@ class ConversionTest(unittest.TestCase):
         ]
 
         for char, result in valid_tests:
-            self.assertEqual(conv.parse_rank_char(char), result)
+            self.assertEqual(conv.parse_rank_char(char, NUM_ROWS), result)
 
-        # TODO: invalid tests
+        # TODO: invalid tests, other row sizes
 
     def test_parse_file_char(self):
         valid_tests = [
@@ -81,9 +83,9 @@ class ConversionTest(unittest.TestCase):
         ]
 
         for char, result in valid_tests:
-            self.assertEqual(conv.parse_file_char(char), result)
+            self.assertEqual(conv.parse_file_char(char, NUM_COLS), result)
 
-        # TODO: invalid tests
+        # TODO: invalid tests, other col sizes
 
     @patch.object(conv, 'parse_file_char')
     @patch.object(conv, 'parse_rank_char')
@@ -103,19 +105,19 @@ class ConversionTest(unittest.TestCase):
         ]
         for s in short_strs:
             with self.assertRaises(ValueError):
-                conv.parse_piece_location_string(s)
+                conv.parse_piece_location_string(s, NUM_ROWS, NUM_COLS)
 
         pawn_tests = [
-            ('a4', 'a', '4'),
-            ('b3 ', 'b', '3'),
-            ('h8   ', 'h', '8')
+            ('a4', ('a', NUM_ROWS), ('4', NUM_COLS)),
+            ('b3 ', ('b', NUM_ROWS), ('3', NUM_COLS)),
+            ('h8   ', ('h', NUM_ROWS), ('8', NUM_COLS))
         ]
         for test_str, rank_input, file_input in pawn_tests:
-            res = conv.parse_piece_location_string(test_str)
+            res = conv.parse_piece_location_string(test_str, NUM_ROWS, NUM_COLS)
             self.assertTupleEqual(res, (dummy_file, dummy_rank))
 
-            rank_mock.assert_called_with(rank_input)
-            file_mock.assert_called_with(file_input)
+            rank_mock.assert_called_with(*rank_input)
+            file_mock.assert_called_with(*file_input)
         # TODO: invalid tests
 
     @patch.object(conv, 'parse_piece_location_string')
@@ -128,9 +130,9 @@ class ConversionTest(unittest.TestCase):
         dummy_loc = ('dummy_rank', 'dummy_file')
         parse_loc_mock.return_value = dummy_loc
         pawn_tests = [
-            ('w a4', 'w', 'a4'),
-            ('b b3 ', 'b', 'b3'),
-            ('w h8   ', 'w', 'h8')
+            ('w a4', 'w', ('a4', NUM_ROWS, NUM_COLS)),
+            ('b b3 ', 'b', ('b3', NUM_ROWS, NUM_COLS)),
+            ('w h8   ', 'w', ('h8', NUM_ROWS, NUM_COLS))
         ]
         for test_str, color_input, loc_input in pawn_tests:
             res = conv.parse_std_notation_string(test_str)
@@ -139,9 +141,9 @@ class ConversionTest(unittest.TestCase):
             self.assertEqual(p.color, dummy_color)
             parse_type_mock.assert_not_called()
             parse_color_mock.assert_called_with(color_input)
-            parse_loc_mock.assert_called_with(loc_input)
+            parse_loc_mock.assert_called_with(*loc_input)
 
-        # TODO: more tests
+        # TODO: test optional parameters, other tests
 
 
     def test_parse_piece_string(self):

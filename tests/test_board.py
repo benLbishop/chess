@@ -21,8 +21,8 @@ class BoardTest(unittest.TestCase):
 
         test_board = Board(board_config)
         # if dimensions become customizable, make sure they're > 0
-        self.assertEqual(test_board.NUM_ROWS, constants.STD_BOARD_WIDTH)
-        self.assertEqual(test_board.NUM_COLS, constants.STD_BOARD_HEIGHT)
+        self.assertEqual(test_board._num_rows, constants.STD_BOARD_WIDTH)
+        self.assertEqual(test_board._num_cols, constants.STD_BOARD_HEIGHT)
         self.assertEqual(test_board.move_history, [])
         _create_squares_mock.assert_called_once()
 
@@ -342,8 +342,8 @@ class StandardBoardTest(unittest.TestCase):
         """tests for the constructor."""
         # should create an 8x8 board
         std_board = StandardBoard()
-        self.assertEqual(std_board.NUM_ROWS, 8)
-        self.assertEqual(std_board.NUM_COLS, 8)
+        self.assertEqual(std_board._num_rows, 8)
+        self.assertEqual(std_board._num_cols, 8)
 
 if __name__ == '__main__':
     unittest.main()

@@ -12,8 +12,8 @@ CheckingReturnType = namedtuple('CheckingReturnType', ['piece', 'path'])
 class Board:
     """class representing a chess board of any size."""
     def __init__(self, board_config):
-        self.NUM_ROWS = board_config['num_rows']
-        self.NUM_COLS = board_config['num_cols']
+        self._num_rows = board_config['num_rows']
+        self._num_cols = board_config['num_cols']
         self.move_history = []
         self._create_squares()
 
@@ -30,16 +30,25 @@ class Board:
             board_str = row_str + '\n' + board_str
         return board_str
 
+    @property
+    def max_row(self):
+        """Returns the largest row index."""
+        return self._num_rows - 1
+
+    @property
+    def max_col(self):
+        """Returns the largest column index."""
+        return self._num_cols - 1
 
     def _create_squares(self):
         min_rows = constants.MIN_BOARD_ROWS
         min_cols = constants.MIN_BOARD_COLS
-        if self.NUM_ROWS < min_rows or self.NUM_COLS < min_cols:
+        if self._num_rows < min_rows or self._num_cols < min_cols:
             raise ValueError('Board dimensions must be {}x{} or larger'.format(min_rows, min_cols))
 
         self.squares = ([
-            [Square(row_idx, col_idx) for col_idx in range(self.NUM_COLS)]
-            for row_idx in range(self.NUM_ROWS)
+            [Square(row_idx, col_idx) for col_idx in range(self._num_cols)]
+            for row_idx in range(self._num_rows)
         ])
 
     def clear(self):
@@ -53,7 +62,7 @@ class Board:
         """places the given pieces on the board."""
         for piece, coordinate in piece_list:
             row_idx, col_idx = coordinate
-            if row_idx >= self.NUM_ROWS or col_idx >= self.NUM_COLS:
+            if row_idx > self.max_row or col_idx > self.max_col:
                 self.clear()
                 raise PiecePlacementException('piece out of bounds')
             square = self.squares[row_idx][col_idx]
@@ -67,7 +76,7 @@ class Board:
         _, end_col_idx = move.end.coords
 
         is_right_castle = end_col_idx > start_col_idx
-        rook_start_col_idx = self.NUM_COLS - 1 if is_right_castle else 0
+        rook_start_col_idx = self.max_col if is_right_castle else 0
         rook_end_col_idx = start_col_idx + 1 if is_right_castle else start_col_idx - 1
         rook_start = self.squares[row_idx][rook_start_col_idx]
         rook_end = self.squares[row_idx][rook_end_col_idx]
@@ -112,13 +121,13 @@ class Board:
         start_row, start_col = start_coords
         end_row, end_col = end_coords
 
-        if start_row < 0 or start_row >= self.NUM_ROWS:
+        if start_row < 0 or start_row > self.max_row:
             raise ValueError('start row {} out of bounds.'.format(start_row))
-        if start_col < 0 or start_col >= self.NUM_COLS:
+        if start_col < 0 or start_col > self.max_col:
             raise ValueError('start column {} out of bounds.'.format(start_col))
-        if end_row < 0 or end_row >= self.NUM_ROWS:
+        if end_row < 0 or end_row > self.max_row:
             raise ValueError('end row {} out of bounds.'.format(end_row))
-        if end_col < 0 or end_col >= self.NUM_COLS:
+        if end_col < 0 or end_col > self.max_col:
             raise ValueError('end column {} out of bounds.'.format(end_col))
 
         if start_coords == end_coords:

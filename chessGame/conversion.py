@@ -8,6 +8,7 @@ from .pieces import (
     knight,
     pawn
 )
+from . import constants
 
 def parse_piece_color_char(char):
     """Converts a char to a ChessColor."""
@@ -33,7 +34,7 @@ def parse_piece_type_char(char):
         return knight.Knight
     raise ValueError('invalid piece type character')
 
-def parse_rank_char(rank_char):
+def parse_rank_char(rank_char, max_row_idx):
     """Takes in a character and returns the 0-indexed rank for the piece.
         This expects to take in a string of length one representing a 1-indexed rank
         (normally a char in the range 1-8).
@@ -41,13 +42,13 @@ def parse_rank_char(rank_char):
     min_rank_val = ord('a')
     rank_val = ord(rank_char)
     val_diff = rank_val - min_rank_val
-    if val_diff >= 8: #TODO: don't hardcode
+    if val_diff >= max_row_idx:
         err_str = "invalid rank char {} provided for piece".format(rank_char)
         raise ValueError(err_str)
     return val_diff
 
 
-def parse_file_char(file_char):
+def parse_file_char(file_char, max_col_idx):
     """Takes in a character and returns the 0-indexed file for the piece.
         This expects to take in a string of length one representing a 1-indexed file
         (normally a char in the range a-h).
@@ -57,24 +58,28 @@ def parse_file_char(file_char):
     readable_file = int(file_char, 10)
     # readable file is 1-indexed, we want 0-indexed
     actual_file = readable_file - 1
-    if actual_file >= 8: # TODO: don't hardcode
+    if actual_file >= max_col_idx:
         raise ValueError('invalid file provided for piece, not in range')
     return actual_file
 
-def parse_piece_location_string(loc_str):
+def parse_piece_location_string(loc_str, max_row_idx, max_col_idx):
     """attempts to take the std. notation location and convert it to row, column coordinates."""
     loc_str = loc_str.strip()
     if len(loc_str) < 2:
         raise ValueError('piece location too short.')
 
     try:
-        rank = parse_rank_char(loc_str[0])
-        actual_file = parse_file_char(loc_str[1])
+        rank = parse_rank_char(loc_str[0], max_row_idx)
+        actual_file = parse_file_char(loc_str[1], max_col_idx)
         return (actual_file, rank)
     except ValueError as err:
         raise err
 
-def parse_std_notation_string(piece_str):
+def parse_std_notation_string(
+        piece_str,
+        max_row_idx=constants.STD_BOARD_WIDTH,
+        max_col_idx=constants.STD_BOARD_HEIGHT
+    ):
     """attempts to parse a string into a Piece.
 
     Raises a ValueError if anything cannot be parsed.
@@ -96,10 +101,10 @@ def parse_std_notation_string(piece_str):
         if len(loc_str) == 2:
             # trying to parse pawn.
             piece_class = pawn.Pawn
-            coordinate = parse_piece_location_string(loc_str)
+            coordinate = parse_piece_location_string(loc_str, max_row_idx, max_col_idx)
         else:
             piece_class = parse_piece_type_char(loc_str[0])
-            coordinate = parse_piece_location_string(loc_str[1:])
+            coordinate = parse_piece_location_string(loc_str[1:], max_row_idx, max_col_idx)
         return piece_class(color), coordinate
     except ValueError as err:
         raise err

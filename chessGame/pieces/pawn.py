@@ -139,7 +139,7 @@ class Pawn(Piece):
                 captured_piece = captured_square.piece
                 side_effect = MoveSideEffect.EN_PASSANT
             # moved straight. check for pawn promotion
-            if self.color is ChessColor.WHITE and end_row == board.NUM_ROWS - 1:
+            if self.color is ChessColor.WHITE and end_row == board.max_row:
                 side_effect = MoveSideEffect.PAWN_PROMOTION
             if self.color is ChessColor.BLACK and end_row == 0:
                 side_effect = MoveSideEffect.PAWN_PROMOTION

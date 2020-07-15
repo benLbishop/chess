@@ -24,7 +24,7 @@ class King(Piece):
             raise InvalidMoveException('cannot castle if king has moved.')
         # 2) targeted rook has not moved (targeted rook must be player's piece)
         row_idx = start.row_idx
-        rook_col_idx = board.NUM_COLS - 1 if end.col_idx > start.col_idx else 0
+        rook_col_idx = board.max_col if end.col_idx > start.col_idx else 0
         rook_square = board.squares[row_idx][rook_col_idx]
         rook = rook_square.piece
         if not rook:
