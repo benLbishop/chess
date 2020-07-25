@@ -99,10 +99,13 @@ class Game:
         # check to see if end state was reached
         self._check_for_end_of_game()
 
-    def promote_pawn(self, pawn_square, new_piece):
+    def promote_pawn(self, pawn_coords, new_piece):
         """Method in charge of promoting pawns.
             Should be called after make_move returns a PawnPromotionException
         """
+        # TODO: test
+        row, col = pawn_coords
+        pawn_square = self.board.squares[row][col]
         self.board.promote_pawn(pawn_square, new_piece)
 
         # switch turns
@@ -121,4 +124,5 @@ class Game:
                 self.is_complete = True
         # check for stalemate
         elif cur_player.is_stalemated(self.board):
+            # TODO: identify that stalemate happened somehow
             self.is_complete = True

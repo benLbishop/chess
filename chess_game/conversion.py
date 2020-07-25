@@ -42,7 +42,7 @@ def parse_rank_char(rank_char, max_row_idx):
     min_rank_val = ord('a')
     rank_val = ord(rank_char)
     val_diff = rank_val - min_rank_val
-    if val_diff >= max_row_idx:
+    if val_diff < 0 or val_diff >= max_row_idx:
         err_str = "invalid rank char {} provided for piece".format(rank_char)
         raise ValueError(err_str)
     return val_diff
@@ -58,11 +58,15 @@ def parse_file_char(file_char, max_col_idx):
     readable_file = int(file_char, 10)
     # readable file is 1-indexed, we want 0-indexed
     actual_file = readable_file - 1
-    if actual_file >= max_col_idx:
+    if actual_file < 0 or actual_file >= max_col_idx:
         raise ValueError('invalid file provided for piece, not in range')
     return actual_file
 
-def parse_piece_location_string(loc_str, max_row_idx, max_col_idx):
+def parse_piece_location_string(
+        loc_str,
+        max_row_idx=constants.STD_BOARD_WIDTH,
+        max_col_idx=constants.STD_BOARD_HEIGHT
+    ):
     """attempts to take the std. notation location and convert it to row, column coordinates."""
     loc_str = loc_str.strip()
     if len(loc_str) < 2:
